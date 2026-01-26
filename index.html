@@ -27,7 +27,7 @@
             <div class="hero-content">
                 <h2>Welcome to Harts Digital Hub</h2>
                 <p>Your trusted technology agency partner</p>
-                <button class="cta-button">Get Started</button>
+                <a href="#contact" class="cta-button">Get Started</a>
             </div>
         </section>
 
@@ -60,10 +60,10 @@
 
         <section id="contact" class="contact">
             <h2>Get In Touch</h2>
-            <form class="contact-form">
-                <input type="text" placeholder="Your Name" required>
-                <input type="email" placeholder="Your Email" required>
-                <textarea placeholder="Your Message" rows="5" required></textarea>
+            <form class="contact-form" onsubmit="event.preventDefault(); alert('Thank you for your message! We will get back to you soon.'); this.reset();">
+                <input type="text" placeholder="Your Name" aria-label="Your Name" required>
+                <input type="email" placeholder="Your Email" aria-label="Your Email" required>
+                <textarea placeholder="Your Message" aria-label="Your Message" rows="5" required></textarea>
                 <button type="submit">Send Message</button>
             </form>
         </section>

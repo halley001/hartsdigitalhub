@@ -68,6 +68,7 @@ nav {
 }
 
 .cta-button {
+    display: inline-block;
     background-color: #fff;
     color: #667eea;
     padding: 1rem 2rem;
@@ -75,6 +76,7 @@ nav {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    text-decoration: none;
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
