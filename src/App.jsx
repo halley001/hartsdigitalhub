@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import Chatbot from './components/Chatbot'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -18,6 +19,7 @@ function App() {
           Building innovative applications and transforming businesses through technology
         </p>
       </header>
+      <Chatbot />
     </div>
   )
 }
