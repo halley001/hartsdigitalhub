@@ -19,6 +19,7 @@ function Chatbot() {
     phone: '',
     company: ''
   });
+  const [showWelcome, setShowWelcome] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -28,6 +29,26 @@ function Chatbot() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Show welcome notification when page loads
+  useEffect(() => {
+    const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome');
+    
+    if (!hasSeenWelcome) {
+      // Show welcome after 2 seconds
+      const timer = setTimeout(() => {
+        setShowWelcome(true);
+        sessionStorage.setItem('hasSeenWelcome', 'true');
+        
+        // Auto-hide welcome after 10 seconds
+        setTimeout(() => {
+          setShowWelcome(false);
+        }, 10000);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -51,7 +72,7 @@ function Chatbot() {
       const responses = {
         services: {
           keywords: ['service', 'services', 'offer', 'what do you do', 'what can you do', 'provide'],
-          answer: "We offer a comprehensive range of digital services:\n\n🖥️ Software Development - Custom applications tailored to your needs\n📱 Mobile & Web Apps - User-friendly solutions for any device\n☁️ Cloud Solutions - Scalable and secure cloud infrastructure\n🤖 Business Automation - Streamline your operations with smart automation\n📊 Digital Transformation - Complete business digitalization\n🎓 Training & Consulting - Expert guidance for your team\n\nWhich service interests you most?"
+          answer: "We offer a comprehensive range of digital services:\n\n Software Development - Custom applications tailored to your needs\n📱 Mobile & Web Apps - User-friendly solutions for any device\n Cloud Solutions - Scalable and secure cloud infrastructure\n Business Automation - Streamline your operations with smart automation\n Digital Transformation - Complete business digitalization\n🎓 Training & Consulting - Expert guidance for your team\n\nWhich service interests you most?"
         },
         digitalTransformation: {
           keywords: ['digital transformation', 'digitalization', 'digitization', 'modernize', 'transform'],
@@ -253,6 +274,35 @@ function Chatbot() {
 
   return (
     <>
+      {/* Welcome Notification */}
+      {showWelcome && !isOpen && (
+        <div className="welcome-notification">
+          <div className="welcome-content">
+            <div className="welcome-icon">👋</div>
+            <div className="welcome-text">
+              <strong>Welcome to Harts Company!</strong>
+              <p>Need help? I'm here to assist you with digital transformation.</p>
+            </div>
+            <button 
+              className="welcome-close"
+              onClick={() => setShowWelcome(false)}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
+          <button 
+            className="welcome-cta"
+            onClick={() => {
+              setShowWelcome(false);
+              setIsOpen(true);
+            }}
+          >
+            Start Chat 💬
+          </button>
+        </div>
+      )}
+
       {/* Chatbot Toggle Button */}
       <button 
         className={`chatbot-toggle ${isOpen ? 'open' : ''}`}
