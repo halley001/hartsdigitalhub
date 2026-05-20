@@ -6,7 +6,7 @@ function Chatbot() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! 👋 I\'m your AI assistant from Harts Company. How can I help you with digital transformation today?'
+      content: 'Welcome to Harts Digital Hub. I am H@rts, your company assistant. How may I assist you today?'
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -206,9 +206,9 @@ function Chatbot() {
 
   const quickActions = [
     'What services do you offer?',
-    'Tell me about digital transformation',
-    'How can you help my business?',
-    'I\'d like to discuss a project'
+    'I have a project to discuss',
+    'How can Harts Digital Hub help my business?',
+    'How do I contact the team?'
   ];
 
   const handleQuickAction = (action) => {

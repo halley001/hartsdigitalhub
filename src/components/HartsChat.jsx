@@ -1,5 +1,19 @@
-// H@rts — API chat handler for Harts Digital Hub
+import { useState, useRef, useEffect } from 'react';
+import './HartsChat.css';
 
+// ─── Suggestion prompts ────────────────────────────────────────────────────
+const SUGGESTIONS = [
+  'What services does Harts Digital Hub offer?',
+  'I need a website or web application',
+  'Tell me about mobile app development',
+  'I need cybersecurity services',
+  'Tell me about your cloud solutions',
+  "I'm interested in SaaS development",
+  'How do I get a project quote?',
+  'How do I contact the team?',
+];
+
+// ─── Response knowledge base ───────────────────────────────────────────────
 const RESPONSES = [
   {
     id: 'webDev',
@@ -105,6 +119,9 @@ const RESPONSES = [
   },
 ];
 
+// ─── Helpers ───────────────────────────────────────────────────────────────
+
+/** Word-boundary-aware match for short keywords to avoid partial collisions. */
 function matchesKeyword(text, keyword) {
   if (keyword.length <= 4) {
     return new RegExp(`\\b${keyword}\\b`, 'i').test(text);
@@ -116,38 +133,227 @@ function resolveResponse(text) {
   const lower = text.toLowerCase();
   for (const entry of RESPONSES) {
     if (entry.keywords.some((kw) => matchesKeyword(lower, kw))) {
-      return { reply: entry.answer, cta: entry.cta };
+      return { content: entry.answer, cta: entry.cta };
     }
   }
   return {
-    reply:
+    content:
       "I am here exclusively to assist with questions about Harts Digital Hub — our services, approach, and how to get in touch.\n\nCould you clarify your question, or would you like an overview of what we offer?",
     cta: false,
   };
 }
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+function formatTime(date) {
+  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+/** Render a single line of text, converting **bold** markers to <strong>. */
+function renderLine(line, idx) {
+  if (!line.trim()) return <p key={idx} className="hc-line-spacer" />;
+  const parts = line.split(/\*\*(.+?)\*\*/g);
+  return (
+    <p key={idx}>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+      )}
+    </p>
+  );
+}
+
+// ─── Component ─────────────────────────────────────────────────────────────
+
+const WELCOME_MESSAGE = {
+  id: 0,
+  role: 'assistant',
+  content:
+    "I am H@rts — the official assistant for Harts Digital Hub.\n\nHarts Digital Hub is a full-service IT solutions company headquartered in Cameroon, delivering web development, mobile apps, cybersecurity, cloud solutions, and more to clients worldwide.\n\nHow may I assist you today?",
+  timestamp: new Date(),
+  cta: false,
+};
+
+export default function HartsChat() {
+  const [messages, setMessages] = useState([WELCOME_MESSAGE]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestionsVisible, setSuggestionsVisible] = useState(true);
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
+
+  function adjustHeight() {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  async function sendMessage(text) {
+    const trimmed = text.trim();
+    if (!trimmed || isLoading) return;
+
+    setSuggestionsVisible(false);
+
+    const userMsg = {
+      id: Date.now(),
+      role: 'user',
+      content: trimmed,
+      timestamp: new Date(),
+      cta: false,
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+    setIsLoading(true);
+
+    // Simulate processing delay for natural feel
+    await new Promise((resolve) => setTimeout(resolve, 650));
+
+    const result = resolveResponse(trimmed);
+    const assistantMsg = {
+      id: Date.now() + 1,
+      role: 'assistant',
+      content: result.content,
+      timestamp: new Date(),
+      cta: result.cta,
+    };
+
+    setMessages((prev) => [...prev, assistantMsg]);
+    setIsLoading(false);
   }
 
-  const { message } = req.body || {};
-
-  if (!message || typeof message !== 'string' || !message.trim()) {
-    return res.status(400).json({ error: 'Message is required' });
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(input);
+    }
   }
 
-  const { reply, cta } = resolveResponse(message.trim());
+  return (
+    <div className="hc-root">
+      {/* ── Top bar ── */}
+      <header className="hc-topbar">
+        <div className="hc-topbar-left">
+          <div className="hc-logo-mark" aria-hidden="true">HD</div>
+          <div className="hc-brand">
+            <span className="hc-brand-name">Harts Digital Hub</span>
+            <span className="hc-brand-domain">hartsdigitalhub.com</span>
+          </div>
+        </div>
+        <div className="hc-topbar-right">
+          <div className="hc-status" aria-label="H@rts is online">
+            <span className="hc-status-dot" aria-hidden="true" />
+            <span className="hc-status-label">H@rts online</span>
+          </div>
+          <a href="/" className="hc-back-link">← Back to website</a>
+        </div>
+      </header>
 
-  return res.status(200).json({ reply, cta, success: true });
+      {/* ── Messages ── */}
+      <main className="hc-messages" role="log" aria-live="polite" aria-label="Conversation">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`hc-msg hc-msg--${msg.role}`}>
+            <div className="hc-msg-avatar" aria-hidden="true">
+              {msg.role === 'assistant' ? <span>H@</span> : <span>&gt;_</span>}
+            </div>
+            <div className="hc-msg-body">
+              <div className="hc-msg-meta">
+                <span className="hc-msg-role">{msg.role === 'assistant' ? 'H@rts' : 'You'}</span>
+                <span className="hc-msg-time">{formatTime(msg.timestamp)}</span>
+              </div>
+              <div className="hc-msg-bubble">
+                {msg.content.split('\n').map((line, i) => renderLine(line, i))}
+              </div>
+              {msg.cta && (
+                <div className="hc-cta-buttons">
+                  <a
+                    href="https://hartsdigitalhub.com/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hc-cta-btn hc-cta-whatsapp"
+                  >
+                    WhatsApp
+                  </a>
+                  <a
+                    href="https://hartsdigitalhub.com/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hc-cta-btn hc-cta-email"
+                  >
+                    Email
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {isLoading && (
+          <div className="hc-msg hc-msg--assistant" aria-label="H@rts is typing">
+            <div className="hc-msg-avatar" aria-hidden="true"><span>H@</span></div>
+            <div className="hc-msg-body">
+              <div className="hc-msg-meta">
+                <span className="hc-msg-role">H@rts</span>
+              </div>
+              <div className="hc-msg-bubble hc-msg-bubble--typing">
+                <span /><span /><span />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {suggestionsVisible && (
+          <div className="hc-suggestions" role="group" aria-label="Suggested questions">
+            {SUGGESTIONS.map((s, i) => (
+              <button
+                key={i}
+                className="hc-suggestion-btn"
+                onClick={() => sendMessage(s)}
+                tabIndex={0}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </main>
+
+      {/* ── Input ── */}
+      <footer className="hc-input-area">
+        <form
+          className="hc-input-form"
+          onSubmit={(e) => { e.preventDefault(); sendMessage(input); }}
+        >
+          <span className="hc-prompt-symbol" aria-hidden="true">❯</span>
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => { setInput(e.target.value); adjustHeight(); }}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask about Harts Digital Hub..."
+            disabled={isLoading}
+            rows={1}
+            className="hc-textarea"
+            aria-label="Message input"
+          />
+          <button
+            type="submit"
+            className="hc-send-btn"
+            disabled={isLoading || !input.trim()}
+            aria-label="Send message"
+          >
+            ↑
+          </button>
+        </form>
+        <p className="hc-footer-note">
+          H@rts only answers questions about Harts Digital Hub · hartsdigitalhub.com
+        </p>
+      </footer>
+    </div>
+  );
 }
