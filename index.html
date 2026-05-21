@@ -1,19 +1,349 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>H@rts — Harts Digital Hub Assistant</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@600;700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Packages for Small Businesses | Harts Digital Hub Cameroon</title>
+  <meta name="description" content="Affordable digital marketing, website design, and social media management packages for SMEs in Cameroon. Get your business online with Harts Digital Hub.">
+  <meta property="og:title" content="Digital Packages for Small Businesses | Harts Digital Hub Cameroon">
+  <meta property="og:description" content="Affordable digital marketing, website design, and social media management packages for SMEs in Cameroon. Get your business online with Harts Digital Hub.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hartsdigitalhub.com/">
+  <meta property="og:image" content="https://hartsdigitalhub.com/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Digital Packages for Small Businesses | Harts Digital Hub Cameroon">
+  <meta name="twitter:description" content="Affordable digital marketing, website design, and social media management packages for SMEs in Cameroon. Get your business online with Harts Digital Hub.">
+  <meta name="twitter:image" content="https://hartsdigitalhub.com/og-image.jpg">
+
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- JSON-LD Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Harts Digital Hub",
+    "url": "https://hartsdigitalhub.com/",
+    "logo": "https://hartsdigitalhub.com/logo.png",
+    "image": "https://hartsdigitalhub.com/og-image.jpg",
+    "description": "Affordable digital marketing, website design, and social media management packages for SMEs in Cameroon.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "CM"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+237622341343",
+      "contactType": "customer support"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Accessibility: Skip to main content -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="main-nav" aria-label="Main navigation">
+    <ul class="nav-list">
+      <li><a href="#services" class="nav-link">Services</a></li>
+      <li><a href="#packages" class="nav-link">Packages</a></li>
+      <li><a href="#faq" class="nav-link">FAQ</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+      <li><a href="#free-audit" class="nav-link nav-link-cta">Free Audit</a></li>
+    </ul>
+  </nav>
+
+  <!-- Pricing Modal -->
+  <div class="pricing-modal-backdrop" id="pricing-modal-backdrop" tabindex="-1" aria-hidden="true">
+    <div class="pricing-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" id="modal-close" aria-label="Close modal">&times;</button>
+      <h3 class="modal-title" id="modal-title">Get Started with <span id="modal-package-name">[PACKAGE]</span></h3>
+      <form class="modal-form" id="modal-form" autocomplete="off" novalidate>
+        <div class="modal-field">
+          <label for="modal-fullname">Full Name</label>
+          <input type="text" id="modal-fullname" name="fullname" required autocomplete="name">
+          <span class="modal-error" id="error-fullname"></span>
+        </div>
+        <div class="modal-field">
+          <label for="modal-business">Business Name</label>
+          <input type="text" id="modal-business" name="business" required>
+          <span class="modal-error" id="error-business"></span>
+        </div>
+        <div class="modal-field">
+          <label for="modal-phone">Phone Number</label>
+          <input type="tel" id="modal-phone" name="phone" required pattern="[0-9+ ]{7,}" autocomplete="tel">
+          <span class="modal-error" id="error-phone"></span>
+        </div>
+        <div class="modal-field">
+          <label for="modal-city">City</label>
+          <input type="text" id="modal-city" name="city" required>
+          <span class="modal-error" id="error-city"></span>
+        </div>
+        <div class="modal-field">
+          <label>Payment Method</label>
+          <div class="modal-payments">
+            <label><input type="radio" name="payment" value="MTN MoMo" required> MTN MoMo</label>
+            <label><input type="radio" name="payment" value="Orange Money"> Orange Money</label>
+            <label><input type="radio" name="payment" value="Bank Transfer"> Bank Transfer</label>
+          </div>
+          <span class="modal-error" id="error-payment"></span>
+        </div>
+        <button type="submit" class="modal-send">Send Request</button>
+      </form>
+      <div class="modal-success" id="modal-success" style="display:none;">
+        Thank you! WhatsApp will open in a new tab.<br>We'll contact you soon.
+      </div>
+    </div>
+  </div>
+
+  <!-- MTN MoMo Modal -->
+  <div class="momo-modal-backdrop" id="momo-modal-backdrop" tabindex="-1" aria-hidden="true">
+    <div class="momo-modal" role="dialog" aria-modal="true" aria-labelledby="momo-modal-title">
+      <button class="modal-close" id="momo-modal-close" aria-label="Close modal">&times;</button>
+      <h3 class="modal-title" id="momo-modal-title">MTN MoMo Payment Instructions</h3>
+      <div class="momo-instructions">
+        <ol>
+          <li>Dial <b>*126#</b> on your MTN line.</li>
+          <li>Select <b>Transfer Money</b> &rarr; <b>Send to MTN Cameroon</b>.</li>
+          <li>Enter our number: <b>622 341 343</b>.</li>
+          <li>Enter the amount for your package.</li>
+          <li>Confirm the transaction and keep your reference number.</li>
+        </ol>
+        <p class="momo-note">After payment, we'll contact you to confirm your package and activate your services.</p>
+      </div>
+    </div>
+  </div>
+
+  <main id="main-content" tabindex="-1">
+
+    <!-- SECTION 1: Social Proof / Testimonials -->
+    <section class="section" id="services" style="scroll-margin-top:64px;">
+      <div class="stats-bar" id="stats-bar">
+        <div class="stat">
+          <span class="stat-number" data-count="50">0+</span>
+          <span class="stat-label">Businesses Served</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-count="3">0</span>
+          <span class="stat-label">Cities Covered</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number" data-count="98">0%</span>
+          <span class="stat-label">Client Retention</span>
+        </div>
+      </div>
+      <div class="testimonials-strip">
+        <div class="testimonials-row">
+          <div class="testimonial-card">
+            <div class="testimonial-avatar">MN</div>
+            <p class="testimonial-quote">"Our restaurant bookings tripled in 2 months after Harts built our page. Customers now find us on Google every day."</p>
+            <span class="testimonial-name">Mama Ngozi</span>
+            <span class="testimonial-city">Yaoundé</span>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-avatar">PK</div>
+            <p class="testimonial-quote">"I was afraid it would be too complicated. The team handled everything on WhatsApp. Very professional."</p>
+            <span class="testimonial-name">Patrice K.</span>
+            <span class="testimonial-city">Douala</span>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-avatar">GT</div>
+            <p class="testimonial-quote">"The monthly fee is worth every franc. Our boutique now gets customers from Instagram we never knew before."</p>
+            <span class="testimonial-name">Grace T.</span>
+            <span class="testimonial-city">Buea</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Free Audit Banner -->
+    <section class="section free-audit-section" id="free-audit" style="scroll-margin-top:64px;">
+      <div class="free-audit-banner">
+        <h2 class="free-audit-headline">Not sure which package is right for you?</h2>
+        <p class="free-audit-sub">Get a FREE 15-minute digital audit of your business.<br>We'll tell you exactly what you need — no pressure.</p>
+        <form class="free-audit-form" id="free-audit-form" novalidate>
+          <input type="text" id="audit-contact" placeholder="Your phone or email" autocomplete="off">
+          <button type="submit" class="audit-btn" id="audit-btn">Book Free Audit</button>
+        </form>
+        <div class="free-audit-success" id="free-audit-success" style="display:none;">
+          ✓ We'll be in touch shortly on WhatsApp!
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Pricing Packages -->
+    <section class="section pricing-section" id="packages" style="scroll-margin-top:64px;">
+      <div class="pricing-header-row">
+        <div class="pricing-title-group">
+          <h2 class="pricing-title" data-i18n="pricing.title">Digital Packages</h2>
+          <div class="pricing-lang-switch" id="pricing-lang-switch" aria-label="Language switcher">
+            <button type="button" class="lang-btn" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" class="lang-btn" data-lang="fr" aria-pressed="false">FR</button>
+          </div>
+        </div>
+      </div>
+      <div class="pricing-cards-row">
+
+        <!-- STARTER -->
+        <div class="pricing-card" tabindex="0" data-package="Starter" aria-label="Starter package">
+          <div class="pricing-card-inner">
+            <div class="pricing-card-header">
+              <span class="pricing-card-name" data-i18n="starter.title">Starter</span>
+            </div>
+            <div class="pricing-card-fees">
+              <span class="pricing-card-setup" data-i18n="starter.setup">XAF 50,000 setup</span>
+              <span class="pricing-card-price">
+                <span data-i18n="starter.price">XAF 15,000</span>
+                <span class="pricing-card-month" data-i18n="permonth">/ month</span>
+              </span>
+            </div>
+            <ul class="pricing-card-features">
+              <li><span class="checkmark"></span><span data-i18n="starter.f1">Landing page</span></li>
+              <li><span class="checkmark"></span><span data-i18n="starter.f2">Google Business listing</span></li>
+              <li><span class="checkmark"></span><span data-i18n="starter.f3">WhatsApp Business setup</span></li>
+            </ul>
+            <button class="pricing-cta" data-package="Starter" data-i18n="cta">Get Started</button>
+            <a href="https://wa.me/237622341343?text=Hi! I want the Starter package." target="_blank" rel="noopener" class="pricing-wa-link" data-i18n="wa">Chat on WhatsApp</a>
+          </div>
+        </div>
+
+        <!-- GROWTH -->
+        <div class="pricing-card pricing-card-popular" tabindex="0" data-package="Growth" aria-label="Growth package">
+          <div class="pricing-card-inner">
+            <div class="pricing-card-header">
+              <span class="pricing-card-name" data-i18n="growth.title">Growth</span>
+              <span class="pricing-badge" data-i18n="popular">Most Popular</span>
+            </div>
+            <div class="pricing-card-fees">
+              <span class="pricing-card-setup" data-i18n="growth.setup">XAF 120,000 setup</span>
+              <span class="pricing-card-price">
+                <span data-i18n="growth.price">XAF 35,000</span>
+                <span class="pricing-card-month" data-i18n="permonth">/ month</span>
+              </span>
+            </div>
+            <ul class="pricing-card-features">
+              <li><span class="checkmark"></span><span data-i18n="growth.f1">Full website (5 pages)</span></li>
+              <li><span class="checkmark"></span><span data-i18n="growth.f2">Social media management (2 platforms)</span></li>
+              <li><span class="checkmark"></span><span data-i18n="growth.f3">Basic SEO</span></li>
+              <li><span class="checkmark"></span><span data-i18n="growth.f4">Monthly performance report</span></li>
+            </ul>
+            <button class="pricing-cta" data-package="Growth" data-i18n="cta">Get Started</button>
+            <a href="https://wa.me/237622341343?text=Hi! I want the Growth package." target="_blank" rel="noopener" class="pricing-wa-link" data-i18n="wa">Chat on WhatsApp</a>
+          </div>
+        </div>
+
+        <!-- PRO -->
+        <div class="pricing-card" tabindex="0" data-package="Pro" aria-label="Pro package">
+          <div class="pricing-card-inner">
+            <div class="pricing-card-header">
+              <span class="pricing-card-name" data-i18n="pro.title">Pro</span>
+            </div>
+            <div class="pricing-card-fees">
+              <span class="pricing-card-setup" data-i18n="pro.setup">XAF 250,000 setup</span>
+              <span class="pricing-card-price">
+                <span data-i18n="pro.price">XAF 80,000</span>
+                <span class="pricing-card-month" data-i18n="permonth">/ month</span>
+              </span>
+            </div>
+            <ul class="pricing-card-features">
+              <li><span class="checkmark"></span><span data-i18n="pro.f1">E-commerce store</span></li>
+              <li><span class="checkmark"></span><span data-i18n="pro.f2">Google/Facebook Ads management</span></li>
+              <li><span class="checkmark"></span><span data-i18n="pro.f3">WhatsApp chatbot</span></li>
+              <li><span class="checkmark"></span><span data-i18n="pro.f4">Monthly analytics dashboard</span></li>
+              <li><span class="checkmark"></span><span data-i18n="pro.f5">Priority support</span></li>
+            </ul>
+            <button class="pricing-cta" data-package="Pro" data-i18n="cta">Get Started</button>
+            <a href="https://wa.me/237622341343?text=Hi! I want the Pro package." target="_blank" rel="noopener" class="pricing-wa-link" data-i18n="wa">Chat on WhatsApp</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 4: FAQ -->
+    <section class="section faq-section" id="faq" style="scroll-margin-top:64px;">
+      <h2 class="faq-title" data-i18n="faq.title">Frequently Asked Questions</h2>
+      <div class="faq-accordion" role="region" aria-label="Frequently Asked Questions">
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq1" id="faq1-btn">
+            <span class="faq-q-icon" aria-hidden="true"></span>
+            <span class="faq-q-text" data-i18n="faq.q1">What is included in the Starter package?</span>
+          </button>
+          <div class="faq-answer" id="faq1" role="region" aria-labelledby="faq1-btn" hidden>
+            <span data-i18n="faq.a1">The Starter package includes a landing page, Google Business listing, and WhatsApp Business setup to get your business online quickly and affordably.</span>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq2" id="faq2-btn">
+            <span class="faq-q-icon" aria-hidden="true"></span>
+            <span class="faq-q-text" data-i18n="faq.q2">Can I upgrade my package later?</span>
+          </button>
+          <div class="faq-answer" id="faq2" role="region" aria-labelledby="faq2-btn" hidden>
+            <span data-i18n="faq.a2">Yes, you can upgrade at any time. Just contact us via WhatsApp and we'll handle the transition for you.</span>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq3" id="faq3-btn">
+            <span class="faq-q-icon" aria-hidden="true"></span>
+            <span class="faq-q-text" data-i18n="faq.q3">How does payment work?</span>
+          </button>
+          <div class="faq-answer" id="faq3" role="region" aria-labelledby="faq3-btn" hidden>
+            <span data-i18n="faq.a3">You can pay via MTN MoMo, Orange Money, or bank transfer. Monthly fees are due at the start of each month.</span>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq4" id="faq4-btn">
+            <span class="faq-q-icon" aria-hidden="true"></span>
+            <span class="faq-q-text" data-i18n="faq.q4">Do I need technical skills?</span>
+          </button>
+          <div class="faq-answer" id="faq4" role="region" aria-labelledby="faq4-btn" hidden>
+            <span data-i18n="faq.a4">No technical skills are required. We handle everything for you, from setup to ongoing support.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: Contact -->
+    <section class="section" id="contact" style="scroll-margin-top:64px; padding-bottom:64px;">
+      <div style="text-align:center; padding:3rem 1rem;">
+        <h2 style="font-family:'Syne',sans-serif; font-size:2rem; font-weight:700; color:#fff; margin-bottom:1rem;">Get In Touch</h2>
+        <p style="color:#888; font-size:1.1rem; margin-bottom:1.5rem;">We respond within 2 business hours on WhatsApp.</p>
+        <a href="https://wa.me/237622341343?text=Hi Harts! I'd like to learn more about your services." target="_blank" rel="noopener"
+          style="display:inline-block; background:#fff; color:#000; font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; padding:0.85rem 2.5rem; border-radius:999px; text-decoration:none; transition:background 0.2s, color 0.2s;">
+          Chat with us on WhatsApp
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating WhatsApp Button (direct child of body) -->
+  <button id="wa-float" class="wa-float" aria-label="Chat on WhatsApp" title="Chat on WhatsApp">
+    <span class="wa-icon" aria-hidden="true">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="24" fill="#25D366"/>
+        <path d="M34.5 29.5c-1.1 2.1-3.2 3.5-5.7 3.5-4.2 0-8.5-3.7-10.2-7.2-1.1-2.1-1.2-4.2 0-5.7 1.1-1.5 2.7-2.1 4.2-1.7 0.5 0.1 1.1 0.4 1.5 0.8l1.2 1.2c0.3 0.3 0.3 0.7 0.1 1.1l-1.1 2.1c-0.2 0.4-0.1 0.8 0.2 1.1l2.7 2.7c0.3 0.3 0.7 0.4 1.1 0.2l2.1-1.1c0.4-0.2 0.8-0.2 1.1 0.1l1.2 1.2c0.4 0.4 0.7 1 0.8 1.5 0.4 1.5-0.2 3.1-1.7 4.2z" fill="#fff"/>
+      </svg>
+      <span class="wa-dot"></span>
+    </span>
+  </button>
+
+  <!-- App script last -->
+  <script src="app.js"></script>
+
+</body>
 </html>
