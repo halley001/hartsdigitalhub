@@ -270,7 +270,7 @@ export default function HartsChat() {
               {msg.cta && (
                 <div className="hc-cta-buttons">
                   <a
-                    href="https://hartsdigitalhub.com/contact"
+                    href="https://wa.me/237622341343"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hc-cta-btn hc-cta-whatsapp"
@@ -278,7 +278,7 @@ export default function HartsChat() {
                     WhatsApp
                   </a>
                   <a
-                    href="https://hartsdigitalhub.com/contact"
+                    href="mailto:support@hartsdigitalhub.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="hc-cta-btn hc-cta-email"
