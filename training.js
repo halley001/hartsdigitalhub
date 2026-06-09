@@ -420,6 +420,7 @@ function setupEnrollForm() {
     showEnrolledUI();
     renderModuleStates();
     downloadStarterGuide();
+    notifyViaWhatsApp(name, email, phone, country);
 
     document.getElementById('tr-enroll-form').style.display = 'none';
     document.getElementById('tr-enroll-success').style.display = 'block';
@@ -441,6 +442,21 @@ function validateEnrollForm() {
   if (phone.replace(/\D/g, '').length < 7) { document.getElementById('err-phone').textContent = 'Please enter a valid phone number.'; valid = false; }
 
   return valid;
+}
+
+/* ── WhatsApp notification to business owner ──────────────── */
+function notifyViaWhatsApp(name, email, phone, country) {
+  const message =
+    `🎓 *New AI Course Enrollment!*\n\n` +
+    `👤 *Name:* ${name}\n` +
+    `📧 *Email:* ${email}\n` +
+    `📱 *WhatsApp:* ${phone}\n` +
+    `🌍 *Country:* ${country}\n` +
+    `🕐 *Time:* ${new Date().toLocaleString('en-GB')}\n\n` +
+    `_Sent from the Harts Digital Hub AI Training Portal_`;
+
+  const waUrl = `https://wa.me/237622341343?text=${encodeURIComponent(message)}`;
+  window.open(waUrl, '_blank', 'noopener');
 }
 
 /* ── Starter Guide PDF (generated client-side) ────────────── */
