@@ -897,3 +897,714 @@ main:focus { outline: none; }
 @media (max-width: 600px) {
   .wa-float { bottom: 20px; right: 20px; }
 }
+
+/* ============================================================
+   REFINED GEMINI-STYLE — RICH BLACK & WHITE (luxury multi-shade dark)
+   ============================================================ */
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sophisticated thin top bar */
+.gemini-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 24px;
+  background: #000;
+  border-bottom: 1px solid #1f1f1f;
+  height: 54px;
+  box-sizing: border-box;
+  z-index: 20;
+}
+
+.topbar-left .gemini-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: -0.015em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-link {
+  color: #777;
+  text-decoration: none;
+  font-size: 0.8rem;
+  padding: 5px 11px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.topbar-link:hover {
+  color: #fff;
+  background: #161616;
+}
+
+.lang-toggle {
+  display: flex;
+  background: #0f0f0f;
+  border: 1px solid #222;
+  border-radius: 999px;
+  padding: 1px;
+}
+
+.lang-btn {
+  background: transparent;
+  color: #777;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  transition: all 0.15s;
+}
+.lang-btn[aria-pressed="true"] {
+  background: #222;
+  color: #fff;
+}
+
+.wa-btn {
+  background: #fff;
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Syne', sans-serif;
+  transition: all 0.15s;
+}
+.wa-btn:hover {
+  background: #f0f0f0;
+}
+
+/* Ultra-minimal chat container */
+.gemini-chat {
+  height: 100vh;
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  position: relative;
+  padding: 0 20px;
+}
+
+/* Only the message on first load — clean and centered */
+.chat-welcome {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.welcome-inner h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+/* The chat bar, nicely positioned below the message for the first interaction (before chat history) */
+.gemini-chat:not(.chatting) .input-container {
+  margin-bottom: 20vh; /* positions the input bar in a beautiful, prominent spot on first load */
+}
+
+/* Make the chat bar prominent on first load */
+.gemini-chat:not(.chatting) .gemini-input {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+
+/* Messages area — only visible after first message is sent */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 0 12px;
+  display: none !important;
+  flex-direction: column;
+  gap: 14px;
+  scroll-behavior: smooth;
+  background: #000;
+  align-items: stretch;
+}
+
+/* When the user sends the first message: beautiful full chat that fits the screen */
+.gemini-chat.chatting .chat-welcome { display: none; }
+
+.gemini-chat.chatting .chat-messages {
+  display: flex !important;
+  flex: 1;
+  min-height: 0; /* critical for flexbox + scrolling to work */
+  overflow-y: auto;
+  padding: 20px 0 10px;
+  flex-direction: column;
+  gap: 14px;
+  background: #000;
+}
+
+/* Chat bar docked beautifully at the bottom */
+.gemini-chat.chatting .input-container {
+  margin-bottom: 0;
+  padding: 8px 0 14px;
+  background: #000;
+  border-top: 1px solid #222;
+  flex-shrink: 0;
+}
+
+/* The pill in chat mode */
+.gemini-chat.chatting .gemini-input {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* Ensure the container fills the viewport nicely in chat mode */
+.gemini-chat.chatting {
+  height: 100vh;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* Beautiful message bubbles for the active chat (after first message) */
+.chat-msg {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.chat-msg.bot {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.chat-msg.user {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.chat-msg.bot .avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.chat-msg.user .avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #333;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.chat-bubble {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 10px 13px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #eee;
+  max-width: 72%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-msg.user .chat-bubble {
+  background: #f5f5f5;
+  border-color: #ddd;
+  color: #111;
+  border-radius: 16px 16px 4px 16px;
+}
+
+.chat-msg.bot .chat-bubble {
+  border-radius: 16px 16px 16px 4px;
+}
+
+.chat-time {
+  font-size: 0.55rem;
+  color: #555;
+  margin-top: 1px;
+  padding: 0 2px;
+  opacity: 0.6;
+}
+
+/* Refined message styling — clean, professional user replies in rich B&W */
+.chat-msg {
+  display: flex;
+  width: 100%;           /* full width so messages stack vertically one under the other */
+  max-width: 100%;
+  align-items: flex-start;
+  gap: 10px;
+}
+.chat-msg.bot { 
+  flex-direction: row; 
+  justify-content: flex-start; 
+}
+.chat-msg.user { 
+  flex-direction: row; 
+  justify-content: flex-end; 
+}
+
+/* Avatars — bot on left (sparkle), user on right (simple "U" for symmetry) */
+.chat-msg.bot .avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #1f1f1f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  border: 1px solid #2a2a2a;
+}
+
+.chat-msg.user .avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 4px;
+  border: 1px solid #3a3a3a;
+}
+
+/* Bubbles — sophisticated multi-shade black & white */
+.chat-bubble {
+  background: #121212;
+  border: 1px solid #252525;
+  border-radius: 18px;
+  padding: 11px 15px;
+  font-size: 0.93rem;
+  line-height: 1.52;
+  color: #e6e6e6;
+  max-width: 68%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.chat-msg.user .chat-bubble {
+  background: #f4f4f4;        /* soft off-white for less harsh contrast on pure black */
+  border: 1px solid #e0e0e0;
+  color: #111;
+  border-radius: 18px 18px 4px 18px; /* clean tail pointing left for right-aligned user replies */
+}
+
+/* Ensure the content (bubble + time) takes available space so messages stack vertically */
+.chat-msg .chat-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;   /* keeps bubbles from stretching too wide */
+}
+
+.chat-msg.bot .chat-bubble {
+  border-radius: 18px 18px 18px 4px; /* tail pointing right for left-aligned bot replies */
+}
+
+/* Subtle timestamps — useful for the payment & review stages of the journey */
+.chat-time {
+  font-size: 0.58rem;
+  color: #555;
+  margin-top: 2px;
+  padding: 0 4px;
+  opacity: 0.65;
+}
+
+/* Premium dark input pill */
+.input-container {
+  padding: 14px 20px 18px;
+  background: #000;
+}
+
+.gemini-input {
+  display: flex;
+  align-items: center;
+  background: #0f0f0f;
+  border: 1px solid #2f2f2f;
+  border-radius: 999px;
+  padding: 3px 5px 3px 20px;
+  max-width: 640px;
+  margin: 0 auto;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.45),
+              inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.gemini-input:focus-within {
+  border-color: #444;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.55);
+}
+
+#chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.97rem;
+  padding: 10px 8px;
+  line-height: 1.35;
+}
+
+#chat-input::placeholder {
+  color: #555;
+}
+
+.send-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  color: #000;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: background 0.15s, transform 0.1s;
+}
+.send-btn:hover { background: #f2f2f2; }
+.send-btn:active { transform: scale(0.9); }
+
+.input-hint {
+  text-align: center;
+  font-size: 0.66rem;
+  color: #444;
+  margin-top: 7px;
+  font-family: 'DM Mono', monospace;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Scrollbar */
+.chat-messages::-webkit-scrollbar { width: 5px; }
+.chat-messages::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+
+/* Typing */
+.chat-bubble.typing {
+  padding: 10px 15px;
+  display: inline-flex;
+  gap: 4px;
+  background: #121212;
+  border: 1px solid #252525;
+}
+.chat-bubble.typing span {
+  width: 4.5px;
+  height: 4.5px;
+  background: #555;
+  border-radius: 50%;
+  animation: typing 1.05s infinite ease-in-out;
+}
+@keyframes typing {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.35; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Active chat tweaks */
+.gemini-chat.chatting .input-container {
+  padding-top: 6px;
+  border-top: 1px solid #181818;
+}
+
+/* Ultra-minimal: ONLY the message + chat bar on first load */
+body {
+  background: #000;
+  margin: 0;
+  padding: 0;
+  font-family: 'DM Mono', monospace;
+  color: #fff;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.gemini-chat {
+  height: 100vh;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-welcome {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-bottom: 8vh;
+}
+
+.welcome-inner h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+/* The chat bar, centralized for the first message before any chat session */
+.gemini-chat:not(.chatting) .input-container {
+  margin-bottom: 22vh;
+}
+
+.gemini-input {
+  display: flex;
+  align-items: center;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 999px;
+  padding: 5px 5px 5px 18px;
+  max-width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+#chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.95rem;
+  padding: 8px 6px;
+}
+
+#chat-input::placeholder {
+  color: #555;
+}
+
+.send-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  color: #000;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+  flex-shrink: 0;
+}
+
+/* Once chatting starts: standard layout with messages above, bar at bottom */
+.gemini-chat.chatting .chat-welcome {
+  display: none;
+}
+
+.gemini-chat.chatting .chat-messages {
+  display: flex !important;
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0 8px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gemini-chat.chatting .input-container {
+  margin-bottom: 0;
+  padding-top: 6px;
+  border-top: 1px solid #222;
+}
+
+/* Main chat landing container */
+.chat-landing {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2rem;
+  min-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.chat-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  color: #fff;
+}
+.chat-header p {
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* Glance cards and flexible notes removed to keep the chat interface as simple as possible */
+
+/* The actual chat window */
+.chat-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+  max-height: 70vh;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: #0a0a0a;
+  scroll-behavior: smooth;
+}
+
+/* Old duplicate message styles removed — cleaned for consistent user replies format in the refined B&W Gemini interface */
+
+/* Typing indicator */
+.chat-bubble.typing {
+  display: flex;
+  gap: 4px;
+  padding: 0.7rem 1rem;
+}
+.chat-bubble.typing span {
+  width: 5px;
+  height: 5px;
+  background: #888;
+  border-radius: 50%;
+  animation: chat-typing 1.2s infinite ease-in-out;
+}
+.chat-bubble.typing span:nth-child(2) { animation-delay: 0.15s; }
+.chat-bubble.typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes chat-typing {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Quick suggestion chips removed to keep the chat interface as simple as possible */
+
+/* Composer */
+.chat-composer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+#chat-input {
+  flex: 1;
+  background: #0f0f0f;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.1rem;
+  outline: none;
+  transition: border-color 0.18s;
+}
+#chat-input:focus {
+  border-color: #fff;
+}
+.chat-send-btn {
+  background: #fff;
+  color: #000;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  padding: 0 1.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.chat-send-btn:hover {
+  background: #ddd;
+}
+
+.chat-footer-note {
+  padding: 0.6rem 1rem 0.9rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.4;
+  border-top: 1px solid #222;
+}
+
+/* (Trust bar removed for simpler chat-focused interface) */
+
+/* Responsive */
+@media (max-width: 700px) {
+  .chat-container { height: 520px; max-height: 65vh; }
+  .chat-header h1 { font-size: 1.65rem; }
+  .nav-actions { gap: 0.35rem; flex-wrap: wrap; }
+  .nav-human-btn { font-size: 0.7rem; padding: 0.35rem 0.7rem; }
+}
+
+/* Small note when language changes inside chat */
+.chat-note {
+  align-self: center;
+  background: #222;
+  color: #888;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  margin: 0.5rem 0;
+}
