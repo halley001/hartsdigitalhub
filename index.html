@@ -42,26 +42,42 @@
 </head>
 <body>
 
-  <!-- Ultra-minimal chat interface -->
+  <!-- Identity bar -->
+  <div class="harts-topbar">
+    <div class="harts-topbar-inner">
+      <span class="harts-logo">Harts</span>
+      <span class="harts-tagline">Digital services for businesses in Cameroon</span>
+      <a href="services.html" class="harts-training-link">Services &amp; Pricing</a>
+      <a href="training.html" class="harts-training-link">AI Training &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Chat interface -->
   <div class="gemini-chat" id="chat-main">
-    <!-- Only the message on first load -->
+    <!-- Welcome state -->
     <div class="chat-welcome" id="chat-welcome">
       <div class="welcome-inner">
-        <h1>How can we help grow your business digitally?</h1>
+        <h1>How can we help grow<br>your business digitally?</h1>
+        <div class="chat-suggestions">
+          <button class="chat-chip" onclick="useChip('I need a website')">I need a website</button>
+          <button class="chat-chip" onclick="useChip('Show me your packages')">See packages</button>
+          <button class="chat-chip" onclick="useChip('I need a logo or flyer')">Logo / flyer</button>
+          <button class="chat-chip" onclick="useChip('How much does it cost?')">Pricing</button>
+        </div>
       </div>
     </div>
 
     <div class="chat-messages" id="chat-messages" role="log" aria-live="polite"></div>
 
-    <!-- The chat bar -->
+    <!-- Input bar -->
     <div class="input-container">
       <form id="chat-form" class="gemini-input" autocomplete="off">
-        <input 
-          id="chat-input" 
-          type="text" 
-          placeholder="Type your message..." 
-          aria-label="Type your message" 
-          maxlength="600" 
+        <input
+          id="chat-input"
+          type="text"
+          placeholder="Ask about websites, apps, branding, pricing..."
+          aria-label="Type your message"
+          maxlength="600"
         />
         <button id="chat-send" type="submit" class="send-btn" aria-label="Send">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

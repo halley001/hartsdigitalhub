@@ -207,266 +207,374 @@ const KNOWLEDGE = {
   }
 };
 
-// ── Intent / Question Router (covers "all client questions" in this domain) ──
+// ── Intent / Question Router ──────────────────────────────────
 function getBotResponse(rawText, lang = currentLang) {
   const text = rawText.toLowerCase().trim();
   const k = KNOWLEDGE[lang] || KNOWLEDGE.en;
   const p = PACKAGES;
 
-  // Update dynamic profile from every user message (makes responses feel personal)
   updateUserProfileFromText(rawText, lang);
 
-  // Review collection flow
+  // ── Active flows ─────────────────────────────────────────────
   if (currentStage === 'review' || awaitingReviewField) {
     return handleReviewCollection(rawText, lang);
   }
-
-  // Lead collection flow (conversational form)
   if (awaitingLeadField) {
     return handleLeadCollection(rawText, lang);
   }
 
-  // Strong purchase / "get started" intent → enter lead flow, conversational
-  if (/(get started|je veux|je souhaite|commencer|sign up|enroll|prendre|acheter|je prends|growth|pro|starter|forfait|site|app|logo|flyer)/i.test(text) &&
-      /(package|forfait|growth|pro|starter|commencer|site|app|logo|flyer)/i.test(text)) {
-    const pkgMatch = text.match(/starter|growth|pro|démarrage|croissance|build|one.time|unique/i);
-    let suggested = pkgMatch ? normalizePackage(pkgMatch[0]) : 'growth';
-    if (/build|one.time|unique/i.test(text)) suggested = 'build_only';
-    leadContext = { package: suggested };
-    selectedPackage = suggested;
-    awaitingLeadField = 'name';
-    lastTopic = suggested;
-    currentStage = 'details';
-
-    const pkgName = p[suggested].name[lang] || p[suggested].name.en;
+  // ── Greetings (typo-tolerant, time-aware) ───────────────────
+  if (/^(h[ae]l+[oa]*|h[iy]+|hey+|yo+|salut|bonjour|bonsoir|bonswa|good\s*(morning|afternoon|evening|day)|morning|evening|howdy|sup|ola)\b/i.test(text)) {
+    const hour = new Date().getHours();
+    const timeGreet = hour < 12
+      ? (lang === 'fr' ? 'Bonjour' : 'Good morning')
+      : hour < 18
+        ? (lang === 'fr' ? 'Bonjour' : 'Hello')
+        : (lang === 'fr' ? 'Bonsoir' : 'Good evening');
     return {
       text: lang === 'fr'
-        ? `Parfait, le ${pkgName} marche très bien pour beaucoup d'entreprises. On va y aller tranquillement avec les options de paiement. Pour commencer, c'est quoi votre nom complet ?`
-        : `Perfect, the ${pkgName} works really well for a lot of businesses. We'll go through it step by step, including payment options. To get started, what's your full name? We'll go through it step by step, including payment options. To get started, what's your full name? To get you set up quickly I\'ll prepare a detailed message for our team on WhatsApp (I\'ll note your preferred payment option).\n\nFirst, what is your full name?`,
+        ? `${timeGreet} ! Je suis l'assistant de Harts Digital Hub. Je peux vous aider à obtenir un site web, une application mobile, un logo, des flyers, ou à gérer vos réseaux sociaux et votre marketing au Cameroun. Par quoi puis-je vous aider ?`
+        : `${timeGreet}! I'm the Harts Digital Hub assistant. I can help you get a website, mobile app, logo, flyers, or manage your social media and digital marketing in Cameroon. What can I help you with?`
     };
   }
 
-  // Direct package questions - human touch + dynamic + HTML formatted
-  if (text.includes('starter') || text.includes('démarrage')) {
-    lastTopic = 'starter';
-    return { text: contextualize(`Le Starter est idéal pour démarrer simplement.`, lang), isHTML: false, packageHTML: formatPackage('starter', lang) };
-  }
-  if (text.includes('growth') || text.includes('croissance')) {
-    lastTopic = 'growth';
-    return { text: contextualize(`Le Growth est notre plus populaire, et pour de bonnes raisons.`, lang), isHTML: false, packageHTML: formatPackage('growth', lang) };
-  }
-  if (text.includes('pro') && (text.includes('package') || text.includes('forfait') || text.includes('price') || text.includes('prix'))) {
-    lastTopic = 'pro';
-    return { text: contextualize(`Le Pro est pour ceux qui veulent aller plus loin avec une présence complète.`, lang), isHTML: false, packageHTML: formatPackage('pro', lang) };
-  }
-
-  // Pricing / cost questions - now with live dynamic examples
-  if (/(price|prix|cost|combien|how much|tarif|setup|installation|combien)/i.test(text)) {
-    lastTopic = 'pricing';
-    
-    // Show dynamic example for Growth (most popular)
-    const growthCalc = calculatePaymentDetails('growth', 'installments', lang);
-    
+  // ── Farewells ────────────────────────────────────────────────
+  if (/^(bye+|goodbye|see you|au revoir|à bientôt|ciao|bonne journée|bonne soirée|tchao|take care|later)\b/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? `Voici nos tarifs (tout est en XAF). Exemple concret pour le Growth (notre plus populaire) :\n\n${growthCalc}\n\nNous avons aussi des options flexibles :\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (paiement unique) : ${p.build_only.setup.fr}\n\n💳 Versements sans intérêts ou ~12% de réduction annuelle disponibles.\n\nQuel forfait ou service vous intéresse ? Je peux vous donner les calculs exacts.`
-        : `Here are our current prices (all in XAF). Concrete example for Growth (our most popular):\n\n${growthCalc}\n\nWe also have flexible options:\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Interest-free installments or ~12% annual discount available.\n\nWhich package or service interests you? I can give you the exact numbers.`
+        ? 'Au revoir ! N\'hésitez pas à revenir si vous avez des questions. Bonne journée !'
+        : 'Goodbye! Feel free to come back anytime. Have a great day!'
     };
   }
 
-  // What's included / features - rich HTML when possible
-  if (/(include|inclus|what.*get|ce qui est|features|fonctionnalités|contient)/i.test(text)) {
-    if (lastTopic && p[lastTopic]) {
-      return { 
-        text: '', 
-        packageHTML: formatPackage(lastTopic, lang) 
+  // ── Thank you ────────────────────────────────────────────────
+  if (/\b(thank(s| you)?|merci|thx|ty|much appreciated|grand merci|super merci)\b/i.test(text) && !/^no\b/i.test(text)) {
+    return {
+      text: lang === 'fr'
+        ? 'Avec plaisir ! N\'hésitez pas si vous avez d\'autres questions ou si vous souhaitez démarrer avec un de nos services.'
+        : 'You\'re very welcome! Feel free to ask anything else, or let me know when you\'re ready to get started.'
+    };
+  }
+
+  // ── Positive short replies (OK / Yes / Sure) — context-aware ─
+  if (/^(yes+|yep|yup|sure+|ok+|okay|alright|agree|correct|oui|d'accord|bien sûr|absolument|affirmative|go ahead|let\'s go|allons-y)\b/i.test(text)) {
+    if (selectedPackage && currentStage === 'selection') {
+      awaitingLeadField = 'name';
+      currentStage = 'details';
+      const pkgName = p[selectedPackage].name[lang] || p[selectedPackage].name.en;
+      return {
+        text: lang === 'fr'
+          ? `Super ! On part sur le ${pkgName}. Pour préparer votre dossier, quel est votre nom complet ?`
+          : `Great! Let's go with ${pkgName}. To set things up, what's your full name?`
+      };
+    }
+    if (currentStage === 'discovery') {
+      return {
+        text: lang === 'fr'
+          ? 'Avec plaisir ! Dites-moi ce dont vous avez besoin — site web, application, logo, flyers, marketing digital... Et quel type d\'activité avez-vous ?'
+          : 'Great! Tell me what you need — website, mobile app, logo, flyers, digital marketing... And what type of business do you have?'
+      };
+    }
+    return { text: lang === 'fr' ? 'Je suis là ! Que souhaitez-vous faire ?' : 'I\'m here! What would you like to do?' };
+  }
+
+  // ── Negative / cancel ────────────────────────────────────────
+  if (/^(no+|nope|nah|non|pas intéressé|cancel|annuler|never ?mind|pas maintenant|not now|stop|leave me|laisse[z]?[\s-]moi)\b/i.test(text)) {
+    selectedPackage = null;
+    awaitingLeadField = null;
+    currentStage = 'discovery';
+    leadContext = {};
+    return {
+      text: lang === 'fr'
+        ? 'Pas de problème ! Je reste disponible si vous avez des questions ou souhaitez reprendre plus tard. Y a-t-il autre chose que je peux faire pour vous ?'
+        : 'No problem at all! I\'m here if you have questions or want to come back later. Is there anything else I can help you with?'
+    };
+  }
+
+  // ── Bot identity ─────────────────────────────────────────────
+  if (/(are you (a |an |real )?bot|are you (an? )?ai|is this (a |an |real )?human|robot|automated|chatbot|assistant virtuel|qui (êtes|es)-?tu|parle[rz]*.*machine|who am i talking)/i.test(text)) {
+    return {
+      text: lang === 'fr'
+        ? 'Je suis un assistant virtuel de Harts Digital Hub — pas un humain, mais je connais bien nos services ! Pour parler directement à un membre de notre équipe, dites "équipe" ou "WhatsApp" et je vous connecte immédiatement.'
+        : 'I\'m a virtual assistant for Harts Digital Hub — not a human, but I know our services well! To speak directly to a team member, just say "team" or "WhatsApp" and I\'ll connect you right away.'
+    };
+  }
+
+  // ── Portfolio / examples ─────────────────────────────────────
+  if (/\b(portfolio|example[s]?|past work|show me.*work|previous client|sample[s]?|réalisation[s]?|travaux?|exemple[s]?|référence[s]?|vos travaux)\b/i.test(text)) {
+    return {
+      text: lang === 'fr'
+        ? 'Nous avons aidé des restaurants, boutiques, salons et consultants à travers le Cameroun. Pour voir des exemples concrets (captures d\'écran, liens de projets), contactez notre équipe sur WhatsApp : +237 622 341 343. Ils répondent rapidement !'
+        : 'We\'ve helped restaurants, shops, salons, and consultants across Cameroon. To see concrete examples (screenshots, project links), reach our team on WhatsApp: +237 622 341 343. They respond quickly!'
+    };
+  }
+
+  // ── Office / visit ────────────────────────────────────────────
+  if (/\b(office|visit|come in|physical|en personne|bureau|adresse|address|can i visit|venir vous voir|où êtes-vous)\b/i.test(text)) {
+    return {
+      text: lang === 'fr'
+        ? 'Nous travaillons entièrement à distance — WhatsApp, appels et documents partagés. Ça marche pour toutes les villes du Cameroun. Pas besoin de se déplacer, c\'est l\'un des avantages de travailler avec nous !'
+        : 'We work fully remotely — WhatsApp, calls, and shared documents. That works for every city in Cameroon. No need to travel in — that\'s one of the advantages of working with us!'
+    };
+  }
+
+  // ── "I want / I need / I'm interested" ───────────────────────
+  if (/\b(i want|i need|i'?d like|i'?m interested|looking for|je veux|j'aimerais|je cherche|je voudrais|je suis intéressé|interested in)\b/i.test(text)) {
+    const pkgMatch = text.match(/\b(starter|growth|pro|démarrage|croissance)\b/i);
+    if (pkgMatch) {
+      const suggested = normalizePackage(pkgMatch[0]);
+      leadContext = { package: suggested };
+      selectedPackage = suggested;
+      awaitingLeadField = 'name';
+      currentStage = 'details';
+      const pkgName = p[suggested].name[lang] || p[suggested].name.en;
+      return {
+        text: lang === 'fr'
+          ? `Excellent ! Le ${pkgName} est un très bon choix. Pour préparer votre dossier, quel est votre nom complet ?`
+          : `Excellent choice! The ${pkgName} is a great fit. To get things set up, what's your full name?`
+      };
+    }
+    if (/\b(web\s*sit[e]?|site\s*web?|online|en ligne)\b/i.test(text)) {
+      lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
+      return { text: lang === 'fr'
+        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter (50 000 XAF + 15 000/mois) — page de présentation\n• Growth (120 000 XAF + 35 000/mois) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch (180 000 XAF unique) — site complet, zéro frais mensuel\n\nLequel vous correspond le mieux ?`
+        : `For a professional website we have 3 options:\n\n• Starter (XAF 50,000 + 15,000/month) — single landing page\n• Growth (XAF 120,000 + 35,000/month) — 5-page site + social media ⭐ most popular\n• Build & Launch (XAF 180,000 one-time) — full site, no monthly fees\n\nWhich one fits your situation?`
+      };
+    }
+    if (/\b(app(?:lication)?|mobile)\b/i.test(text)) {
+      return { text: lang === 'fr'
+        ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Le prix dépend des fonctionnalités — une appli simple commence autour de 300 000 XAF, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
+        : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. The cost depends on features — a basic app starts around XAF 300,000, with installment options.\n\nCan you describe what you\'d like the app to do?'
+      };
+    }
+    if (/\b(logo|flyer|brand|design|carte de visite|business card)\b/i.test(text)) {
+      return { text: lang === 'fr'
+        ? 'Pour le design graphique, voici ce que nous proposons :\n\n• Logo professionnel : à partir de 25 000 XAF\n• Pack Logo + Flyer : à partir de 45 000 XAF\n• Branding complet (logo, couleurs, templates) : à partir de 80 000 XAF\n\nPour quel type d\'activité ?'
+        : 'For graphic design, here\'s what we offer:\n\n• Professional logo: from XAF 25,000\n• Logo + Flyer pack: from XAF 45,000\n• Full branding (logo, colors, templates): from XAF 80,000\n\nWhat type of business is this for?'
+      };
+    }
+    if (/\b(social media|réseaux sociaux|instagram|facebook|marketing)\b/i.test(text)) {
+      return { text: lang === 'fr'
+        ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (35 000 XAF/mois) ou disponible en option.\n\nCombien de plateformes avez-vous en tête ?'
+        : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, and monthly reports. It\'s included in the Growth package (XAF 35,000/month) or available as an add-on.\n\nHow many platforms are you thinking about?'
       };
     }
     return {
       text: lang === 'fr'
-        ? 'Je peux vous détailler chaque forfait. Dites-moi simplement "Starter", "Growth" ou "Pro" (ou "Croissance").'
-        : 'I can give you the full breakdown of any package. Just say "Starter", "Growth", or "Pro".'
+        ? 'Je suis là pour vous aider ! Dites-moi exactement ce dont vous avez besoin (site web, appli mobile, logo, flyers, marketing digital...) et votre type d\'activité — je vous guiderai vers la meilleure option.'
+        : 'I\'m here to help! Tell me exactly what you need (website, mobile app, logo, flyers, digital marketing...) and what type of business you have — I\'ll guide you to the best option.'
     };
   }
 
-  // New: Installments / payment plans - natural
-  if (/(installment|versement|échelon|plan|paiement en plusieurs fois|2 mois|3 mois|sans intérêt)/i.test(text)) {
-    return { text: lang === 'fr' 
-      ? `${k.installments} C'est souvent ce qui arrange le plus nos clients. Quel service ou forfait vous parle le plus ?` 
-      : `${k.installments} It's often what works best for our clients. Which service or package interests you most?` };
-  }
-
-  // New: Prepay / annual discount - natural
-  if (/(prepay|annuel|yearly|12 mois|discount|réduction|économie|annual)/i.test(text)) {
-    return { text: lang === 'fr' 
-      ? `${k.prepay} Ça simplifie la vie. Vous voulez que je vous détaille ça pour un forfait en particulier ?` 
-      : `${k.prepay} It simplifies life a lot. Want me to break it down for a specific package?` };
-  }
-
-  // New: Build only / one-time option
-  if (/(build only|one time|one-time|paiement unique|juste le site|build & launch|sans abonnement|no monthly)/i.test(text)) {
-    lastTopic = 'build_only';
-    selectedPackage = 'build_only';
-    currentStage = 'selection';
-    return { 
-      text: contextualize(`Le Build & Launch est parfait si vous voulez un projet complet sans engagement mensuel.`, lang), 
-      packageHTML: formatPackage('build_only', lang) 
-    };
-  }
-
-  // New: Price objection / too expensive / budget - human, empathetic
-  if (/(expensive|cher|trop cher|budget|réduire|moins cher|affordable|can you lower|discount|réduction)/i.test(text)) {
+  // ── Get started / book / proceed ─────────────────────────────
+  if (/\b(get started|book|reserve|commencer|démarrer|s'inscrire|passer commande|start now|commencer maintenant|let'?s do it|procéd|proceed|ready|je suis prêt)\b/i.test(text)) {
+    if (selectedPackage) {
+      awaitingLeadField = 'name';
+      currentStage = 'details';
+      const pkgName = p[selectedPackage].name[lang] || p[selectedPackage].name.en;
+      return {
+        text: lang === 'fr'
+          ? `Parfait ! On part sur le ${pkgName}. Pour commencer, quel est votre nom complet ?`
+          : `Perfect! Let's go with ${pkgName}. To get started, what's your full name?`
+      };
+    }
     return {
       text: lang === 'fr'
-        ? `Je comprends tout à fait que le budget est important. Nos services commencent à des prix accessibles et on a les versements sans intérêts ou la réduction annuelle pour arranger. Le Growth par exemple est souvent rentabilisé rapidement grâce aux nouveaux clients. Vous voulez qu'on regarde ensemble les options concrètes pour votre cas ?`
-        : `I completely understand that budget is important. Our services start at accessible prices and we have interest-free installments or the annual discount to make it work. The Growth one, for example, often pays for itself quickly with new customers. Want to look at the concrete options for your situation together?`
+        ? 'Super ! Pour vous orienter vers la meilleure option, dites-moi : quel type de service vous intéresse (site web, application, logo, marketing) et quel est votre type d\'activité ?'
+        : 'Let\'s do it! To point you to the best option, tell me: what service are you interested in (website, app, logo, marketing) and what type of business do you have?'
     };
   }
 
-  // Upgrade question
-  if (/(upgrade|changer|passer|augmenter|plus tard)/i.test(text)) {
+  // ── Package details ──────────────────────────────────────────
+  if (/\b(starter|démarrage)\b/i.test(text)) {
+    lastTopic = 'starter'; selectedPackage = 'starter'; currentStage = 'selection';
+    return { packageHTML: formatPackage('starter', lang) };
+  }
+  if (/\b(growth|croissance)\b/i.test(text)) {
+    lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
+    return { packageHTML: formatPackage('growth', lang) };
+  }
+  if (/\b(pro)\b/i.test(text) && /(package|forfait|price|prix|details?|info|tell me|montrez|donnez)/i.test(text)) {
+    lastTopic = 'pro'; selectedPackage = 'pro'; currentStage = 'selection';
+    return { packageHTML: formatPackage('pro', lang) };
+  }
+
+  // ── All packages ─────────────────────────────────────────────
+  if (/(packages?|forfaits?|show.*package|see.*package|all package|what.*package|your package|pricing|tarif[s]?|how much|combien.*coût|cost[s]?|prix)/i.test(text) && !/\b(starter|growth|pro)\b/i.test(text)) {
+    lastTopic = 'growth';
+    return { text: lang === 'fr' ? 'Voici nos 3 forfaits :' : 'Here are our 3 packages:', multiPackage: true };
+  }
+
+  // ── Pricing / cost ───────────────────────────────────────────
+  if (/(price|prix|cost|combien|how much|tarif|setup fee|frais|installation fee)/i.test(text)) {
+    lastTopic = 'pricing';
+    const growthCalc = calculatePaymentDetails('growth', 'installments', lang);
+    return {
+      text: lang === 'fr'
+        ? `Voici nos tarifs (en XAF). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Versements sans intérêts ou ~12% de réduction annuelle disponibles.\n\nQuel forfait ou service vous intéresse ?`
+        : `Here are our prices (in XAF). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Interest-free installments or ~12% annual discount available.\n\nWhich package or service interests you?`
+    };
+  }
+
+  // ── What's included ──────────────────────────────────────────
+  if (/(what'?s? included|include[sd]?|inclus|what.*get|ce qui est|features?|fonctionnalit|contient)/i.test(text)) {
+    if (lastTopic && p[lastTopic]) return { packageHTML: formatPackage(lastTopic, lang) };
+    return { text: lang === 'fr'
+      ? 'Je peux vous détailler chaque forfait. Dites-moi simplement "Starter", "Growth" ou "Pro".'
+      : 'I can break down any package for you. Just say "Starter", "Growth", or "Pro".'
+    };
+  }
+
+  // ── Installments / payment plans ─────────────────────────────
+  if (/(installment|versement[s]?|échelon|paiement en plusieurs|2 mois|3 mois|sans intérêt|pay in parts|split payment)/i.test(text)) {
+    return { text: lang === 'fr'
+      ? `${k.installments} C'est souvent l'option qui arrange le mieux nos clients. Quel service ou forfait vous intéresse ?`
+      : `${k.installments} It's often what works best for our clients. Which service or package interests you most?`
+    };
+  }
+
+  // ── Annual discount ──────────────────────────────────────────
+  if (/(prepay|annuel|yearly|12 mois|annual discount|réduction annuelle|économie|save.*year)/i.test(text)) {
+    return { text: lang === 'fr'
+      ? `${k.prepay} Ça simplifie la gestion. Je peux détailler pour un forfait en particulier ?`
+      : `${k.prepay} It simplifies management a lot. Want me to break it down for a specific package?`
+    };
+  }
+
+  // ── One-time / no monthly ────────────────────────────────────
+  if (/(build only|one.?time|paiement unique|juste le site|build.*launch|sans abonnement|no monthly|without subscription)/i.test(text)) {
+    lastTopic = 'build_only'; selectedPackage = 'build_only'; currentStage = 'selection';
+    return { packageHTML: formatPackage('build_only', lang) };
+  }
+
+  // ── Price objection ──────────────────────────────────────────
+  if (/(too expensive|cher|trop cher|c'est beaucoup|can.*lower|reduce.*price|less expensive|moins cher|affordable|budget limit|budget serré)/i.test(text)) {
+    return {
+      text: lang === 'fr'
+        ? 'Je comprends — le budget est important. Nos services commencent à des prix accessibles et on propose des versements sans intérêts pour répartir le coût. Le forfait Growth, par exemple, est souvent rentabilisé rapidement grâce aux nouveaux clients qu\'il attire. Voulez-vous qu\'on regarde ensemble les options concrètes pour votre situation ?'
+        : 'I completely understand — budget matters. Our services start at accessible prices and we offer interest-free installments to spread the cost. The Growth package, for example, often pays for itself quickly through new customers. Want me to walk you through the concrete options for your situation?'
+    };
+  }
+
+  // ── Website (typo-tolerant) ───────────────────────────────────
+  if (/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|webs?it|online presence|présence en ligne|w[ae]bsite)\b/i.test(text)) {
+    lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
+    return { text: lang === 'fr'
+      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter (50 000 XAF + 15 000/mois) — page de présentation\n• Growth (120 000 XAF + 35 000/mois) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch (180 000 XAF unique) — site complet, pas de frais mensuels\n\nQuel profil correspond à votre situation ?'
+      : 'For a professional website, we have 3 options:\n\n• Starter (XAF 50,000 + 15,000/month) — landing page\n• Growth (XAF 120,000 + 35,000/month) — 5-page site + social media ⭐\n• Build & Launch (XAF 180,000 one-time) — full site, no monthly fees\n\nWhich one fits your situation?'
+    };
+  }
+
+  // ── Mobile app ────────────────────────────────────────────────
+  if (/\b(app(?:lication)?s?|mobile app|android|ios|play store|application mobile)\b/i.test(text)) {
+    return { text: lang === 'fr'
+      ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Une appli simple commence autour de 300 000 XAF, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
+      : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. A basic app starts around XAF 300,000, with installment options.\n\nCan you describe what you\'d like the app to do?'
+    };
+  }
+
+  // ── Logo / flyer / branding ───────────────────────────────────
+  if (/\b(logo[s]?|flyer[s]?|brand(?:ing)?|design graphique|carte[s]? de visite|business card[s]?|identité visuelle|visual identity)\b/i.test(text)) {
+    return { text: lang === 'fr'
+      ? 'Pour le design graphique :\n\n• Logo professionnel : à partir de 25 000 XAF\n• Pack Logo + Flyer : à partir de 45 000 XAF\n• Branding complet (logo, couleurs, templates) : à partir de 80 000 XAF\n\nPour quel type d\'activité ?'
+      : 'For graphic design:\n\n• Professional logo: from XAF 25,000\n• Logo + Flyer pack: from XAF 45,000\n• Full branding (logo, colors, templates): from XAF 80,000\n\nWhat type of business is this for?'
+    };
+  }
+
+  // ── Social media ──────────────────────────────────────────────
+  if (/\b(social media|réseaux sociaux|instagram|facebook|tiktok|manage.*social|gestion.*réseaux)\b/i.test(text)) {
+    return { text: lang === 'fr'
+      ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (35 000 XAF/mois) ou disponible en option.\n\nCombien de plateformes souhaitez-vous gérer ?'
+      : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, monthly reports. It\'s included in the Growth package (XAF 35,000/month) or available as an add-on.\n\nHow many platforms do you have in mind?'
+    };
+  }
+
+  // ── Follow-up on last topic ───────────────────────────────────
+  if (/(that one|celui-là|tell me more|plus d'infos?|the other|autre|plus de détails?)/i.test(text) && lastTopic && p[lastTopic]) {
+    return { packageHTML: formatPackage(lastTopic, lang) };
+  }
+
+  // ── Upgrade ───────────────────────────────────────────────────
+  if (/\b(upgrade|changer de forfait|passer au|augmenter|later|plus tard)\b/i.test(text)) {
     return { text: k.upgrade };
   }
 
-  // Technical skills
-  if (/(technical|compétence|skill|connaissance|difficile|compliqué|je ne sais pas)/i.test(text)) {
+  // ── Technical skills ──────────────────────────────────────────
+  if (/\b(technical|compétence|skill|knowledge|difficile|compliqué|je ne sais pas|do i need|faut-il savoir)\b/i.test(text)) {
     return { text: k.technical };
   }
 
-  // Payment / MoMo / Orange - enhanced for journey
-  if (/(payment|paiement|momo|orange|bank|transfert|how.*pay|comment.*payer|versement|installment)/i.test(text)) {
-    if (currentStage === 'payment' && selectedPackage) {
-      return providePaymentInstructions(lang);
-    }
+  // ── Timeline ──────────────────────────────────────────────────
+  if (/\b(timeline|délai|how long|combien de temps|when.*ready|quand.*prêt|weeks?|days?|jours?)\b/i.test(text)) {
+    return { text: k.timeline };
+  }
+
+  // ── Payment / MoMo ───────────────────────────────────────────
+  if (/(payment|paiement|momo|orange money|bank transfer|how.*pay|comment.*payer|how do i pay|moyen de paiement)/i.test(text)) {
+    if (currentStage === 'payment' && selectedPackage) return providePaymentInstructions(lang);
     if (/momo/i.test(text)) return { text: k.momo };
     return { text: k.payment };
   }
 
-  // Timeline / delay / how long
-  if (/(timeline|délai|long|combien de temps|when.*live|quand.*en ligne|weeks|jours)/i.test(text)) {
-    return { text: k.timeline };
-  }
-
-  // Digital design services (logos, flyers, branding)
-  if (/(logo|flyer|branding|design graphique|carte de visite|flyers|logos)/i.test(text)) {
-    return { text: lang === 'fr' 
-      ? 'Nous créons des logos professionnels, des flyers, des cartes de visite et des supports de branding complets. Dites-moi ce dont vous avez besoin et je vous donnerai les options et tarifs.' 
-      : 'We create professional logos, flyers, business cards, and full branding packages. Tell me what you need and I\'ll give you the options and pricing.' };
-  }
-
-  // Free audit
-  if (/(audit|free audit|audit gratuit|not sure|recommand|conseil|which package)/i.test(text)) {
+  // ── Free audit / which package ───────────────────────────────
+  if (/(not sure|which.*package|which.*service|what.*recommend|conseil|audit|help me choose|aide.*choisir)/i.test(text)) {
     return { text: k.freeAudit };
   }
 
-  // Locations / cities
-  if (/(city|ville|yaoundé|douala|buea|where|où|cameroon|cameroun|local)/i.test(text)) {
+  // ── Location ─────────────────────────────────────────────────
+  if (/\b(yaoundé|douala|buea|bamenda|kribi|limbe|cameroon|cameroun|where.*you|où.*vous|which city|quelle ville)\b/i.test(text)) {
     return { text: k.cities };
   }
 
-  // Who are you / about
-  if (/(who are you|qui êtes|à propos|about harts|entreprise)/i.test(text)) {
+  // ── Who are you / about Harts ─────────────────────────────────
+  if (/(who are you|qui êtes.?vous|à propos|about harts|what is harts|c'est quoi harts|your company)\b/i.test(text)) {
     return { text: k.who };
   }
 
-  // Contact / human / speak to someone
-  if (/(human|person|conseiller|parler|contact|whatsapp|real person|vraie personne|équipe)/i.test(text)) {
-    return {
-      text: k.contact,
-      action: 'handoff'
-    };
+  // ── Contact / human / WhatsApp ───────────────────────────────
+  if (/(speak.*human|talk.*person|real person|vraie personne|conseiller|équipe|whatsapp number|numéro whatsapp|contact|call you|appeler)/i.test(text)) {
+    return { text: k.contact, action: 'handoff' };
   }
 
-  // FAQ-style or general services
-  if (/(service|what do you do|que faites|offre|proposez)/i.test(text)) {
+  // ── Services general ─────────────────────────────────────────
+  if (/\b(service[s]?|what do you do|que faite|offre|proposez|can you help|vous faites quoi)\b/i.test(text)) {
     return { text: k.services };
   }
 
-  // Follow-up on previous topic
-  if (/(that one|celui-là|the other|autre|lui|elle|plus d'info|tell me more|détails)/i.test(text) && lastTopic) {
-    if (PACKAGES[lastTopic]) return { text: formatPackage(lastTopic, lang) };
-  }
-
-  // Polite / small talk + qualification prompts
-  if (/^(hi|hello|bonjour|salut|hey|good morning|good afternoon)/i.test(text)) {
-    const greetings = lang === 'fr'
-      ? ['Bonjour ! Comment puis-je vous aider avec nos services (sites web, applications, branding) aujourd\'hui ?', 
-         'Salut ! Dites-moi ce dont vous avez besoin pour votre business, je suis là pour vous guider.']
-      : ['Hello! How can I help you with our services (websites, apps, branding) today?',
-         'Hi there! Tell me what you need for your business and I\'ll guide you.'];
-    return { text: varyResponse(greetings, lang) };
-  }
-  if (/(thank|merci|thanks|cool|super|parfait)/i.test(text)) {
-    return { text: lang === 'fr' ? 'Avec plaisir ! N\'hésitez pas si vous avez d\'autres questions.' : 'You\'re very welcome! Feel free to ask anything else.' };
-  }
-
-  // User indicates readiness to proceed (qualification or move to details/payment)
-  if (/(ready|proceed|let\'s do it|go ahead|je suis prêt|allons-y|procédons|commençons)/i.test(text)) {
-    if (!selectedPackage) {
-      return {
-        text: lang === 'fr'
-          ? `Super ! Pour vous recommander le bon service, dites-moi rapidement : quel est votre type d'activité et votre principal besoin (site web, application, logos/flyers, marketing digital, etc.) ?`
-          : `Great! To recommend the right service, quickly tell me your type of business and main need (website, mobile app, logos/flyers, digital marketing, etc.)?`
-      };
-    } else {
-      // Move to lead collection if package is known
-      if (!leadContext.name) {
-        awaitingLeadField = 'name';
-        currentStage = 'details';
-        return {
-          text: lang === 'fr'
-            ? `Parfait, passons au forfait ${p[selectedPackage].name.fr}. Commençons par votre nom complet :`
-            : `Perfect, let's proceed with the ${p[selectedPackage].name.en} package. First, your full name?`
-        };
-      }
-    }
-  }
-
-  // Simulate payment confirmation in chat (key for "pay for their website" in the interface)
-  if (/(paid|j'ai payé|money sent|référence|confirm payment|paiement effectué|j'ai envoyé)/i.test(text) && currentStage === 'payment') {
+  // ── Payment confirmation ──────────────────────────────────────
+  if (/(paid|j'?ai payé|money sent|référence|confirm.*payment|paiement effectué|j'?ai envoyé|sent.*payment)/i.test(text) && currentStage === 'payment') {
     currentStage = 'review';
-    let base = lang === 'fr'
-      ? `Excellent ! Paiement noté. Merci. Pour nous aider à nous améliorer avant que l'équipe ne vous contacte, pourriez-vous donner une note sur 5 et un petit commentaire sur l'expérience ?`
-      : `Excellent! Payment noted. Thank you. To help us improve before the team reaches out, could you give a rating out of 5 and a short comment on the experience?`;
-    return { text: contextualize(base, lang) };
+    awaitingReviewField = 'rating';
+    return {
+      text: lang === 'fr'
+        ? 'Excellent ! Paiement bien noté, merci. Pour nous aider à améliorer notre service, pourriez-vous nous donner une note de 1 à 5 ?'
+        : 'Excellent! Payment noted, thank you. To help us improve our service, could you give us a rating from 1 to 5?'
+    };
   }
 
-  // Human-like fallback: acknowledge what they said, stay helpful, guide forward naturally + summary
-  const shortAck = lang === 'fr' ? "Compris." : "Understood.";
+  // ── Summary request ───────────────────────────────────────────
+  if (/(summarize|résumé|recap|so far|jusqu'ici|what.*discussed|summary|résume)/i.test(text)) {
+    const summary = generateConversationSummary(lang);
+    return {
+      text: lang === 'fr'
+        ? `Voici un résumé de notre échange : ${summary}\n\nVoulez-vous avancer ou que je prépare le message pour l'équipe WhatsApp ?`
+        : `Here's a summary of our conversation: ${summary}\n\nWant to move forward, or shall I prepare the WhatsApp message for the team?`
+    };
+  }
+
+  // ── Fallback — contextual and helpful ─────────────────────────
   const summary = generateConversationSummary(lang);
-
   if (currentStage === 'discovery' || !selectedPackage) {
-    // Early stage: be curious and helpful, like a real consultant
     return {
       text: lang === 'fr'
-        ? `${shortAck} On crée des sites web, des applications mobiles, des logos, des flyers, du branding et du marketing digital pour les entreprises comme la vôtre. ${summary} Pour vous proposer quelque chose qui colle vraiment, pouvez-vous me dire en quelques mots ce que vous faites et ce que vous cherchez en priorité (plus de clients, un site pro, une appli, un nouveau logo...) ?`
-        : `${shortAck} We build websites, mobile apps, logos, flyers, branding, and digital marketing for businesses like yours. ${summary} To suggest something that actually fits, can you tell me in a few words what you do and what you're looking for most right now (more customers, a professional site, an app, new branding...)?`
+        ? `Je ne suis pas sûr de comprendre complètement, mais je suis là pour vous aider ! Nous créons des sites web, applications, logos, flyers et gérons le marketing digital pour les entreprises au Cameroun.\n\nPour mieux vous orienter, pouvez-vous me dire ce que vous faites et ce que vous cherchez en priorité (site web, logo, appli, plus de clients...) ?`
+        : `I'm not sure I fully understood that, but I'm here to help! We build websites, apps, logos, flyers, and handle digital marketing for businesses in Cameroon.\n\nTo point you in the right direction, can you tell me what you do and what you're looking for most (website, logo, app, more customers...)?`
     };
   }
-
-  // Mid/late stage: be practical and offer clear next step (stay in chat), with summary
-  if (currentStage === 'selection' || currentStage === 'details' || currentStage === 'payment') {
-    return {
-      text: lang === 'fr'
-        ? `${shortAck} ${summary} Dites-moi exactement ce dont vous avez besoin maintenant (le forfait Growth ? des infos sur les versements ? un devis pour un logo + site ?), et je vous aide étape par étape. Si vous préférez qu'on passe directement à l'équipe, dites-le moi et je prépare le message WhatsApp avec ce résumé.`
-        : `${shortAck} ${summary} Tell me exactly what you need right now (the Growth package? details on installments? a quote for logo + website?), and I'll walk you through it step by step. If you'd rather we loop in the team directly, just say so and I'll prepare a WhatsApp message with this summary.`
-    };
-  }
-
-  // Explicit summary request
-  if (/(summarize|résumé|recap|so far|jusqu'ici|ce qu'on a dit|what have we discussed|summary|résume)/i.test(text)) {
-    return {
-      text: lang === 'fr' 
-        ? `Voici un résumé de notre conversation : ${summary}\n\nVoulez-vous avancer avec ça ou que je prépare le message pour l'équipe ?`
-        : `Here's a summary of our conversation so far: ${summary}\n\nWant to move forward with this or shall I prepare the message for the team?`
-    };
-  }
-
-  // Very late stage
   return {
     text: lang === 'fr'
-      ? `${shortAck} ${summary} Je suis là pour vous. Dites-moi ce qu'il vous faut (paiement, suite du projet, ou autre), ou si vous voulez qu'on transmette tout à l'équipe sur WhatsApp.`
-      : `${shortAck} ${summary} I'm here for you. Tell me what you need (payment details, next steps on the project, or anything else), or if you'd like us to pass everything to the team on WhatsApp.`
+      ? `Je suis là ! ${summary} Dites-moi ce dont vous avez besoin — je peux vous aider avec les détails, les versements, ou préparer le message pour l'équipe WhatsApp.`
+      : `I'm here! ${summary} Tell me what you need — I can help with details, payment options, or get the WhatsApp message ready for the team.`
   };
 }
 
@@ -518,56 +626,116 @@ function formatPackage(key, lang) {
 // ── Conversational Lead Collection ────────────────────────────
 function handleLeadCollection(rawText, lang) {
   const trimmed = rawText.trim();
-  updateUserProfileFromText(rawText, lang); // capture any extra details
+  const lower = trimmed.toLowerCase();
+  updateUserProfileFromText(rawText, lang);
 
-  if (/^(skip|passer|plus tard|connect|whatsapp|human)/i.test(trimmed)) {
+  // Skip / jump to WhatsApp
+  if (/^(skip|passer|plus tard|connect|whatsapp|human|équipe|team|speak.*person|parler.*personne)\b/i.test(trimmed)) {
     awaitingLeadField = null;
     currentStage = 'payment';
     return doHandoff(lang);
   }
 
-  if (awaitingLeadField === 'name') {
-    leadContext.name = trimmed;
-    awaitingLeadField = 'business';
+  // Correction mid-flow ("actually", "wait", "no", "I meant")
+  if (/^(actually|wait|no|correction|oops|i meant|je voulais dire|en fait|pardon)\b/i.test(lower)) {
+    const field = awaitingLeadField;
+    const fieldLabel = {
+      name: lang === 'fr' ? 'votre nom' : 'your name',
+      business: lang === 'fr' ? 'le nom de votre activité' : 'your business name',
+      phone: lang === 'fr' ? 'votre numéro WhatsApp' : 'your WhatsApp number',
+      city: lang === 'fr' ? 'votre ville' : 'your city',
+      payment_pref: lang === 'fr' ? 'votre préférence de paiement' : 'your payment preference'
+    }[field] || '';
     return {
-      text: lang === 'fr' ? `Merci ${trimmed.split(' ')[0]}. Et le nom de votre entreprise ou activité ?` : `Thanks ${trimmed.split(' ')[0]}. What's the name of your business or activity?`
+      text: lang === 'fr'
+        ? `Pas de problème ! Donnez-moi ${fieldLabel} et on continue.`
+        : `No problem! Just give me ${fieldLabel} and we'll continue.`
     };
   }
+
+  // Off-topic question mid-flow — answer it, then remind where we are
+  if (/^(how|what|which|can you|do you|price|cost|how much|combien|quel|est-ce que|avez-vous|show me)\b/i.test(lower)) {
+    const field = awaitingLeadField;
+    const savedField = awaitingLeadField;
+    awaitingLeadField = null;
+    const response = getBotResponse(rawText, lang);
+    awaitingLeadField = savedField;
+    const resumePrompt = {
+      name: lang === 'fr' ? '\n\nCela dit, pour continuer votre inscription, quel est votre nom complet ?' : '\n\nThat said, to continue setting things up — what\'s your full name?',
+      business: lang === 'fr' ? '\n\nEt pour continuer, quel est le nom de votre activité ?' : '\n\nAnd to continue — what\'s the name of your business?',
+      phone: lang === 'fr' ? '\n\nEt votre numéro WhatsApp ?' : '\n\nAnd your WhatsApp number?',
+      city: lang === 'fr' ? '\n\nEt quelle est votre ville ?' : '\n\nAnd which city are you in?',
+      payment_pref: lang === 'fr' ? '\n\nEt pour le paiement, vous préférez en une fois, en versements, ou l\'option annuelle ?' : '\n\nAnd for payment — full, installments, or the annual option?'
+    }[field] || '';
+    return { text: (response.text || '') + resumePrompt };
+  }
+
+  if (awaitingLeadField === 'name') {
+    // Reject suspiciously short or all-number names
+    if (trimmed.length < 2 || /^\d+$/.test(trimmed)) {
+      return { text: lang === 'fr' ? 'Je n\'ai pas bien compris. Pouvez-vous donner votre nom complet ?' : 'I didn\'t catch that. Could you give your full name?' };
+    }
+    leadContext.name = trimmed;
+    awaitingLeadField = 'business';
+    const firstName = trimmed.split(/\s+/)[0];
+    return {
+      text: lang === 'fr'
+        ? `Merci ${firstName} ! Et le nom de votre entreprise ou activité ?`
+        : `Thanks ${firstName}! What's the name of your business or activity?`
+    };
+  }
+
   if (awaitingLeadField === 'business') {
     leadContext.business = trimmed;
     awaitingLeadField = 'phone';
     return {
-      text: lang === 'fr' ? 'Parfait. Votre numéro WhatsApp (avec indicatif, ex: +237 6XX XXX XXX) pour qu\'on puisse vous contacter facilement ?' : 'Got it. Your WhatsApp number (with country code, e.g. +237 6XX XXX XXX) so we can reach you easily?'
+      text: lang === 'fr'
+        ? 'Parfait. Votre numéro WhatsApp (avec l\'indicatif, ex : +237 6XX XXX XXX) pour qu\'on puisse vous joindre facilement ?'
+        : 'Got it. Your WhatsApp number (with country code, e.g. +237 6XX XXX XXX) so we can reach you easily?'
     };
   }
+
   if (awaitingLeadField === 'phone') {
+    // Loose validation: must have at least 8 digits
+    const digits = trimmed.replace(/\D/g, '');
+    if (digits.length < 8) {
+      return {
+        text: lang === 'fr'
+          ? 'Ce numéro ne semble pas complet. Essayez par exemple : +237 622 341 343 ou 622341343.'
+          : 'That number doesn\'t look complete. Try something like: +237 622 341 343 or 622341343.'
+      };
+    }
     leadContext.phone = trimmed;
     awaitingLeadField = 'city';
     return {
-      text: lang === 'fr' ? 'Dernière info : dans quelle ville vous êtes (Yaoundé, Douala, Buea...) ?' : 'Last detail: Which city are you based in (Yaoundé, Douala, Buea...)?'
+      text: lang === 'fr'
+        ? 'Noté ! Dans quelle ville êtes-vous (Yaoundé, Douala, Buea...) ?'
+        : 'Got it! Which city are you based in (Yaoundé, Douala, Buea...)?'
     };
   }
+
   if (awaitingLeadField === 'city') {
     leadContext.city = trimmed;
     awaitingLeadField = 'payment_pref';
     return {
       text: lang === 'fr'
-        ? 'Super. Pour le paiement de l\'installation, vous préférez tout de suite, en 2-3 versements sans intérêts, ou avec la réduction pour l\'année complète ?'
-        : 'Great. For the setup payment, do you prefer paying in full now, in 2-3 interest-free installments, or the annual discount option?'
+        ? 'Super. Pour le paiement de l\'installation, qu\'est-ce qui vous arrange le mieux ?\n\n1️⃣ En une fois\n2️⃣ En 2-3 versements sans intérêts (MoMo)\n3️⃣ Réduction de 12% pour l\'année complète'
+        : 'Great. For the setup payment, what works best for you?\n\n1️⃣ Pay in full\n2️⃣ 2-3 interest-free installments (MoMo)\n3️⃣ 12% discount for the full year upfront'
     };
   }
 
   if (awaitingLeadField === 'payment_pref') {
     leadContext.payment_pref = trimmed;
-    selectedPayment = trimmed.toLowerCase().includes('install') ? 'installments' : 
-                     trimmed.toLowerCase().includes('annual') || trimmed.toLowerCase().includes('an') ? 'annual' : 'full';
+    selectedPayment = /install|versement|2|3/i.test(lower) ? 'installments'
+                    : /annual|annuel|year|an\b|12/i.test(lower) ? 'annual'
+                    : 'full';
     awaitingLeadField = null;
     currentStage = 'payment';
     saveLeadToStorage(leadContext);
     return providePaymentInstructions(lang);
   }
 
-  return { text: lang === 'fr' ? 'Pouvez-vous me donner cette information ?' : 'Could you please provide that information?' };
+  return { text: lang === 'fr' ? 'Pouvez-vous me donner cette information ?' : 'Could you give me that information?' };
 }
 
 function providePaymentInstructions(lang) {
@@ -748,16 +916,6 @@ function generateConversationSummary(lang = currentLang) {
     let contact = leadContext.name || '';
     if (leadContext.business) contact += (contact ? ' — ' : '') + leadContext.business;
     parts.push(lang === 'fr' ? `Contact : ${contact}.` : `Contact: ${contact}.`);
-  }
-
-  // Recent user points for freshness
-  const recentUser = messages
-    .filter(m => m.role === 'user')
-    .slice(-3)
-    .map(m => m.text.substring(0, 80))
-    .join(' ; ');
-  if (recentUser) {
-    parts.push(lang === 'fr' ? `Points récents : ${recentUser}.` : `Recent points: ${recentUser}.`);
   }
 
   if (parts.length === 0) {
@@ -1027,9 +1185,14 @@ function sendMessage() {
       }
     }
 
-    // Handle rich package HTML (Priority #2)
-    if (reply.packageHTML) {
-      addMessage('bot', reply.text);
+    // Show all three packages side by side
+    if (reply.multiPackage) {
+      if (reply.text) addMessage('bot', reply.text);
+      setTimeout(() => addMessage('bot', formatPackage('starter', currentLang), true), 100);
+      setTimeout(() => addMessage('bot', formatPackage('growth', currentLang), true), 200);
+      setTimeout(() => addMessage('bot', formatPackage('pro', currentLang), true), 300);
+    } else if (reply.packageHTML) {
+      if (reply.text) addMessage('bot', reply.text);
       addMessage('bot', reply.packageHTML, true);
     } else {
       addMessage('bot', reply.text, reply.isHTML || false);
@@ -1053,7 +1216,12 @@ function initChat() {
 
   if (!form || !input) return;
 
-  // No automatic welcome — the static h1 in HTML is the only message on first load
+  // Auto-greeting after a short delay
+  setTimeout(() => {
+    addMessage('bot', lang === 'fr'
+      ? 'Bonjour ! Je suis l\'assistant Harts. Je peux vous aider avec un site web, une application, un logo, des flyers, ou la gestion de vos réseaux sociaux. Qu\'est-ce que vous cherchez ?'
+      : 'Hi! I\'m the Harts assistant. I can help you get a website, mobile app, logo, flyers, social media management, or digital marketing for your business in Cameroon. What are you looking for today?');
+  }, 600);
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -1095,6 +1263,17 @@ function initChatLang() {
 
 // Glance cards removed for simpler interface.
 // Users interact directly via the chat input. The bot handles all pricing and package questions.
+
+// ── Chip quick-replies ────────────────────────────────────────
+function useChip(text) {
+  const input = document.getElementById('chat-input');
+  const chatContainer = document.getElementById('chat-main');
+  if (!input) return;
+  input.value = text;
+  const wasEmpty = messages.length === 0;
+  sendMessage();
+  if (wasEmpty && chatContainer) chatContainer.classList.add('chatting');
+}
 
 // ── Boot ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
