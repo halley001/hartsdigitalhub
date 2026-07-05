@@ -13,14 +13,14 @@ const I18N = {
     'pricing.title': 'Digital Packages',
     'starter.title': 'Starter',
     'starter.setup': 'XAF 50,000 setup',
-    'starter.price': 'XAF 15,000',
+    'starter.price': 'XAF 158,000',
     'growth.title': 'Growth',
     'growth.setup': 'XAF 120,000 setup',
-    'growth.price': 'XAF 35,000',
+    'growth.price': 'XAF 370,000',
     'pro.title': 'Pro',
     'pro.setup': 'XAF 250,000 setup',
-    'pro.price': 'XAF 80,000',
-    'permonth': '/ month',
+    'pro.price': 'XAF 845,000',
+    'permonth': '/ year',
     'starter.f1': 'Landing page',
     'starter.f2': 'Google Business listing',
     'starter.f3': 'WhatsApp Business setup',
@@ -48,14 +48,14 @@ const I18N = {
     'pricing.title': 'Forfaits Numériques',
     'starter.title': 'Démarrage',
     'starter.setup': 'XAF 50 000 installation',
-    'starter.price': 'XAF 15 000',
+    'starter.price': 'XAF 158 000',
     'growth.title': 'Croissance',
     'growth.setup': 'XAF 120 000 installation',
-    'growth.price': 'XAF 35 000',
+    'growth.price': 'XAF 370 000',
     'pro.title': 'Pro',
     'pro.setup': 'XAF 250 000 installation',
-    'pro.price': 'XAF 80 000',
-    'permonth': '/ mois',
+    'pro.price': 'XAF 845 000',
+    'permonth': '/ an',
     'starter.f1': 'Page d\'accueil',
     'starter.f2': 'Fiche Google Business',
     'starter.f3': 'Configuration WhatsApp Business',
@@ -88,7 +88,7 @@ let awaitingLeadField = null; // 'name' | 'business' | 'phone' | 'city' | 'packa
 let lastTopic = null;
 let currentStage = 'discovery'; // discovery | selection | details | payment | review
 let selectedPackage = null;
-let selectedPayment = null; // 'full' | 'installments' | 'annual'
+let selectedPayment = null; // 'full' | 'installments'
 
 // Simple dynamic user profile for more human-like, contextual responses
 let userProfile = {
@@ -103,7 +103,7 @@ const PACKAGES = {
   starter: {
     name: { en: 'Starter', fr: 'Démarrage' },
     setup: { en: 'XAF 50,000 setup', fr: 'XAF 50 000 installation' },
-    price: { en: 'XAF 15,000 / month', fr: 'XAF 15 000 / mois' },
+    price: { en: 'XAF 158,000 / year', fr: 'XAF 158 000 / an' },
     features: {
       en: ['Landing page', 'Google Business listing', 'WhatsApp Business setup'],
       fr: ['Page d\'accueil', 'Fiche Google Business', 'Configuration WhatsApp Business']
@@ -112,14 +112,12 @@ const PACKAGES = {
       en: 'Perfect for getting your business online quickly and affordably.',
       fr: 'Idéal pour mettre votre entreprise en ligne rapidement et à petit prix.'
     },
-    installment: { en: 'Pay setup in 2-3 interest-free MoMo installments', fr: 'Payez l\'installation en 2 ou 3 versements sans intérêts par MoMo' },
-    annual: { en: 'XAF 158,000/year (save ~12%)', fr: 'XAF 158 000 / an (économisez ~12 %)' },
-    installmentCalc: { en: 'e.g. 3 × XAF 16,667 or 2 × XAF 25,000', fr: 'ex: 3 × 16 667 XAF ou 2 × 25 000 XAF' }
+    installment: { en: 'Pay the yearly fee in 2-3 interest-free MoMo installments', fr: 'Payez le forfait annuel en 2 ou 3 versements sans intérêts par MoMo' }
   },
   growth: {
     name: { en: 'Growth', fr: 'Croissance' },
     setup: { en: 'XAF 120,000 setup', fr: 'XAF 120 000 installation' },
-    price: { en: 'XAF 35,000 / month', fr: 'XAF 35 000 / mois' },
+    price: { en: 'XAF 370,000 / year', fr: 'XAF 370 000 / an' },
     features: {
       en: ['Full website (5 pages)', 'Social media management (2 platforms)', 'Basic SEO', 'Monthly performance report'],
       fr: ['Site web complet (5 pages)', 'Gestion réseaux sociaux (2 plateformes)', 'SEO de base', 'Rapport mensuel']
@@ -129,14 +127,12 @@ const PACKAGES = {
       fr: 'Notre forfait le plus populaire. Parfait pour les entreprises qui veulent gagner en visibilité et en clients.'
     },
     popular: true,
-    installment: { en: 'Pay setup in 2-3 interest-free MoMo installments', fr: 'Payez l\'installation en 2 ou 3 versements sans intérêts par MoMo' },
-    annual: { en: 'XAF 370,000/year (save ~12%)', fr: 'XAF 370 000 / an (économisez ~12 %)' },
-    installmentCalc: { en: 'e.g. 3 × XAF 40,000 or 2 × XAF 60,000', fr: 'ex: 3 × 40 000 XAF ou 2 × 60 000 XAF' }
+    installment: { en: 'Pay the yearly fee in 2-3 interest-free MoMo installments', fr: 'Payez le forfait annuel en 2 ou 3 versements sans intérêts par MoMo' }
   },
   pro: {
     name: { en: 'Pro', fr: 'Pro' },
     setup: { en: 'XAF 250,000 setup', fr: 'XAF 250 000 installation' },
-    price: { en: 'XAF 80,000 / month', fr: 'XAF 80 000 / mois' },
+    price: { en: 'XAF 845,000 / year', fr: 'XAF 845 000 / an' },
     features: {
       en: ['E-commerce store', 'Google/Facebook Ads management', 'WhatsApp chatbot', 'Monthly analytics dashboard', 'Priority support'],
       fr: ['Boutique en ligne', 'Gestion Google/Facebook Ads', 'Chatbot WhatsApp', 'Tableau de bord analytique', 'Support prioritaire']
@@ -145,14 +141,12 @@ const PACKAGES = {
       en: 'Full digital presence with advertising and automation for serious growth.',
       fr: 'Présence digitale complète avec publicité et automatisation pour une croissance sérieuse.'
     },
-    installment: { en: 'Pay setup in 2-3 interest-free MoMo installments', fr: 'Payez l\'installation en 2 ou 3 versements sans intérêts par MoMo' },
-    annual: { en: 'XAF 845,000/year (save ~12%)', fr: 'XAF 845 000 / an (économisez ~12 %)' },
-    installmentCalc: { en: 'e.g. 3 × XAF 83,333 or 2 × XAF 125,000', fr: 'ex: 3 × 83 333 XAF ou 2 × 125 000 XAF' }
+    installment: { en: 'Pay the yearly fee in 2-3 interest-free MoMo installments', fr: 'Payez le forfait annuel en 2 ou 3 versements sans intérêts par MoMo' }
   },
   build_only: {
     name: { en: 'Build & Launch (One-Time)', fr: 'Création & Mise en ligne (Paiement unique)' },
     setup: { en: 'XAF 180,000 one-time (Starter-level site + launch)', fr: 'XAF 180 000 paiement unique (site niveau Starter + lancement)' },
-    price: { en: 'No monthly fee (management add-on available later)', fr: 'Aucun frais mensuel (option gestion disponible plus tard)' },
+    price: { en: 'No recurring fee (management add-on available later)', fr: 'Aucun frais récurrent (option gestion disponible plus tard)' },
     features: {
       en: ['Professional 5-page website', 'Google Business + WhatsApp setup', 'Mobile-friendly design', 'Training on how to manage your new digital assets'],
       fr: ['Site web professionnel 5 pages', 'Fiche Google Business + configuration WhatsApp', 'Design adapté mobile', 'Formation sur la gestion de vos nouveaux actifs numériques']
@@ -171,7 +165,7 @@ const KNOWLEDGE = {
     upgrade: 'Yes, you can upgrade your package or add services (like app development or extra design work) at any time. We make the transition smooth.',
     technical: 'No technical skills are required at all. We handle design, development, content, launch, and ongoing support. You just share your vision and approve the work.',
     timeline: 'Simple websites and branding projects (logos, flyers) are typically ready in 5–10 days. Full websites or apps usually take 2–4 weeks depending on complexity and how quickly you provide content.',
-    payment: 'We accept MTN MoMo (*126# → Send to 622 341 343), Orange Money, and bank transfer. Monthly fees (for managed services) are due at the beginning of each month. For MoMo we will give you exact instructions.',
+    payment: 'We accept MTN MoMo (*126# → Send to 622 341 343), Orange Money, and bank transfer. Managed packages are billed yearly — the yearly fee is due once at the start of your service year (and you can split it into 2-3 interest-free MoMo installments). For MoMo we will give you exact instructions.',
     momo: 'To pay with MTN MoMo:\n1. Dial *126#\n2. Select Transfer Money → Send to MTN Cameroon\n3. Enter 622 341 343\n4. Enter the exact amount for your project or package\n5. Confirm and keep your reference number.\nAfter payment, send us the reference on WhatsApp and we start or activate your services.',
     cities: 'We work with businesses across Cameroon — Yaoundé, Douala, Buea, and many other cities. Everything is handled remotely via WhatsApp, calls, and shared documents.',
     freeAudit: 'I can help you figure out the right services for your business right now. Just tell me a bit about what you do and what you need (more customers, online sales, new branding, etc.) and I\'ll recommend the best options.',
@@ -179,11 +173,11 @@ const KNOWLEDGE = {
     contact: 'The fastest way to reach our team is WhatsApp: +237 622 341 343. I can prepare a detailed message with everything we\'ve discussed so they have full context.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Our packages and custom projects are full-service. We don\'t just deliver files and disappear — we handle design, development, revisions, launch, and support. Many clients see real results quickly (more visibility, new customers, professional brand presence).',
-    installments: 'Yes! We offer interest-free installments for the setup or project fee on most services. You can spread the cost over 2 or 3 months via MTN MoMo with no extra fees. Great for cash flow.',
-    prepay: 'We offer around 12% discount if you pay for a full year of managed services upfront.',
-    build_only: 'We offer one-time projects (website, app, logo + flyer package, full branding) with no monthly commitment. You own everything and can add ongoing management later if needed.',
+    installments: 'Yes! You can split the yearly fee (and the setup) into 2-3 interest-free MoMo installments. Spread the cost over 2 or 3 payments with no extra fees. Great for cash flow.',
+    prepay: 'All managed packages are billed yearly (one payment covers the whole year). You can pay the yearly fee in full, or split it into 2-3 interest-free MoMo installments.',
+    build_only: 'We offer one-time projects (website, app, logo + flyer package, full branding) with no recurring commitment. You own everything and can add ongoing management later if needed.',
     roi_example: 'Real results: "Our restaurant bookings tripled in 2 months after Harts built our website and social assets. Customers now find us easily on Google and Instagram." (Mama Ngozi, Yaoundé). Many clients recover their investment quickly through new business.',
-    price_objection: 'I understand budget is important. Our packages start affordably and include flexible payment plans (installments or annual discount). We deliver real websites, apps, and professional design work. Would you like to see the installment options, annual savings, or discuss a custom quote for your project?'
+    price_objection: 'I understand budget is important. Our packages are billed yearly and include flexible payment (you can split the yearly fee into 2-3 interest-free installments). We deliver real websites, apps, and professional design work. Would you like to see the installment options or discuss a custom quote for your project?'
   },
   fr: {
     welcome: I18N.fr['chat.welcome'],
@@ -191,7 +185,7 @@ const KNOWLEDGE = {
     upgrade: 'Oui, vous pouvez passer à un forfait supérieur ou ajouter des services (comme le développement d\'applications ou du design supplémentaire) à tout moment. Nous assurons une transition fluide.',
     technical: 'Aucune compétence technique n\'est nécessaire. Nous nous occupons de la conception, du développement, du contenu, du lancement et du support continu. Vous partagez simplement votre vision et validez le travail.',
     timeline: 'Les sites simples et les projets de branding (logos, flyers) sont généralement prêts en 5 à 10 jours. Les sites complets ou les applications prennent généralement 2 à 4 semaines selon la complexité et la rapidité avec laquelle vous fournissez le contenu.',
-    payment: 'Nous acceptons MTN MoMo (*126# → envoi vers 622 341 343), Orange Money et virement bancaire. Les frais mensuels (pour les services gérés) sont dus en début de mois. Pour MoMo nous vous donnerons les instructions précises.',
+    payment: 'Nous acceptons MTN MoMo (*126# → envoi vers 622 341 343), Orange Money et virement bancaire. Les forfaits gérés sont facturés à l\'année — le forfait annuel est dû une fois, au début de votre année de service (et vous pouvez l\'étaler en 2 ou 3 versements sans intérêts par MoMo). Pour MoMo nous vous donnerons les instructions précises.',
     momo: 'Pour payer par MTN MoMo :\n1. Composez *126#\n2. Choisissez Transfert d\'argent → Envoi vers MTN Cameroun\n3. Entrez 622 341 343\n4. Entrez le montant exact de votre projet ou forfait\n5. Confirmez et gardez votre référence.\nAprès paiement, envoyez-nous la référence sur WhatsApp et nous démarrons ou activons vos services.',
     cities: 'Nous travaillons avec des entreprises dans tout le Cameroun — Yaoundé, Douala, Buea et de nombreuses autres villes. Tout se fait à distance via WhatsApp, appels et documents partagés.',
     freeAudit: 'Je peux vous aider à déterminer les bons services pour votre entreprise dès maintenant. Dites-moi simplement ce que vous faites et ce dont vous avez besoin (plus de clients, ventes en ligne, nouveau branding, etc.) et je vous recommanderai les meilleures options.',
@@ -199,11 +193,11 @@ const KNOWLEDGE = {
     contact: 'Le moyen le plus rapide de joindre notre équipe est WhatsApp : +237 622 341 343. Je peux préparer un message détaillé avec tout ce dont nous avons discuté pour qu\'ils aient le contexte complet.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Nos forfaits et projets sur mesure sont des services complets. Nous ne livrons pas simplement des fichiers et ne disparaissons pas — nous gérons la conception, le développement, les révisions, le lancement et le support. Beaucoup de clients voient de vrais résultats rapidement (plus de visibilité, de nouveaux clients, une présence de marque professionnelle).',
-    installments: 'Oui ! Nous proposons des versements sans intérêts pour les frais de projet ou d\'installation sur la plupart des services. Vous pouvez étaler le coût sur 2 ou 3 mois via MTN MoMo sans frais supplémentaires. Idéal pour la trésorerie.',
-    prepay: 'Nous offrons environ 12 % de réduction si vous payez une année complète de services gérés à l\'avance.',
-    build_only: 'Nous proposons des projets ponctuels (site web, application, pack logo + flyers, branding complet) sans engagement mensuel. Vous êtes propriétaire de tout et pouvez ajouter une gestion continue plus tard si nécessaire.',
+    installments: 'Oui ! Vous pouvez étaler le forfait annuel (et l\'installation) en 2 ou 3 versements sans intérêts par MTN MoMo, sans frais supplémentaires. Idéal pour la trésorerie.',
+    prepay: 'Tous les forfaits gérés sont facturés à l\'année (un seul paiement couvre toute l\'année). Vous pouvez payer le forfait annuel en une fois, ou l\'étaler en 2 ou 3 versements sans intérêts par MoMo.',
+    build_only: 'Nous proposons des projets ponctuels (site web, application, pack logo + flyers, branding complet) sans engagement récurrent. Vous êtes propriétaire de tout et pouvez ajouter une gestion continue plus tard si nécessaire.',
     roi_example: 'Résultats concrets : "Nos réservations de restaurant ont triplé en 2 mois après que Harts ait créé notre site web et nos visuels pour les réseaux sociaux. Les clients nous trouvent facilement sur Google et Instagram." (Mama Ngozi, Yaoundé). Beaucoup de clients récupèrent leur investissement rapidement grâce à de nouvelles affaires.',
-    price_objection: 'Je comprends que le budget est important. Nos forfaits commencent à des prix abordables et incluent des plans de paiement flexibles (versements ou réduction annuelle). Nous livrons de vrais sites web, applications et designs professionnels. Voulez-vous voir les options de versements, les économies annuelles, ou discuter d\'un devis personnalisé pour votre projet ?'
+    price_objection: 'Je comprends que le budget est important. Nos forfaits sont facturés à l\'année et incluent un paiement flexible (vous pouvez étaler le forfait annuel en 2 ou 3 versements sans intérêts). Nous livrons de vrais sites web, applications et designs professionnels. Voulez-vous voir les options de versements ou discuter d\'un devis personnalisé pour votre projet ?'
   }
 };
 
@@ -337,8 +331,8 @@ function getBotResponse(rawText, lang = currentLang) {
     if (/\b(web\s*sit[e]?|site\s*web?|online|en ligne)\b/i.test(text)) {
       lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
       return { text: lang === 'fr'
-        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter (50 000 XAF + 15 000/mois) — page de présentation\n• Growth (120 000 XAF + 35 000/mois) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch (180 000 XAF unique) — site complet, zéro frais mensuel\n\nLequel vous correspond le mieux ?`
-        : `For a professional website we have 3 options:\n\n• Starter (XAF 50,000 + 15,000/month) — single landing page\n• Growth (XAF 120,000 + 35,000/month) — 5-page site + social media ⭐ most popular\n• Build & Launch (XAF 180,000 one-time) — full site, no monthly fees\n\nWhich one fits your situation?`
+        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter (50 000 XAF installation + 158 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
+        : `For a professional website we have 3 options:\n\n• Starter (XAF 50,000 setup + 158,000/year) — single landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐ most popular\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
       };
     }
     if (/\b(app(?:lication)?|mobile)\b/i.test(text)) {
@@ -355,8 +349,8 @@ function getBotResponse(rawText, lang = currentLang) {
     }
     if (/\b(social media|réseaux sociaux|instagram|facebook|marketing)\b/i.test(text)) {
       return { text: lang === 'fr'
-        ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (35 000 XAF/mois) ou disponible en option.\n\nCombien de plateformes avez-vous en tête ?'
-        : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, and monthly reports. It\'s included in the Growth package (XAF 35,000/month) or available as an add-on.\n\nHow many platforms are you thinking about?'
+        ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (370 000 XAF/an) ou disponible en option.\n\nCombien de plateformes avez-vous en tête ?'
+        : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, and monthly reports. It\'s included in the Growth package (XAF 370,000/year) or available as an add-on.\n\nHow many platforms are you thinking about?'
       };
     }
     return {
@@ -411,8 +405,8 @@ function getBotResponse(rawText, lang = currentLang) {
     const growthCalc = calculatePaymentDetails('growth', 'installments', lang);
     return {
       text: lang === 'fr'
-        ? `Voici nos tarifs (en XAF). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Versements sans intérêts ou ~12% de réduction annuelle disponibles.\n\nQuel forfait ou service vous intéresse ?`
-        : `Here are our prices (in XAF). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Interest-free installments or ~12% annual discount available.\n\nWhich package or service interests you?`
+        ? `Voici nos tarifs (en XAF). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Facturation annuelle — payez en une fois ou en 2-3 versements sans intérêts par MoMo.\n\nQuel forfait ou service vous intéresse ?`
+        : `Here are our prices (in XAF). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Billed yearly — pay in full or in 2-3 interest-free MoMo installments.\n\nWhich package or service interests you?`
     };
   }
 
@@ -460,8 +454,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|webs?it|online presence|présence en ligne|w[ae]bsite)\b/i.test(text)) {
     lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
     return { text: lang === 'fr'
-      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter (50 000 XAF + 15 000/mois) — page de présentation\n• Growth (120 000 XAF + 35 000/mois) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch (180 000 XAF unique) — site complet, pas de frais mensuels\n\nQuel profil correspond à votre situation ?'
-      : 'For a professional website, we have 3 options:\n\n• Starter (XAF 50,000 + 15,000/month) — landing page\n• Growth (XAF 120,000 + 35,000/month) — 5-page site + social media ⭐\n• Build & Launch (XAF 180,000 one-time) — full site, no monthly fees\n\nWhich one fits your situation?'
+      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter (50 000 XAF installation + 158 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
+      : 'For a professional website, we have 3 options:\n\n• Starter (XAF 50,000 setup + 158,000/year) — landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
     };
   }
 
@@ -484,8 +478,8 @@ function getBotResponse(rawText, lang = currentLang) {
   // ── Social media ──────────────────────────────────────────────
   if (/\b(social media|réseaux sociaux|instagram|facebook|tiktok|manage.*social|gestion.*réseaux)\b/i.test(text)) {
     return { text: lang === 'fr'
-      ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (35 000 XAF/mois) ou disponible en option.\n\nCombien de plateformes souhaitez-vous gérer ?'
-      : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, monthly reports. It\'s included in the Growth package (XAF 35,000/month) or available as an add-on.\n\nHow many platforms do you have in mind?'
+      ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (370 000 XAF/an) ou disponible en option.\n\nCombien de plateformes souhaitez-vous gérer ?'
+      : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, monthly reports. It\'s included in the Growth package (XAF 370,000/year) or available as an add-on.\n\nHow many platforms do you have in mind?'
     };
   }
 
@@ -609,14 +603,11 @@ function formatPackage(key, lang) {
   html += `<br>💳 ${paymentSummary}<br>`;
 
   if (pkg.installment) {
-    html += `→ Also available in 2-3 interest-free installments.<br>`;
-  }
-  if (pkg.annual) {
-    html += `→ ~12% discount if you prepay the year.<br>`;
+    html += `→ You can split the yearly fee into 2-3 interest-free MoMo installments.<br>`;
   }
 
   if (key === 'growth') html += `<br><strong>★ Most popular package</strong><br>`;
-  if (key === 'build_only') html += `<br>Great lower-commitment option — no monthly fees.<br>`;
+  if (key === 'build_only') html += `<br>Great lower-commitment option — one-time payment, no recurring fees.<br>`;
 
   html += `<br>Ready to move forward, or want to compare / see exact payment options?`;
   
@@ -665,7 +656,7 @@ function handleLeadCollection(rawText, lang) {
       business: lang === 'fr' ? '\n\nEt pour continuer, quel est le nom de votre activité ?' : '\n\nAnd to continue — what\'s the name of your business?',
       phone: lang === 'fr' ? '\n\nEt votre numéro WhatsApp ?' : '\n\nAnd your WhatsApp number?',
       city: lang === 'fr' ? '\n\nEt quelle est votre ville ?' : '\n\nAnd which city are you in?',
-      payment_pref: lang === 'fr' ? '\n\nEt pour le paiement, vous préférez en une fois, en versements, ou l\'option annuelle ?' : '\n\nAnd for payment — full, installments, or the annual option?'
+      payment_pref: lang === 'fr' ? '\n\nEt pour le paiement du forfait annuel, vous préférez en une fois ou en 2-3 versements sans intérêts ?' : '\n\nAnd for the yearly fee — pay in full or in 2-3 interest-free installments?'
     }[field] || '';
     return { text: (response.text || '') + resumePrompt };
   }
@@ -719,15 +710,14 @@ function handleLeadCollection(rawText, lang) {
     awaitingLeadField = 'payment_pref';
     return {
       text: lang === 'fr'
-        ? 'Super. Pour le paiement de l\'installation, qu\'est-ce qui vous arrange le mieux ?\n\n1️⃣ En une fois\n2️⃣ En 2-3 versements sans intérêts (MoMo)\n3️⃣ Réduction de 12% pour l\'année complète'
-        : 'Great. For the setup payment, what works best for you?\n\n1️⃣ Pay in full\n2️⃣ 2-3 interest-free installments (MoMo)\n3️⃣ 12% discount for the full year upfront'
+        ? 'Super. Pour le paiement (installation + forfait annuel), qu\'est-ce qui vous arrange le mieux ?\n\n1️⃣ En une fois\n2️⃣ En 2-3 versements sans intérêts (MoMo)'
+        : 'Great. For payment (setup + yearly fee), what works best for you?\n\n1️⃣ Pay in full\n2️⃣ 2-3 interest-free installments (MoMo)'
     };
   }
 
   if (awaitingLeadField === 'payment_pref') {
     leadContext.payment_pref = trimmed;
     selectedPayment = /install|versement|2|3/i.test(lower) ? 'installments'
-                    : /annual|annuel|year|an\b|12/i.test(lower) ? 'annual'
                     : 'full';
     awaitingLeadField = null;
     currentStage = 'payment';
@@ -770,17 +760,49 @@ function providePaymentInstructions(lang) {
   return { text: msg };
 }
 
+// Prevents the same lead being persisted twice within one flow
+// (e.g. saved on completion, then again during the WhatsApp handoff).
+let lastLeadSignature = null;
+
 function saveLeadToStorage(lead) {
+  const pkg = lead.package || selectedPackage || 'Not specified';
+  const payment = lead.payment_pref || selectedPayment || 'Not specified';
+
+  // De-dupe on name+phone+package so we don't double-save the same person
+  const signature = `${lead.name || ''}|${lead.phone || ''}|${pkg}`;
+  if (signature === lastLeadSignature) return;
+  lastLeadSignature = signature;
+
+  // 1) Local fallback — never lose a lead even if the network/API fails
   try {
     const leads = JSON.parse(localStorage.getItem('harts_leads') || '[]');
     leads.push({
       ...lead,
-      pkg: lead.package || selectedPackage || 'Not specified',
-      payment: lead.payment_pref || selectedPayment || 'Not specified',
+      pkg,
+      payment,
       timestamp: new Date().toISOString(),
       source: 'chat'
     });
     localStorage.setItem('harts_leads', JSON.stringify(leads));
+  } catch (e) { /* ignore */ }
+
+  // 2) Persist to the database (fire-and-forget; UI never blocks on this)
+  try {
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: lead.name || null,
+        business: lead.business || null,
+        phone: lead.phone || null,
+        city: lead.city || null,
+        package: pkg,
+        payment_pref: payment,
+        summary: generateConversationSummary(currentLang),
+        lang: currentLang,
+        source: 'chat'
+      })
+    }).catch(() => { /* offline / not deployed yet — localStorage still has it */ });
   } catch (e) { /* ignore */ }
 }
 
@@ -907,7 +929,7 @@ function generateConversationSummary(lang = currentLang) {
     const pkgName = pkg.name[lang] || pkg.name.en;
     let pkgStr = pkgName;
     if (selectedPayment) {
-      pkgStr += ` (${selectedPayment === 'installments' ? 'versements' : selectedPayment === 'annual' ? 'annuel' : 'complet'})`;
+      pkgStr += ` (${selectedPayment === 'installments' ? 'versements' : 'complet'})`;
     }
     parts.push(lang === 'fr' ? `Intérêt principal : ${pkgStr}.` : `Main interest: ${pkgStr}.`);
   }
@@ -931,32 +953,26 @@ function calculatePaymentDetails(pkgKey, paymentType, lang = currentLang) {
   const pkg = PACKAGES[pkgKey];
   if (!pkg) return '';
 
-  // Extract numbers
-  const setupMatch = (pkg.setup[lang] || pkg.setup.en || '').match(/\d[\d\s]*/);
-  const monthlyMatch = (pkg.price[lang] || pkg.price.en || '').match(/\d[\d\s]*/);
-  
-  const setup = setupMatch ? parseInt(setupMatch[0].replace(/\s/g, '')) : 0;
-  const monthly = monthlyMatch ? parseInt(monthlyMatch[0].replace(/\s/g, '')) : 0;
+  // Extract numbers (recurring price is now billed yearly).
+  // Amounts use commas (en: 120,000) or spaces (fr: 120 000) as separators — strip both.
+  const setupMatch = (pkg.setup[lang] || pkg.setup.en || '').match(/\d[\d\s,]*/);
+  const yearlyMatch = (pkg.price[lang] || pkg.price.en || '').match(/\d[\d\s,]*/);
+
+  const setup = setupMatch ? parseInt(setupMatch[0].replace(/[\s,]/g, '')) : 0;
+  const yearly = yearlyMatch ? parseInt(yearlyMatch[0].replace(/[\s,]/g, '')) : 0;
+  const firstYearTotal = setup + yearly;
 
   if (paymentType === 'installments') {
-    const months = 3;
-    const perMonth = Math.round(setup / months);
+    const parts = 3;
+    const perPart = Math.round(yearly / parts);
     return lang === 'fr'
-      ? `Installation en ${months} versements sans intérêts : ~${perMonth.toLocaleString()} XAF/mois pendant ${months} mois (total installation ${setup.toLocaleString()} XAF).`
-      : `Setup in ${months} interest-free installments: ~${perMonth.toLocaleString()} XAF/month for ${months} months (total setup ${setup.toLocaleString()} XAF).`;
-  } 
-  else if (paymentType === 'annual') {
-    const discount = 0.12;
-    const discountedSetup = Math.round(setup * (1 - discount));
-    const annualTotal = discountedSetup + (monthly * 12);
-    return lang === 'fr'
-      ? `Paiement annuel avec ~12% de réduction : ${discountedSetup.toLocaleString()} XAF pour l'installation + ${ (monthly * 12).toLocaleString()} XAF pour l'année (total ~${annualTotal.toLocaleString()} XAF).`
-      : `Annual prepay with ~12% savings: ${discountedSetup.toLocaleString()} XAF setup + ${(monthly * 12).toLocaleString()} XAF for the year (total ~${annualTotal.toLocaleString()} XAF).`;
-  } 
+      ? `Installation ${setup.toLocaleString()} XAF, puis le forfait annuel (${yearly.toLocaleString()} XAF) en ${parts} versements sans intérêts par MoMo : ~${perPart.toLocaleString()} XAF × ${parts}.`
+      : `${setup.toLocaleString()} XAF setup, then the yearly fee (${yearly.toLocaleString()} XAF) in ${parts} interest-free MoMo installments: ~${perPart.toLocaleString()} XAF × ${parts}.`;
+  }
   else {
     return lang === 'fr'
-      ? `Paiement complet : ${setup.toLocaleString()} XAF d'installation + ${monthly.toLocaleString()} XAF le premier mois.`
-      : `Full payment: ${setup.toLocaleString()} XAF setup + ${monthly.toLocaleString()} XAF first month.`;
+      ? `Paiement complet : ${setup.toLocaleString()} XAF d'installation + ${yearly.toLocaleString()} XAF pour l'année (total ${firstYearTotal.toLocaleString()} XAF la première année, puis ${yearly.toLocaleString()} XAF/an).`
+      : `Full payment: ${setup.toLocaleString()} XAF setup + ${yearly.toLocaleString()} XAF for the year (total ${firstYearTotal.toLocaleString()} XAF first year, then ${yearly.toLocaleString()} XAF/year).`;
   }
 }
 // --- End dynamic helpers ---
@@ -983,6 +999,12 @@ function doHandoff(lang, withDetails = false) {
   // Use the nice dynamic summary for the WhatsApp message
   const summary = generateConversationSummary(lang);
   msg += lang === 'fr' ? `\n\nRésumé de notre conversation : ${summary}` : `\n\nSummary of our conversation: ${summary}`;
+
+  // Capture the lead before opening WhatsApp — covers the "skip" path where
+  // the full flow wasn't completed. De-duped inside saveLeadToStorage.
+  if (leadContext.name || leadContext.phone || leadContext.business) {
+    saveLeadToStorage(leadContext);
+  }
 
   const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
