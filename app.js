@@ -1293,12 +1293,10 @@ function sendMessage() {
 
   // Natural delay + LLM for dynamic responses where appropriate
   setTimeout(async () => {
-    hideTyping();
-
     let reply = getBotResponse(val, currentLang);
 
     // For general/open responses (not in strict collection/payment/review), use LLM for dynamism
-    const useLLM = !awaitingLeadField && currentStage !== 'review' && currentStage !== 'payment' && 
+    const useLLM = !awaitingLeadField && currentStage !== 'review' && currentStage !== 'payment' &&
                    !/(get started|je veux|commencer|paid|payé|installment|versement|price|prix|growth|pro|starter)/i.test(val);
 
     if (useLLM) {
@@ -1309,12 +1307,13 @@ function sendMessage() {
           content: m.text
         }));
 
+        // Keep the typing indicator visible during the network call
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            messages: history, 
-            lang: currentLang 
+          body: JSON.stringify({
+            messages: history,
+            lang: currentLang
           })
         });
 
@@ -1328,6 +1327,9 @@ function sendMessage() {
         console.warn('LLM call failed, using rule-based fallback');
       }
     }
+
+    // Reply is ready (rule-based or LLM) — now remove the typing indicator
+    hideTyping();
 
     // Show all three packages side by side
     if (reply.multiPackage) {

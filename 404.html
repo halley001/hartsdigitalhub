@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page not found | Harts Digital Hub</title>
+  <meta name="robots" content="noindex">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#000000">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --bg:#000; --text:#fff; --muted:#666; --border:#242424; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html,body { height:100%; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:'DM Mono', monospace;
+      display:flex; align-items:center; justify-content:center;
+      min-height:100vh; padding:24px; text-align:center;
+      -webkit-font-smoothing:antialiased;
+    }
+    .e404-wrap { max-width:520px; }
+    .e404-code {
+      font-family:'Syne', sans-serif; font-weight:700;
+      font-size:clamp(5rem, 22vw, 9rem); line-height:1;
+      letter-spacing:-4px; color:#fff;
+    }
+    .e404-code .dot { color:var(--muted); }
+    .e404-title {
+      font-family:'Syne', sans-serif; font-weight:700;
+      font-size:1.6rem; margin:0.75rem 0 0.9rem; letter-spacing:-0.5px;
+    }
+    .e404-sub { color:#aaa; font-size:0.95rem; line-height:1.6; margin-bottom:2rem; }
+    .e404-actions { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
+    .e404-btn {
+      font-family:'Syne', sans-serif; font-weight:700; font-size:0.95rem;
+      text-decoration:none; border-radius:999px; padding:0.75rem 1.6rem;
+      transition:background .18s, color .18s, border-color .18s, transform .18s;
+      display:inline-block;
+    }
+    .e404-btn-primary { background:#fff; color:#000; border:1.5px solid #fff; }
+    .e404-btn-primary:hover,.e404-btn-primary:focus { background:transparent; color:#fff; transform:scale(1.03); }
+    .e404-btn-ghost { background:transparent; color:#fff; border:1.5px solid var(--border); }
+    .e404-btn-ghost:hover,.e404-btn-ghost:focus { border-color:#fff; }
+    .e404-links { margin-top:2rem; font-size:0.82rem; color:var(--muted); }
+    .e404-links a { color:#aaa; text-decoration:none; }
+    .e404-links a:hover { color:#fff; text-decoration:underline; }
+    .e404-logo {
+      font-family:'Syne', sans-serif; font-weight:700; font-size:1.05rem;
+      letter-spacing:0.02em; margin-bottom:1.75rem; display:inline-block;
+    }
+    @media (max-width:600px){ .e404-title{ font-size:1.3rem; } }
+  </style>
+</head>
+<body>
+  <div class="e404-wrap">
+    <span class="e404-logo">Harts</span>
+    <div class="e404-code">404<span class="dot">.</span></div>
+    <h1 class="e404-title">This page took a wrong turn</h1>
+    <p class="e404-sub">The page you're looking for doesn't exist or has moved. Let's get you back to growing your business online.</p>
+    <div class="e404-actions">
+      <a href="/" class="e404-btn e404-btn-primary">Back to chat</a>
+      <a href="/services.html" class="e404-btn e404-btn-ghost">Services &amp; pricing</a>
+    </div>
+    <div class="e404-links">
+      <a href="/">Home</a> · <a href="/services.html">Services</a> · <a href="/training.html">AI Training</a> · <a href="https://wa.me/237622341343" target="_blank" rel="noopener">WhatsApp</a>
+    </div>
+  </div>
+</body>
+</html>
