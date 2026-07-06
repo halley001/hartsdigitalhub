@@ -4,7 +4,7 @@
 // arrives via /api/pay/webhook. Amount is computed server-side.
 
 import {
-  CAMPAY_BASE, SETUP_FEES_XAF, getCampayToken, normalizePhone,
+  CAMPAY_BASE, SETUP_FEES_XAF, ADDON_PRICES_XAF, getCampayToken, normalizePhone,
   supabaseConfigured, sbInsert, sbUpdate
 } from './_lib.js';
 import crypto from 'crypto';
@@ -14,11 +14,17 @@ export default async function handler(req, res) {
 
   if (!supabaseConfigured()) return res.status(500).json({ error: 'Payment store not configured' });
 
-  const { package: pkg, phone, lead_id = null } = req.body || {};
+  const { package: pkg, phone, lead_id = null, add_ons = [] } = req.body || {};
 
   // Server-authoritative amount — never trust a price from the client
-  const amount = SETUP_FEES_XAF[pkg];
-  if (!amount) return res.status(400).json({ error: 'Unknown package' });
+  const setupFee = SETUP_FEES_XAF[pkg];
+  if (!setupFee) return res.status(400).json({ error: 'Unknown package' });
+
+  // Validate add-ons against the known catalog and sum their prices
+  const addonKeys = (Array.isArray(add_ons) ? add_ons : [])
+    .filter(k => ADDON_PRICES_XAF[k]);
+  const addonTotal = addonKeys.reduce((sum, k) => sum + ADDON_PRICES_XAF[k], 0);
+  const amount = setupFee + addonTotal;
 
   const from = normalizePhone(phone);
   if (!from) return res.status(400).json({ error: 'Invalid phone number' });
@@ -33,6 +39,7 @@ export default async function handler(req, res) {
       external_reference,
       package: pkg,
       payment_type: 'setup',
+      add_ons: addonKeys.join(',') || null,
       amount,
       currency: 'XAF',
       phone: from,
@@ -53,7 +60,7 @@ export default async function handler(req, res) {
         amount: String(amount),
         currency: 'XAF',
         from,
-        description: `Harts ${pkg} setup fee`,
+        description: `Harts ${pkg} setup${addonKeys.length ? ' + ' + addonKeys.join('+') : ''}`,
         external_reference
       })
     });

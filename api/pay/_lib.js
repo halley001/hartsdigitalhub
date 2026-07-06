@@ -15,9 +15,16 @@ export const CAMPAY_BASE = (process.env.CAMPAY_BASE_URL || 'https://demo.campay.
 // Server-authoritative setup fees (XAF). The client never sends the price.
 export const SETUP_FEES_XAF = {
   starter: 50000,
+  essential: 75000,
   growth: 120000,
   pro: 250000,
   build_only: 180000
+};
+
+// One-time add-ons (XAF), charged together with the setup fee. Also server-authoritative.
+export const ADDON_PRICES_XAF = {
+  logo: 25000,
+  full_branding: 80000
 };
 
 // --- Campay ---------------------------------------------------------------

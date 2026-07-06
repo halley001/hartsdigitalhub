@@ -13,7 +13,7 @@ const I18N = {
     'pricing.title': 'Digital Packages',
     'starter.title': 'Starter',
     'starter.setup': 'XAF 50,000 setup',
-    'starter.price': 'XAF 158,000',
+    'starter.price': 'XAF 30,000',
     'growth.title': 'Growth',
     'growth.setup': 'XAF 120,000 setup',
     'growth.price': 'XAF 370,000',
@@ -42,13 +42,13 @@ const I18N = {
     'chat.send': 'Send',
     'chat.human': 'Talk to a real person',
     'chat.suggestions': 'Quick questions',
-    'chat.welcome': 'Hi! How can I help you today?\n\nI can help with custom websites, mobile apps, logos, flyers, branding, social media, and other digital services. Flexible payment options available.'
+    'chat.welcome': 'Hi! This is H@rts, your Harts Digital Hub AI assistant. How can we help you today?\n\nWe can help with custom websites, mobile apps, logos, flyers, branding, social media, and other digital services. Flexible payment options available.'
   },
   fr: {
     'pricing.title': 'Forfaits Numériques',
     'starter.title': 'Démarrage',
     'starter.setup': 'XAF 50 000 installation',
-    'starter.price': 'XAF 158 000',
+    'starter.price': 'XAF 30 000',
     'growth.title': 'Croissance',
     'growth.setup': 'XAF 120 000 installation',
     'growth.price': 'XAF 370 000',
@@ -77,7 +77,7 @@ const I18N = {
     'chat.send': 'Envoyer',
     'chat.human': 'Parler à un vrai conseiller',
     'chat.suggestions': 'Questions rapides',
-    'chat.welcome': 'Bonjour ! Comment puis-je vous aider aujourd\'hui ?\n\nJe peux vous aider pour des sites web personnalisés, des applications mobiles, des logos, des flyers, du branding, des réseaux sociaux et d\'autres services numériques. Options de paiement flexibles disponibles.'
+    'chat.welcome': 'Bonjour ! Ici H@rts, votre assistant IA de Harts Digital Hub. Comment pouvons-nous vous aider aujourd\'hui ?\n\nNous pouvons vous aider pour des sites web personnalisés, des applications mobiles, des logos, des flyers, du branding, des réseaux sociaux et d\'autres services numériques. Options de paiement flexibles disponibles.'
   }
 };
 
@@ -90,10 +90,18 @@ let currentStage = 'discovery'; // discovery | selection | details | payment | r
 let selectedPackage = null;
 let selectedPayment = null; // 'full' | 'installments'
 let awaitingMomoNumber = false; // true while we wait for the customer's MoMo number to charge the setup fee
+let awaitingAddons = false;     // true while we offer optional add-ons before payment
+let selectedAddons = [];        // keys of add-ons the client chose (e.g. ['logo'])
 let currentLeadId = null;       // Supabase id of the saved lead, so a payment can link back to it
 
 // Server-authoritative setup fees (mirrors api/pay/_lib.js) — used only for display in chat
-const SETUP_FEES_XAF = { starter: 50000, growth: 120000, pro: 250000, build_only: 180000 };
+const SETUP_FEES_XAF = { starter: 50000, essential: 75000, growth: 120000, pro: 250000, build_only: 180000 };
+
+// One-time add-ons (mirrors ADDON_PRICES_XAF in api/pay/_lib.js) — display only; server recomputes
+const ADDONS = {
+  logo:          { price: 25000, label: { en: 'Logo', fr: 'Logo' } },
+  full_branding: { price: 80000, label: { en: 'Full branding (logo, colours, business card, templates)', fr: 'Branding complet (logo, couleurs, carte de visite, templates)' } }
+};
 
 // Simple dynamic user profile for more human-like, contextual responses
 let userProfile = {
@@ -108,7 +116,7 @@ const PACKAGES = {
   starter: {
     name: { en: 'Starter', fr: 'Démarrage' },
     setup: { en: 'XAF 50,000 setup', fr: 'XAF 50 000 installation' },
-    price: { en: 'XAF 158,000 / year', fr: 'XAF 158 000 / an' },
+    price: { en: 'XAF 30,000 / year', fr: 'XAF 30 000 / an' },
     features: {
       en: ['Landing page', 'Google Business listing', 'WhatsApp Business setup'],
       fr: ['Page d\'accueil', 'Fiche Google Business', 'Configuration WhatsApp Business']
@@ -116,6 +124,20 @@ const PACKAGES = {
     desc: {
       en: 'Perfect for getting your business online quickly and affordably.',
       fr: 'Idéal pour mettre votre entreprise en ligne rapidement et à petit prix.'
+    },
+    installment: { en: 'Pay the yearly fee in 2-3 interest-free MoMo installments', fr: 'Payez le forfait annuel en 2 ou 3 versements sans intérêts par MoMo' }
+  },
+  essential: {
+    name: { en: 'Essential', fr: 'Essentiel' },
+    setup: { en: 'XAF 75,000 setup', fr: 'XAF 75 000 installation' },
+    price: { en: 'XAF 100,000 / year', fr: 'XAF 100 000 / an' },
+    features: {
+      en: ['3-page website', 'Google Business + WhatsApp setup', 'Social media (1 platform, light management)', 'Basic SEO'],
+      fr: ['Site web 3 pages', 'Fiche Google Business + configuration WhatsApp', 'Réseaux sociaux (1 plateforme, gestion légère)', 'SEO de base']
+    },
+    desc: {
+      en: 'A real multi-page website and a starter online presence — more than a landing page, without full social management.',
+      fr: 'Un vrai site multi-pages et une présence en ligne de départ — plus qu\'une page d\'accueil, sans la gestion complète des réseaux sociaux.'
     },
     installment: { en: 'Pay the yearly fee in 2-3 interest-free MoMo installments', fr: 'Payez le forfait annuel en 2 ou 3 versements sans intérêts par MoMo' }
   },
@@ -173,16 +195,16 @@ const KNOWLEDGE = {
     payment: 'We accept MTN MoMo (*126# → Send to 622 341 343), Orange Money, and bank transfer. Managed packages are billed yearly — the yearly fee is due once at the start of your service year (and you can split it into 2-3 interest-free MoMo installments). For MoMo we will give you exact instructions.',
     momo: 'To pay with MTN MoMo:\n1. Dial *126#\n2. Select Transfer Money → Send to MTN Cameroon\n3. Enter 622 341 343\n4. Enter the exact amount for your project or package\n5. Confirm and keep your reference number.\nAfter payment, send us the reference on WhatsApp and we start or activate your services.',
     cities: 'We work with businesses across Cameroon — Yaoundé, Douala, Buea, and many other cities. Everything is handled remotely via WhatsApp, calls, and shared documents.',
-    freeAudit: 'I can help you figure out the right services for your business right now. Just tell me a bit about what you do and what you need (more customers, online sales, new branding, etc.) and I\'ll recommend the best options.',
+    freeAudit: 'We can help you figure out the right services for your business right now. Just tell us a bit about what you do and what you need (more customers, online sales, new branding, etc.) and we\'ll recommend the best options.',
     who: 'Harts Digital Hub is a Cameroon-based digital agency that builds websites, mobile apps, and other digital products (logos, flyers, branding, social media assets) for SMEs. We focus on high-quality, affordable work with flexible payment plans.',
-    contact: 'The fastest way to reach our team is WhatsApp: +237 622 341 343. I can prepare a detailed message with everything we\'ve discussed so they have full context.',
+    contact: 'The fastest way to reach our team is WhatsApp: +237 622 341 343. We can prepare a detailed message with everything we\'ve discussed so they have full context.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Our packages and custom projects are full-service. We don\'t just deliver files and disappear — we handle design, development, revisions, launch, and support. Many clients see real results quickly (more visibility, new customers, professional brand presence).',
     installments: 'Yes! You can split the yearly fee (and the setup) into 2-3 interest-free MoMo installments. Spread the cost over 2 or 3 payments with no extra fees. Great for cash flow.',
     prepay: 'All managed packages are billed yearly (one payment covers the whole year). You can pay the yearly fee in full, or split it into 2-3 interest-free MoMo installments.',
     build_only: 'We offer one-time projects (website, app, logo + flyer package, full branding) with no recurring commitment. You own everything and can add ongoing management later if needed.',
     roi_example: 'Real results: "Our restaurant bookings tripled in 2 months after Harts built our website and social assets. Customers now find us easily on Google and Instagram." (Mama Ngozi, Yaoundé). Many clients recover their investment quickly through new business.',
-    price_objection: 'I understand budget is important. Our packages are billed yearly and include flexible payment (you can split the yearly fee into 2-3 interest-free installments). We deliver real websites, apps, and professional design work. Would you like to see the installment options or discuss a custom quote for your project?'
+    price_objection: 'We understand budget is important. Our packages are billed yearly and include flexible payment (you can split the yearly fee into 2-3 interest-free installments). We deliver real websites, apps, and professional design work. Would you like to see the installment options or discuss a custom quote for your project?'
   },
   fr: {
     welcome: I18N.fr['chat.welcome'],
@@ -193,16 +215,16 @@ const KNOWLEDGE = {
     payment: 'Nous acceptons MTN MoMo (*126# → envoi vers 622 341 343), Orange Money et virement bancaire. Les forfaits gérés sont facturés à l\'année — le forfait annuel est dû une fois, au début de votre année de service (et vous pouvez l\'étaler en 2 ou 3 versements sans intérêts par MoMo). Pour MoMo nous vous donnerons les instructions précises.',
     momo: 'Pour payer par MTN MoMo :\n1. Composez *126#\n2. Choisissez Transfert d\'argent → Envoi vers MTN Cameroun\n3. Entrez 622 341 343\n4. Entrez le montant exact de votre projet ou forfait\n5. Confirmez et gardez votre référence.\nAprès paiement, envoyez-nous la référence sur WhatsApp et nous démarrons ou activons vos services.',
     cities: 'Nous travaillons avec des entreprises dans tout le Cameroun — Yaoundé, Douala, Buea et de nombreuses autres villes. Tout se fait à distance via WhatsApp, appels et documents partagés.',
-    freeAudit: 'Je peux vous aider à déterminer les bons services pour votre entreprise dès maintenant. Dites-moi simplement ce que vous faites et ce dont vous avez besoin (plus de clients, ventes en ligne, nouveau branding, etc.) et je vous recommanderai les meilleures options.',
+    freeAudit: 'Nous pouvons vous aider à déterminer les bons services pour votre entreprise dès maintenant. Dites-nous simplement ce que vous faites et ce dont vous avez besoin (plus de clients, ventes en ligne, nouveau branding, etc.) et nous vous recommanderons les meilleures options.',
     who: 'Harts Digital Hub est une agence digitale basée au Cameroun qui crée des sites web, des applications mobiles et d\'autres produits numériques (logos, flyers, branding, visuels pour réseaux sociaux) pour les PME. Nous nous concentrons sur un travail de qualité à prix abordable avec des plans de paiement flexibles.',
-    contact: 'Le moyen le plus rapide de joindre notre équipe est WhatsApp : +237 622 341 343. Je peux préparer un message détaillé avec tout ce dont nous avons discuté pour qu\'ils aient le contexte complet.',
+    contact: 'Le moyen le plus rapide de joindre notre équipe est WhatsApp : +237 622 341 343. Nous pouvons préparer un message détaillé avec tout ce dont nous avons discuté pour qu\'ils aient le contexte complet.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Nos forfaits et projets sur mesure sont des services complets. Nous ne livrons pas simplement des fichiers et ne disparaissons pas — nous gérons la conception, le développement, les révisions, le lancement et le support. Beaucoup de clients voient de vrais résultats rapidement (plus de visibilité, de nouveaux clients, une présence de marque professionnelle).',
     installments: 'Oui ! Vous pouvez étaler le forfait annuel (et l\'installation) en 2 ou 3 versements sans intérêts par MTN MoMo, sans frais supplémentaires. Idéal pour la trésorerie.',
     prepay: 'Tous les forfaits gérés sont facturés à l\'année (un seul paiement couvre toute l\'année). Vous pouvez payer le forfait annuel en une fois, ou l\'étaler en 2 ou 3 versements sans intérêts par MoMo.',
     build_only: 'Nous proposons des projets ponctuels (site web, application, pack logo + flyers, branding complet) sans engagement récurrent. Vous êtes propriétaire de tout et pouvez ajouter une gestion continue plus tard si nécessaire.',
     roi_example: 'Résultats concrets : "Nos réservations de restaurant ont triplé en 2 mois après que Harts ait créé notre site web et nos visuels pour les réseaux sociaux. Les clients nous trouvent facilement sur Google et Instagram." (Mama Ngozi, Yaoundé). Beaucoup de clients récupèrent leur investissement rapidement grâce à de nouvelles affaires.',
-    price_objection: 'Je comprends que le budget est important. Nos forfaits sont facturés à l\'année et incluent un paiement flexible (vous pouvez étaler le forfait annuel en 2 ou 3 versements sans intérêts). Nous livrons de vrais sites web, applications et designs professionnels. Voulez-vous voir les options de versements ou discuter d\'un devis personnalisé pour votre projet ?'
+    price_objection: 'Nous comprenons que le budget est important. Nos forfaits sont facturés à l\'année et incluent un paiement flexible (vous pouvez étaler le forfait annuel en 2 ou 3 versements sans intérêts). Nous livrons de vrais sites web, applications et designs professionnels. Voulez-vous voir les options de versements ou discuter d\'un devis personnalisé pour votre projet ?'
   }
 };
 
@@ -217,6 +239,9 @@ function getBotResponse(rawText, lang = currentLang) {
   // ── Active flows ─────────────────────────────────────────────
   if (currentStage === 'review' || awaitingReviewField) {
     return handleReviewCollection(rawText, lang);
+  }
+  if (awaitingAddons) {
+    return handleAddonSelection(rawText, lang);
   }
   if (awaitingMomoNumber) {
     return handleMomoPayment(rawText, lang);
@@ -235,8 +260,8 @@ function getBotResponse(rawText, lang = currentLang) {
         : (lang === 'fr' ? 'Bonsoir' : 'Good evening');
     return {
       text: lang === 'fr'
-        ? `${timeGreet} ! Je suis l'assistant de Harts Digital Hub. Je peux vous aider à obtenir un site web, une application mobile, un logo, des flyers, ou à gérer vos réseaux sociaux et votre marketing au Cameroun. Par quoi puis-je vous aider ?`
-        : `${timeGreet}! I'm the Harts Digital Hub assistant. I can help you get a website, mobile app, logo, flyers, or manage your social media and digital marketing in Cameroon. What can I help you with?`
+        ? `${timeGreet} ! Ici H@rts, votre assistant IA de Harts Digital Hub. Nous pouvons vous aider à obtenir un site web, une application mobile, un logo, des flyers, ou à gérer vos réseaux sociaux et votre marketing au Cameroun. Par quoi pouvons-nous vous aider ?`
+        : `${timeGreet}! This is H@rts, your Harts Digital Hub AI assistant. We can help you get a website, mobile app, logo, flyers, or manage your social media and digital marketing in Cameroon. How can we help you?`
     };
   }
 
@@ -273,11 +298,11 @@ function getBotResponse(rawText, lang = currentLang) {
     if (currentStage === 'discovery') {
       return {
         text: lang === 'fr'
-          ? 'Avec plaisir ! Dites-moi ce dont vous avez besoin — site web, application, logo, flyers, marketing digital... Et quel type d\'activité avez-vous ?'
-          : 'Great! Tell me what you need — website, mobile app, logo, flyers, digital marketing... And what type of business do you have?'
+          ? 'Avec plaisir ! Dites-nous ce dont vous avez besoin — site web, application, logo, flyers, marketing digital... Et quel type d\'activité avez-vous ?'
+          : 'Great! Tell us what you need — website, mobile app, logo, flyers, digital marketing... And what type of business do you have?'
       };
     }
-    return { text: lang === 'fr' ? 'Je suis là ! Que souhaitez-vous faire ?' : 'I\'m here! What would you like to do?' };
+    return { text: lang === 'fr' ? 'Nous sommes là ! Que souhaitez-vous faire ?' : 'We\'re here! What would you like to do?' };
   }
 
   // ── Negative / cancel ────────────────────────────────────────
@@ -288,8 +313,8 @@ function getBotResponse(rawText, lang = currentLang) {
     leadContext = {};
     return {
       text: lang === 'fr'
-        ? 'Pas de problème ! Je reste disponible si vous avez des questions ou souhaitez reprendre plus tard. Y a-t-il autre chose que je peux faire pour vous ?'
-        : 'No problem at all! I\'m here if you have questions or want to come back later. Is there anything else I can help you with?'
+        ? 'Pas de problème ! Nous restons disponibles si vous avez des questions ou souhaitez reprendre plus tard. Y a-t-il autre chose que nous pouvons faire pour vous ?'
+        : 'No problem at all! We\'re here if you have questions or want to come back later. Is there anything else we can help you with?'
     };
   }
 
@@ -297,8 +322,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/(are you (a |an |real )?bot|are you (an? )?ai|is this (a |an |real )?human|robot|automated|chatbot|assistant virtuel|qui (êtes|es)-?tu|parle[rz]*.*machine|who am i talking)/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Je suis un assistant virtuel de Harts Digital Hub — pas un humain, mais je connais bien nos services ! Pour parler directement à un membre de notre équipe, dites "équipe" ou "WhatsApp" et je vous connecte immédiatement.'
-        : 'I\'m a virtual assistant for Harts Digital Hub — not a human, but I know our services well! To speak directly to a team member, just say "team" or "WhatsApp" and I\'ll connect you right away.'
+        ? 'Ici H@rts, l\'assistant IA de Harts Digital Hub — pas un humain, mais nous connaissons bien nos services ! Pour parler directement à un membre de notre équipe, dites "équipe" ou "WhatsApp" et nous vous connectons immédiatement.'
+        : 'This is H@rts, the Harts Digital Hub AI assistant — not a human, but we know our services well! To speak directly to a team member, just say "team" or "WhatsApp" and we\'ll connect you right away.'
     };
   }
 
@@ -339,8 +364,8 @@ function getBotResponse(rawText, lang = currentLang) {
     if (/\b(web\s*sit[e]?|site\s*web?|online|en ligne)\b/i.test(text)) {
       lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
       return { text: lang === 'fr'
-        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter (50 000 XAF installation + 158 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
-        : `For a professional website we have 3 options:\n\n• Starter (XAF 50,000 setup + 158,000/year) — single landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐ most popular\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
+        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter (50 000 XAF installation + 30 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
+        : `For a professional website we have 3 options:\n\n• Starter (XAF 50,000 setup + 30,000/year) — single landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐ most popular\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
       };
     }
     if (/\b(app(?:lication)?|mobile)\b/i.test(text)) {
@@ -363,8 +388,8 @@ function getBotResponse(rawText, lang = currentLang) {
     }
     return {
       text: lang === 'fr'
-        ? 'Je suis là pour vous aider ! Dites-moi exactement ce dont vous avez besoin (site web, appli mobile, logo, flyers, marketing digital...) et votre type d\'activité — je vous guiderai vers la meilleure option.'
-        : 'I\'m here to help! Tell me exactly what you need (website, mobile app, logo, flyers, digital marketing...) and what type of business you have — I\'ll guide you to the best option.'
+        ? 'Nous sommes là pour vous aider ! Dites-nous exactement ce dont vous avez besoin (site web, appli mobile, logo, flyers, marketing digital...) et votre type d\'activité — nous vous guiderons vers la meilleure option.'
+        : 'We\'re here to help! Tell us exactly what you need (website, mobile app, logo, flyers, digital marketing...) and what type of business you have — we\'ll guide you to the best option.'
     };
   }
 
@@ -383,7 +408,7 @@ function getBotResponse(rawText, lang = currentLang) {
     return {
       text: lang === 'fr'
         ? 'Super ! Pour vous orienter vers la meilleure option, dites-moi : quel type de service vous intéresse (site web, application, logo, marketing) et quel est votre type d\'activité ?'
-        : 'Let\'s do it! To point you to the best option, tell me: what service are you interested in (website, app, logo, marketing) and what type of business do you have?'
+        : 'Let\'s do it! To point you to the best option, tell us: what service are you interested in (website, app, logo, marketing) and what type of business do you have?'
     };
   }
 
@@ -391,6 +416,10 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(starter|démarrage)\b/i.test(text)) {
     lastTopic = 'starter'; selectedPackage = 'starter'; currentStage = 'selection';
     return { packageHTML: formatPackage('starter', lang) };
+  }
+  if (/\b(essential|essentiel)\b/i.test(text)) {
+    lastTopic = 'essential'; selectedPackage = 'essential'; currentStage = 'selection';
+    return { packageHTML: formatPackage('essential', lang) };
   }
   if (/\b(growth|croissance)\b/i.test(text)) {
     lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
@@ -402,9 +431,9 @@ function getBotResponse(rawText, lang = currentLang) {
   }
 
   // ── All packages ─────────────────────────────────────────────
-  if (/(packages?|forfaits?|show.*package|see.*package|all package|what.*package|your package|pricing|tarif[s]?|how much|combien.*coût|cost[s]?|prix)/i.test(text) && !/\b(starter|growth|pro)\b/i.test(text)) {
+  if (/(packages?|forfaits?|show.*package|see.*package|all package|what.*package|your package|pricing|tarif[s]?|how much|combien.*coût|cost[s]?|prix)/i.test(text) && !/\b(starter|essential|growth|pro)\b/i.test(text)) {
     lastTopic = 'growth';
-    return { text: lang === 'fr' ? 'Voici nos 3 forfaits :' : 'Here are our 3 packages:', multiPackage: true };
+    return { text: lang === 'fr' ? 'Voici nos forfaits :' : 'Here are our packages:', multiPackage: true };
   }
 
   // ── Pricing / cost ───────────────────────────────────────────
@@ -413,8 +442,8 @@ function getBotResponse(rawText, lang = currentLang) {
     const growthCalc = calculatePaymentDetails('growth', 'installments', lang);
     return {
       text: lang === 'fr'
-        ? `Voici nos tarifs (en XAF). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Facturation annuelle — payez en une fois ou en 2-3 versements sans intérêts par MoMo.\n\nQuel forfait ou service vous intéresse ?`
-        : `Here are our prices (in XAF). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Billed yearly — pay in full or in 2-3 interest-free MoMo installments.\n\nWhich package or service interests you?`
+        ? `Voici nos tarifs (en XAF). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Essentiel : ${p.essential.setup.fr} + ${p.essential.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Facturation annuelle — payez en une fois ou en 2-3 versements sans intérêts par MoMo.\n\nQuel forfait ou service vous intéresse ?`
+        : `Here are our prices (in XAF). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Essential: ${p.essential.setup.en} + ${p.essential.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Billed yearly — pay in full or in 2-3 interest-free MoMo installments.\n\nWhich package or service interests you?`
     };
   }
 
@@ -422,8 +451,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/(what'?s? included|include[sd]?|inclus|what.*get|ce qui est|features?|fonctionnalit|contient)/i.test(text)) {
     if (lastTopic && p[lastTopic]) return { packageHTML: formatPackage(lastTopic, lang) };
     return { text: lang === 'fr'
-      ? 'Je peux vous détailler chaque forfait. Dites-moi simplement "Starter", "Growth" ou "Pro".'
-      : 'I can break down any package for you. Just say "Starter", "Growth", or "Pro".'
+      ? 'Nous pouvons vous détailler chaque forfait. Dites-nous simplement "Starter", "Growth" ou "Pro".'
+      : 'We can break down any package for you. Just say "Starter", "Growth", or "Pro".'
     };
   }
 
@@ -438,8 +467,8 @@ function getBotResponse(rawText, lang = currentLang) {
   // ── Annual discount ──────────────────────────────────────────
   if (/(prepay|annuel|yearly|12 mois|annual discount|réduction annuelle|économie|save.*year)/i.test(text)) {
     return { text: lang === 'fr'
-      ? `${k.prepay} Ça simplifie la gestion. Je peux détailler pour un forfait en particulier ?`
-      : `${k.prepay} It simplifies management a lot. Want me to break it down for a specific package?`
+      ? `${k.prepay} Ça simplifie la gestion. Nous pouvons détailler pour un forfait en particulier ?`
+      : `${k.prepay} It simplifies management a lot. Want us to break it down for a specific package?`
     };
   }
 
@@ -453,8 +482,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/(too expensive|cher|trop cher|c'est beaucoup|can.*lower|reduce.*price|less expensive|moins cher|affordable|budget limit|budget serré)/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Je comprends — le budget est important. Nos services commencent à des prix accessibles et on propose des versements sans intérêts pour répartir le coût. Le forfait Growth, par exemple, est souvent rentabilisé rapidement grâce aux nouveaux clients qu\'il attire. Voulez-vous qu\'on regarde ensemble les options concrètes pour votre situation ?'
-        : 'I completely understand — budget matters. Our services start at accessible prices and we offer interest-free installments to spread the cost. The Growth package, for example, often pays for itself quickly through new customers. Want me to walk you through the concrete options for your situation?'
+        ? 'Nous comprenons — le budget est important. Nos services commencent à des prix accessibles et on propose des versements sans intérêts pour répartir le coût. Le forfait Growth, par exemple, est souvent rentabilisé rapidement grâce aux nouveaux clients qu\'il attire. Voulez-vous qu\'on regarde ensemble les options concrètes pour votre situation ?'
+        : 'We completely understand — budget matters. Our services start at accessible prices and we offer interest-free installments to spread the cost. The Growth package, for example, often pays for itself quickly through new customers. Want us to walk you through the concrete options for your situation?'
     };
   }
 
@@ -462,8 +491,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|webs?it|online presence|présence en ligne|w[ae]bsite)\b/i.test(text)) {
     lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
     return { text: lang === 'fr'
-      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter (50 000 XAF installation + 158 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
-      : 'For a professional website, we have 3 options:\n\n• Starter (XAF 50,000 setup + 158,000/year) — landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
+      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter (50 000 XAF installation + 30 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
+      : 'For a professional website, we have 3 options:\n\n• Starter (XAF 50,000 setup + 30,000/year) — landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
     };
   }
 
@@ -559,8 +588,8 @@ function getBotResponse(rawText, lang = currentLang) {
     const summary = generateConversationSummary(lang);
     return {
       text: lang === 'fr'
-        ? `Voici un résumé de notre échange : ${summary}\n\nVoulez-vous avancer ou que je prépare le message pour l'équipe WhatsApp ?`
-        : `Here's a summary of our conversation: ${summary}\n\nWant to move forward, or shall I prepare the WhatsApp message for the team?`
+        ? `Voici un résumé de notre échange : ${summary}\n\nVoulez-vous avancer ou que nous préparions le message pour l'équipe WhatsApp ?`
+        : `Here's a summary of our conversation: ${summary}\n\nWant to move forward, or shall we prepare the WhatsApp message for the team?`
     };
   }
 
@@ -569,20 +598,21 @@ function getBotResponse(rawText, lang = currentLang) {
   if (currentStage === 'discovery' || !selectedPackage) {
     return {
       text: lang === 'fr'
-        ? `Je ne suis pas sûr de comprendre complètement, mais je suis là pour vous aider ! Nous créons des sites web, applications, logos, flyers et gérons le marketing digital pour les entreprises au Cameroun.\n\nPour mieux vous orienter, pouvez-vous me dire ce que vous faites et ce que vous cherchez en priorité (site web, logo, appli, plus de clients...) ?`
-        : `I'm not sure I fully understood that, but I'm here to help! We build websites, apps, logos, flyers, and handle digital marketing for businesses in Cameroon.\n\nTo point you in the right direction, can you tell me what you do and what you're looking for most (website, logo, app, more customers...)?`
+        ? `Nous ne sommes pas sûrs de bien comprendre, mais nous sommes là pour vous aider ! Nous créons des sites web, applications, logos, flyers et gérons le marketing digital pour les entreprises au Cameroun.\n\nPour mieux vous orienter, pouvez-vous nous dire ce que vous faites et ce que vous cherchez en priorité (site web, logo, appli, plus de clients...) ?`
+        : `We're not sure we fully understood that, but we're here to help! We build websites, apps, logos, flyers, and handle digital marketing for businesses in Cameroon.\n\nTo point you in the right direction, can you tell us what you do and what you're looking for most (website, logo, app, more customers...)?`
     };
   }
   return {
     text: lang === 'fr'
-      ? `Je suis là ! ${summary} Dites-moi ce dont vous avez besoin — je peux vous aider avec les détails, les versements, ou préparer le message pour l'équipe WhatsApp.`
-      : `I'm here! ${summary} Tell me what you need — I can help with details, payment options, or get the WhatsApp message ready for the team.`
+      ? `Nous sommes là ! ${summary} Dites-nous ce dont vous avez besoin — nous pouvons vous aider avec les détails, les versements, ou préparer le message pour l'équipe WhatsApp.`
+      : `We're here! ${summary} Tell us what you need — we can help with details, payment options, or get the WhatsApp message ready for the team.`
   };
 }
 
 function normalizePackage(str) {
   const s = str.toLowerCase();
   if (s.includes('starter') || s.includes('démarrage')) return 'starter';
+  if (s.includes('essential') || s.includes('essentiel')) return 'essential';
   if (s.includes('growth') || s.includes('croissance')) return 'growth';
   if (s.includes('pro')) return 'pro';
   if (s.includes('build') || s.includes('one.time') || s.includes('unique')) return 'build_only';
@@ -591,7 +621,7 @@ function normalizePackage(str) {
 
 function formatPackage(key, lang) {
   const pkg = PACKAGES[key];
-  if (!pkg) return 'I can tell you about Starter, Growth, Pro, or our one-time Build & Launch option.';
+  if (!pkg) return 'We can tell you about Starter, Growth, Pro, or our one-time Build & Launch option.';
   
   const name = pkg.name[lang] || pkg.name.en;
   const setup = pkg.setup[lang] || pkg.setup.en;
@@ -672,7 +702,7 @@ function handleLeadCollection(rawText, lang) {
   if (awaitingLeadField === 'name') {
     // Reject suspiciously short or all-number names
     if (trimmed.length < 2 || /^\d+$/.test(trimmed)) {
-      return { text: lang === 'fr' ? 'Je n\'ai pas bien compris. Pouvez-vous donner votre nom complet ?' : 'I didn\'t catch that. Could you give your full name?' };
+      return { text: lang === 'fr' ? 'Nous n\'avons pas bien compris. Pouvez-vous donner votre nom complet ?' : 'We didn\'t catch that. Could you give your full name?' };
     }
     leadContext.name = trimmed;
     awaitingLeadField = 'business';
@@ -736,19 +766,89 @@ function handleLeadCollection(rawText, lang) {
   return { text: lang === 'fr' ? 'Pouvez-vous me donner cette information ?' : 'Could you give me that information?' };
 }
 
+// Format an XAF amount with the right thousands separator per language.
+function fmtXAF(n, lang) {
+  return lang === 'fr'
+    ? n.toLocaleString('fr-FR').replace(/[  ,]/g, ' ')
+    : n.toLocaleString('en-US');
+}
+
 function providePaymentInstructions(lang) {
   const pkg = PACKAGES[selectedPackage] || PACKAGES.growth;
   const name = pkg.name[lang] || pkg.name.en;
   const setupFee = SETUP_FEES_XAF[selectedPackage] || SETUP_FEES_XAF.growth;
 
-  // We charge the one-time SETUP fee now to start the project.
-  awaitingMomoNumber = true;
+  // Offer optional one-time add-ons before charging.
+  selectedAddons = [];
+  awaitingAddons = true;
+
+  const fee = fmtXAF(setupFee, lang);
+  const logo = fmtXAF(ADDONS.logo.price, lang);
+  const brand = fmtXAF(ADDONS.full_branding.price, lang);
 
   const msg = lang === 'fr'
-    ? `Parfait. Pour démarrer votre ${name}, on encaisse d'abord les frais d'installation : ${setupFee.toLocaleString('fr-FR').replace(/,/g, ' ')} XAF (une seule fois).\n\n📲 Le plus simple : payez directement par Mobile Money ici. Envoyez-moi votre numéro MoMo (MTN ou Orange, ex : 6XX XXX XXX) et je lance le paiement — vous validez avec votre code secret sur votre téléphone.\n\nOu tapez « WhatsApp » pour finaliser avec l'équipe, ou « payé » si vous avez déjà payé autrement.`
-    : `Perfect. To start your ${name}, we first collect the one-time setup fee: ${setupFee.toLocaleString('en-US')} XAF.\n\n📲 Easiest way: pay by Mobile Money right here. Send me your MoMo number (MTN or Orange, e.g. 6XX XXX XXX) and I'll start the payment — you approve it with your secret code on your phone.\n\nOr type "WhatsApp" to finish with the team, or "paid" if you've already paid another way.`;
+    ? `Parfait. Pour démarrer votre ${name}, les frais d'installation sont de ${fee} XAF (une seule fois).\n\n✨ Souhaitez-vous ajouter un extra design ?\n• Logo — ${logo} XAF\n• Branding complet — ${brand} XAF\n\nRépondez « logo », « branding », « les deux », ou « non » pour continuer.`
+    : `Perfect. To start your ${name}, the one-time setup fee is ${fee} XAF.\n\n✨ Want to add a design extra?\n• Logo — ${logo} XAF\n• Full branding — ${brand} XAF\n\nReply "logo", "branding", "both", or "no" to continue.`;
 
   return { text: msg };
+}
+
+// Handles the reply while we're offering optional add-ons.
+function handleAddonSelection(rawText, lang) {
+  const lower = rawText.trim().toLowerCase();
+
+  // Escape straight to the team
+  if (/(whatsapp|team|équipe|equipe|conseiller|humain|human)/i.test(lower)) {
+    awaitingAddons = false;
+    currentStage = 'payment';
+    return doHandoff(lang, true);
+  }
+
+  const wantsBoth = /(both|les deux|deux|tout|tous)/i.test(lower);
+  const wantsLogo = wantsBoth || /\blogos?\b/i.test(lower);
+  const wantsBrand = wantsBoth || /(brand|branding|identit)/i.test(lower);
+  const skip = /^(no|non|nope|skip|aucun|rien|pas|continue|continuer)\b/i.test(lower) || /(no thanks|non merci|just the|juste)/i.test(lower);
+
+  if (!wantsLogo && !wantsBrand && !skip) {
+    return {
+      text: lang === 'fr'
+        ? 'Dites-nous simplement « logo », « branding », « les deux », ou « non » pour continuer.'
+        : 'Just reply "logo", "branding", "both", or "no" to continue.'
+    };
+  }
+
+  selectedAddons = [];
+  if (wantsLogo) selectedAddons.push('logo');
+  if (wantsBrand) selectedAddons.push('full_branding');
+
+  awaitingAddons = false;
+  awaitingMomoNumber = true;
+  return { text: buildPaymentPrompt(lang) };
+}
+
+// Builds the "here's your total, send your MoMo number" message (setup + any add-ons).
+function buildPaymentPrompt(lang) {
+  const setupFee = SETUP_FEES_XAF[selectedPackage] || SETUP_FEES_XAF.growth;
+  const addonTotal = selectedAddons.reduce((s, k) => s + (ADDONS[k]?.price || 0), 0);
+  const total = setupFee + addonTotal;
+
+  let breakdown;
+  if (selectedAddons.length) {
+    const addonList = selectedAddons
+      .map(k => `• ${ADDONS[k].label[lang] || ADDONS[k].label.en} — ${fmtXAF(ADDONS[k].price, lang)} XAF`)
+      .join('\n');
+    breakdown = lang === 'fr'
+      ? `Total à régler : ${fmtXAF(total, lang)} XAF\n• Installation — ${fmtXAF(setupFee, lang)} XAF\n${addonList}`
+      : `Total to pay: ${fmtXAF(total, lang)} XAF\n• Setup — ${fmtXAF(setupFee, lang)} XAF\n${addonList}`;
+  } else {
+    breakdown = lang === 'fr'
+      ? `Total à régler : ${fmtXAF(total, lang)} XAF (installation).`
+      : `Total to pay: ${fmtXAF(total, lang)} XAF (setup).`;
+  }
+
+  return lang === 'fr'
+    ? `${breakdown}\n\n📲 Envoyez votre numéro MoMo (MTN ou Orange, ex : 6XX XXX XXX) et nous lançons le paiement — vous validez avec votre code secret. Ou tapez « WhatsApp » pour l'équipe.`
+    : `${breakdown}\n\n📲 Send your MoMo number (MTN or Orange, e.g. 6XX XXX XXX) and we'll start the payment — you approve it with your secret code. Or type "WhatsApp" for the team.`;
 }
 
 // Handles the customer's reply while we're waiting for a MoMo number to charge the setup fee.
@@ -779,7 +879,7 @@ function handleMomoPayment(rawText, lang) {
     return {
       text: lang === 'fr'
         ? 'Il me faut un numéro MoMo valide (ex : 6XX XXX XXX). Ou tapez « WhatsApp » pour passer par l\'équipe.'
-        : 'I need a valid MoMo number (e.g. 6XX XXX XXX). Or type "WhatsApp" to go through the team.'
+        : 'We need a valid MoMo number (e.g. 6XX XXX XXX). Or type "WhatsApp" to go through the team.'
     };
   }
 
@@ -787,7 +887,7 @@ function handleMomoPayment(rawText, lang) {
   initiatePayment(selectedPackage, trimmed, lang); // async — updates the chat as it progresses
   return {
     text: lang === 'fr'
-      ? '⏳ Je lance le paiement Mobile Money…'
+      ? '⏳ Nous lançons le paiement Mobile Money…'
       : '⏳ Starting your Mobile Money payment…'
   };
 }
@@ -798,7 +898,7 @@ async function initiatePayment(pkg, phone, lang) {
     const res = await fetch('/api/pay/initiate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ package: pkg, phone, lead_id: currentLeadId })
+      body: JSON.stringify({ package: pkg, phone, lead_id: currentLeadId, add_ons: selectedAddons })
     });
     const data = await res.json().catch(() => ({}));
 
@@ -816,8 +916,8 @@ async function initiatePayment(pkg, phone, lang) {
     awaitingMomoNumber = false;
     currentStage = 'payment';
     addMessage('bot', lang === 'fr'
-      ? 'Je n\'ai pas pu lancer le paiement automatique. Pas de souci — tapez « WhatsApp » et l\'équipe finalise le paiement avec vous.'
-      : 'I couldn\'t start the automatic payment. No worries — type "WhatsApp" and the team will complete the payment with you.');
+      ? 'Nous n\'avons pas pu lancer le paiement automatique. Pas de souci — tapez « WhatsApp » et l\'équipe finalise le paiement avec vous.'
+      : 'We couldn\'t start the automatic payment. No worries — type "WhatsApp" and the team will complete the payment with you.');
   }
 }
 
@@ -859,8 +959,8 @@ async function pollPaymentStatus(ref, lang, attempt) {
     } else {
       awaitingMomoNumber = true;
       addMessage('bot', lang === 'fr'
-        ? '⌛ Je n\'ai pas encore vu la confirmation. Si vous avez validé, elle arrivera bientôt. Sinon, renvoyez votre numéro pour réessayer ou tapez « WhatsApp ».'
-        : '⌛ I haven\'t seen the confirmation yet. If you approved it, it should arrive shortly. Otherwise, resend your number to retry or type "WhatsApp".');
+        ? '⌛ Nous n\'avons pas encore vu la confirmation. Si vous avez validé, elle arrivera bientôt. Sinon, renvoyez votre numéro pour réessayer ou tapez « WhatsApp ».'
+        : '⌛ We haven\'t seen the confirmation yet. If you approved it, it should arrive shortly. Otherwise, resend your number to retry or type "WhatsApp".');
     }
   } catch (e) {
     console.error('pollPaymentStatus failed:', e);
@@ -1063,7 +1163,7 @@ function generateConversationSummary(lang = currentLang) {
   }
 
   if (parts.length === 0) {
-    return lang === 'fr' ? "Nous n'avons pas encore beaucoup discuté, mais je suis prêt à vous aider !" : "We haven't discussed much yet, but I'm ready to help!";
+    return lang === 'fr' ? "Nous n'avons pas encore beaucoup discuté, mais nous sommes prêts à vous aider !" : "We haven't discussed much yet, but we're ready to help!";
   }
 
   return parts.join(' ');
@@ -1143,11 +1243,14 @@ function doHandoff(lang, withDetails = false) {
 
   leadContext = {};
   awaitingLeadField = null;
+  awaitingAddons = false;
+  awaitingMomoNumber = false;
+  selectedAddons = [];
 
   return {
     text: lang === 'fr'
-      ? 'Parfait ! J\'ai ouvert WhatsApp avec un message pré-rempli contenant tout le contexte et les instructions de paiement. L\'équipe vous répondra très rapidement (généralement sous 2 heures).'
-      : 'Perfect! I\'ve opened WhatsApp with a pre-filled message that includes all the context and payment instructions. Our team usually replies within 2 business hours.'
+      ? 'Parfait ! Nous avons ouvert WhatsApp avec un message pré-rempli contenant tout le contexte et les instructions de paiement. L\'équipe vous répondra très rapidement (généralement sous 2 heures).'
+      : 'Perfect! We\'ve opened WhatsApp with a pre-filled message that includes all the context and payment instructions. Our team usually replies within 2 business hours.'
   };
 }
 
@@ -1331,12 +1434,13 @@ function sendMessage() {
     // Reply is ready (rule-based or LLM) — now remove the typing indicator
     hideTyping();
 
-    // Show all three packages side by side
+    // Show the recurring packages side by side
     if (reply.multiPackage) {
       if (reply.text) addMessage('bot', reply.text);
       setTimeout(() => addMessage('bot', formatPackage('starter', currentLang), true), 100);
-      setTimeout(() => addMessage('bot', formatPackage('growth', currentLang), true), 200);
-      setTimeout(() => addMessage('bot', formatPackage('pro', currentLang), true), 300);
+      setTimeout(() => addMessage('bot', formatPackage('essential', currentLang), true), 200);
+      setTimeout(() => addMessage('bot', formatPackage('growth', currentLang), true), 300);
+      setTimeout(() => addMessage('bot', formatPackage('pro', currentLang), true), 400);
     } else if (reply.packageHTML) {
       if (reply.text) addMessage('bot', reply.text);
       addMessage('bot', reply.packageHTML, true);
@@ -1365,8 +1469,8 @@ function initChat() {
   // Auto-greeting after a short delay
   setTimeout(() => {
     addMessage('bot', lang === 'fr'
-      ? 'Bonjour ! Je suis l\'assistant Harts. Je peux vous aider avec un site web, une application, un logo, des flyers, ou la gestion de vos réseaux sociaux. Qu\'est-ce que vous cherchez ?'
-      : 'Hi! I\'m the Harts assistant. I can help you get a website, mobile app, logo, flyers, social media management, or digital marketing for your business in Cameroon. What are you looking for today?');
+      ? 'Bonjour ! Ici H@rts, votre assistant IA Harts. Nous pouvons vous aider avec un site web, une application, un logo, des flyers, ou la gestion de vos réseaux sociaux. Qu\'est-ce que vous cherchez ?'
+      : 'Hi! This is H@rts, your Harts AI assistant. We can help you get a website, mobile app, logo, flyers, social media management, or digital marketing for your business in Cameroon. What are you looking for today?');
   }, 600);
 
   form.addEventListener('submit', (e) => {
