@@ -89,6 +89,11 @@ let lastTopic = null;
 let currentStage = 'discovery'; // discovery | selection | details | payment | review
 let selectedPackage = null;
 let selectedPayment = null; // 'full' | 'installments'
+let awaitingMomoNumber = false; // true while we wait for the customer's MoMo number to charge the setup fee
+let currentLeadId = null;       // Supabase id of the saved lead, so a payment can link back to it
+
+// Server-authoritative setup fees (mirrors api/pay/_lib.js) — used only for display in chat
+const SETUP_FEES_XAF = { starter: 50000, growth: 120000, pro: 250000, build_only: 180000 };
 
 // Simple dynamic user profile for more human-like, contextual responses
 let userProfile = {
@@ -212,6 +217,9 @@ function getBotResponse(rawText, lang = currentLang) {
   // ── Active flows ─────────────────────────────────────────────
   if (currentStage === 'review' || awaitingReviewField) {
     return handleReviewCollection(rawText, lang);
+  }
+  if (awaitingMomoNumber) {
+    return handleMomoPayment(rawText, lang);
   }
   if (awaitingLeadField) {
     return handleLeadCollection(rawText, lang);
@@ -731,33 +739,144 @@ function handleLeadCollection(rawText, lang) {
 function providePaymentInstructions(lang) {
   const pkg = PACKAGES[selectedPackage] || PACKAGES.growth;
   const name = pkg.name[lang] || pkg.name.en;
+  const setupFee = SETUP_FEES_XAF[selectedPackage] || SETUP_FEES_XAF.growth;
 
-  let msg = lang === 'fr' 
-    ? `Parfait. Pour le ${name}, voici comment ça se passe concrètement pour le paiement.\n\n`
-    : `Perfect. For the ${name}, here's exactly how the payment works in practice.\n\n`;
+  // We charge the one-time SETUP fee now to start the project.
+  awaitingMomoNumber = true;
 
-  // Use live dynamic calculation
-  const calc = calculatePaymentDetails(selectedPackage, selectedPayment, lang);
-  msg += calc + '\n\n';
-
-  msg += lang === 'fr'
-    ? `Le plus simple : MTN MoMo.\n1. *126#\n2. Transfert → Envoi MTN Cameroun\n3. 622 341 343\n4. Le montant exact\n5. Gardez la référence.\n\nUne fois que c'est envoyé, dites-moi "payé" ici ou contactez l'équipe sur WhatsApp avec la référence. Je prépare tout de suite le message complet avec votre contexte.`
-    : `The easiest is MTN MoMo.\n1. *126#\n2. Transfer Money → Send to MTN Cameroon\n3. 622 341 343\n4. The exact amount\n5. Keep the reference.\n\nOnce it's sent, just say "paid" here or message the team on WhatsApp with the reference. I'll prepare the full summary message with your context right away.`;
-
-  // Move to handoff + review prompt
-  setTimeout(() => {
-    const handoff = doHandoff(lang, true);
-    addMessage('bot', handoff.text);
-    setTimeout(() => {
-      currentStage = 'review';
-      const summary = generateConversationSummary(lang);
-      addMessage('bot', lang === 'fr' 
-        ? `Merci ! Voici un petit résumé de ce qu'on a discuté : ${summary}\n\nAvant que l'équipe ne vous recontacte, un retour rapide (note sur 5 et un commentaire) nous aiderait beaucoup. Qu'en pensez-vous ?` 
-        : `Thank you! Here's a quick summary of what we discussed: ${summary}\n\nBefore the team reaches out, a quick bit of feedback (rating out of 5 and a short comment) would help us a lot. What do you think?`);
-    }, 1200);
-  }, 800);
+  const msg = lang === 'fr'
+    ? `Parfait. Pour démarrer votre ${name}, on encaisse d'abord les frais d'installation : ${setupFee.toLocaleString('fr-FR').replace(/,/g, ' ')} XAF (une seule fois).\n\n📲 Le plus simple : payez directement par Mobile Money ici. Envoyez-moi votre numéro MoMo (MTN ou Orange, ex : 6XX XXX XXX) et je lance le paiement — vous validez avec votre code secret sur votre téléphone.\n\nOu tapez « WhatsApp » pour finaliser avec l'équipe, ou « payé » si vous avez déjà payé autrement.`
+    : `Perfect. To start your ${name}, we first collect the one-time setup fee: ${setupFee.toLocaleString('en-US')} XAF.\n\n📲 Easiest way: pay by Mobile Money right here. Send me your MoMo number (MTN or Orange, e.g. 6XX XXX XXX) and I'll start the payment — you approve it with your secret code on your phone.\n\nOr type "WhatsApp" to finish with the team, or "paid" if you've already paid another way.`;
 
   return { text: msg };
+}
+
+// Handles the customer's reply while we're waiting for a MoMo number to charge the setup fee.
+function handleMomoPayment(rawText, lang) {
+  const trimmed = rawText.trim();
+  const lower = trimmed.toLowerCase();
+
+  // Escape hatches
+  if (/(whatsapp|team|équipe|equipe|conseiller|humain|human)/i.test(lower)) {
+    awaitingMomoNumber = false;
+    currentStage = 'payment';
+    return doHandoff(lang, true);
+  }
+  if (/(paid|payé|paye|déjà|deja|already|manual|\*126)/i.test(lower)) {
+    awaitingMomoNumber = false;
+    currentStage = 'review';
+    setTimeout(() => promptForReview(lang), 900);
+    return {
+      text: lang === 'fr'
+        ? 'Merci ! Dès réception nous confirmons et démarrons votre projet. 🙏'
+        : 'Thank you! As soon as we receive it we\'ll confirm and start your project. 🙏'
+    };
+  }
+
+  // Otherwise treat the message as a phone number
+  const digits = trimmed.replace(/\D/g, '');
+  if (digits.length < 9) {
+    return {
+      text: lang === 'fr'
+        ? 'Il me faut un numéro MoMo valide (ex : 6XX XXX XXX). Ou tapez « WhatsApp » pour passer par l\'équipe.'
+        : 'I need a valid MoMo number (e.g. 6XX XXX XXX). Or type "WhatsApp" to go through the team.'
+    };
+  }
+
+  awaitingMomoNumber = false;
+  initiatePayment(selectedPackage, trimmed, lang); // async — updates the chat as it progresses
+  return {
+    text: lang === 'fr'
+      ? '⏳ Je lance le paiement Mobile Money…'
+      : '⏳ Starting your Mobile Money payment…'
+  };
+}
+
+// Calls our serverless endpoint to start a Campay collection, then polls for the result.
+async function initiatePayment(pkg, phone, lang) {
+  try {
+    const res = await fetch('/api/pay/initiate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ package: pkg, phone, lead_id: currentLeadId })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.external_reference) {
+      throw new Error(data.error || 'init failed');
+    }
+
+    addMessage('bot', lang === 'fr'
+      ? `📲 Une demande de paiement de ${Number(data.amount).toLocaleString('fr-FR').replace(/,/g, ' ')} XAF a été envoyée à votre téléphone. Ouvrez la notification Mobile Money et validez avec votre code secret.`
+      : `📲 A payment request for ${Number(data.amount).toLocaleString('en-US')} XAF has been sent to your phone. Open the Mobile Money prompt and approve it with your secret code.`);
+
+    pollPaymentStatus(data.external_reference, lang, 0);
+  } catch (e) {
+    console.error('initiatePayment failed:', e);
+    awaitingMomoNumber = false;
+    currentStage = 'payment';
+    addMessage('bot', lang === 'fr'
+      ? 'Je n\'ai pas pu lancer le paiement automatique. Pas de souci — tapez « WhatsApp » et l\'équipe finalise le paiement avec vous.'
+      : 'I couldn\'t start the automatic payment. No worries — type "WhatsApp" and the team will complete the payment with you.');
+  }
+}
+
+// Polls /api/pay/status until the payment clears, fails, or times out.
+async function pollPaymentStatus(ref, lang, attempt) {
+  const MAX_ATTEMPTS = 24;   // ~2 minutes at 5s intervals
+  const INTERVAL_MS = 5000;
+
+  try {
+    const res = await fetch(`/api/pay/status?ref=${encodeURIComponent(ref)}`);
+    const data = await res.json().catch(() => ({}));
+    const status = (data.status || 'PENDING').toUpperCase();
+
+    if (status === 'SUCCESSFUL') {
+      const pkgName = (PACKAGES[selectedPackage]?.name[lang]) || 'your package';
+      addMessage('bot', lang === 'fr'
+        ? `✅ Paiement reçu ! Vos frais d'installation pour le ${pkgName} sont confirmés. Bienvenue chez Harts — on démarre votre projet. 🎉`
+        : `✅ Payment received! Your setup fee for ${pkgName} is confirmed. Welcome to Harts — we're starting your project. 🎉`);
+      currentStage = 'review';
+      setTimeout(() => {
+        const handoff = doHandoff(lang, true);
+        addMessage('bot', handoff.text);
+        setTimeout(() => promptForReview(lang), 1200);
+      }, 900);
+      return;
+    }
+
+    if (status === 'FAILED') {
+      awaitingMomoNumber = true;
+      addMessage('bot', lang === 'fr'
+        ? '❌ Le paiement n\'a pas abouti (annulé ou expiré). Renvoyez votre numéro MoMo pour réessayer, ou tapez « WhatsApp » pour l\'équipe.'
+        : '❌ The payment didn\'t go through (cancelled or timed out). Send your MoMo number again to retry, or type "WhatsApp" for the team.');
+      return;
+    }
+
+    // Still pending
+    if (attempt < MAX_ATTEMPTS) {
+      setTimeout(() => pollPaymentStatus(ref, lang, attempt + 1), INTERVAL_MS);
+    } else {
+      awaitingMomoNumber = true;
+      addMessage('bot', lang === 'fr'
+        ? '⌛ Je n\'ai pas encore vu la confirmation. Si vous avez validé, elle arrivera bientôt. Sinon, renvoyez votre numéro pour réessayer ou tapez « WhatsApp ».'
+        : '⌛ I haven\'t seen the confirmation yet. If you approved it, it should arrive shortly. Otherwise, resend your number to retry or type "WhatsApp".');
+    }
+  } catch (e) {
+    console.error('pollPaymentStatus failed:', e);
+    awaitingMomoNumber = true;
+    addMessage('bot', lang === 'fr'
+      ? 'Problème de connexion en vérifiant le paiement. Tapez « WhatsApp » pour finaliser avec l\'équipe.'
+      : 'Connection issue while checking the payment. Type "WhatsApp" to finish with the team.');
+  }
+}
+
+// Shared review prompt (used after a confirmed payment or manual "paid").
+function promptForReview(lang) {
+  const summary = generateConversationSummary(lang);
+  addMessage('bot', lang === 'fr'
+    ? `Un retour rapide nous aiderait beaucoup (note sur 5 + un mot). ${summary}`
+    : `A quick bit of feedback would help us a lot (rating out of 5 + a word). ${summary}`);
 }
 
 // Prevents the same lead being persisted twice within one flow
@@ -802,7 +921,10 @@ function saveLeadToStorage(lead) {
         lang: currentLang,
         source: 'chat'
       })
-    }).catch(() => { /* offline / not deployed yet — localStorage still has it */ });
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d && d.id) currentLeadId = d.id; })
+      .catch(() => { /* offline / not deployed yet — localStorage still has it */ });
   } catch (e) { /* ignore */ }
 }
 

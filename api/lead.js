@@ -49,7 +49,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
         'apikey': SERVICE_KEY,
         'Authorization': `Bearer ${SERVICE_KEY}`,
-        'Prefer': 'return=minimal'
+        'Prefer': 'return=representation'
       },
       body: JSON.stringify(lead)
     });
@@ -60,7 +60,10 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'Could not save lead' });
     }
 
-    return res.status(201).json({ ok: true });
+    // Return the new row id so the client can link a payment to this lead
+    const rows = await resp.json().catch(() => []);
+    const id = Array.isArray(rows) && rows[0] ? rows[0].id : null;
+    return res.status(201).json({ ok: true, id });
   } catch (err) {
     console.error('Error saving lead:', err);
     return res.status(500).json({ error: 'Failed to save lead' });
