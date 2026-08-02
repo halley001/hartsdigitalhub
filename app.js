@@ -544,7 +544,9 @@ function getBotResponse(rawText, lang = currentLang) {
 
   // ── Payment / MoMo ───────────────────────────────────────────
   if (/(payment|paiement|momo|orange money|bank transfer|how.*pay|comment.*payer|how do i pay|moyen de paiement)/i.test(text)) {
-    if (currentStage === 'payment' && selectedPackage) return providePaymentInstructions(lang);
+    // If they've already picked a package and shared details, connect them to the
+    // team to finish + confirm payment (Campay sandbox = human verification).
+    if (selectedPackage && leadContext.name) return doHandoff(lang, true);
     if (/momo/i.test(text)) return { text: k.momo };
     return { text: k.payment };
   }
@@ -575,13 +577,13 @@ function getBotResponse(rawText, lang = currentLang) {
   }
 
   // ── Payment confirmation ──────────────────────────────────────
-  if (/(paid|j'?ai payé|money sent|référence|confirm.*payment|paiement effectué|j'?ai envoyé|sent.*payment)/i.test(text) && currentStage === 'payment') {
-    currentStage = 'review';
-    awaitingReviewField = 'rating';
+  if (/(paid|j'?ai payé|money sent|référence|confirm.*payment|paiement effectué|j'?ai envoyé|sent.*payment)/i.test(text) && (currentStage === 'payment' || currentStage === 'handoff')) {
+    // We don't auto-confirm — a human verifies the payment. Point them to the team.
     return {
       text: lang === 'fr'
-        ? 'Excellent ! Paiement bien noté, merci. Pour nous aider à améliorer notre service, pourriez-vous nous donner une note de 1 à 5 ?'
-        : 'Excellent! Payment noted, thank you. To help us improve our service, could you give us a rating from 1 to 5?'
+        ? 'Merci ! Notre équipe va vérifier votre paiement et vous confirmer sur WhatsApp (+237 622 341 343), puis démarrer votre projet. Si vous ne l\'avez pas encore fait, envoyez-leur votre référence de paiement.'
+        : 'Thank you! Our team will verify your payment and confirm on WhatsApp (+237 622 341 343), then start your project. If you haven\'t already, send them your payment reference.',
+      action: 'handoff'
     };
   }
 
@@ -747,22 +749,20 @@ function handleLeadCollection(rawText, lang) {
 
   if (awaitingLeadField === 'city') {
     leadContext.city = trimmed;
-    awaitingLeadField = 'payment_pref';
-    return {
-      text: lang === 'fr'
-        ? 'Super. Pour le paiement (installation + forfait annuel), qu\'est-ce qui vous arrange le mieux ?\n\n1️⃣ En une fois\n2️⃣ En 2-3 versements sans intérêts (MoMo)'
-        : 'Great. For payment (setup + yearly fee), what works best for you?\n\n1️⃣ Pay in full\n2️⃣ 2-3 interest-free installments (MoMo)'
-    };
-  }
-
-  if (awaitingLeadField === 'payment_pref') {
-    leadContext.payment_pref = trimmed;
-    selectedPayment = /install|versement|2|3/i.test(lower) ? 'installments'
-                    : 'full';
+    // Order details complete → hand the whole payment to a human on WhatsApp.
+    // (Campay is in sandbox; a real person verifies + confirms payment.)
     awaitingLeadField = null;
     currentStage = 'payment';
-    saveLeadToStorage(leadContext);
-    return providePaymentInstructions(lang);
+    return doHandoff(lang, true);
+  }
+
+  // Legacy step — no longer reached (we finish the order at 'city' and hand off).
+  // Kept defensive: if anything sets payment_pref, still route to a human.
+  if (awaitingLeadField === 'payment_pref') {
+    leadContext.payment_pref = trimmed;
+    awaitingLeadField = null;
+    currentStage = 'payment';
+    return doHandoff(lang, true);
   }
 
   return { text: lang === 'fr' ? 'Pouvez-vous me donner cette information ?' : 'Could you give me that information?' };
@@ -1211,17 +1211,18 @@ function doHandoff(lang, withDetails = false) {
   const pkg = PACKAGES[pkgKey];
   const pkgName = pkg ? (pkg.name[lang] || pkg.name.en) : 'a package';
   let msg = lang === 'fr'
-    ? `Bonjour Harts ! Je viens de discuter avec votre assistant et je suis intéressé(e) par le forfait ${pkgName}.`
-    : `Hello Harts! I was just chatting with your assistant and I'm interested in the ${pkgName} package.`;
+    ? `Bonjour Harts ! Je viens de discuter avec votre assistant et je souhaite démarrer avec le forfait ${pkgName}.`
+    : `Hello Harts! I was just chatting with your assistant and I'd like to get started with the ${pkgName} package.`;
 
   if (withDetails) {
     msg += lang === 'fr'
       ? `\n\nNom: ${leadContext.name}\nEntreprise: ${leadContext.business}\nWhatsApp: ${leadContext.phone}\nVille: ${leadContext.city}`
       : `\n\nName: ${leadContext.name}\nBusiness: ${leadContext.business}\nWhatsApp: ${leadContext.phone}\nCity: ${leadContext.city}`;
-    if (leadContext.payment_pref) {
+    const setupFee = SETUP_FEES_USD[pkgKey];
+    if (setupFee) {
       msg += lang === 'fr'
-        ? `\nPréférence de paiement: ${leadContext.payment_pref}`
-        : `\nPayment preference: ${leadContext.payment_pref}`;
+        ? `\n\nJe souhaite régler les frais d'installation (${usd(setupFee)}) — merci de me confirmer comment procéder.`
+        : `\n\nI'd like to pay the setup fee (${usd(setupFee)}) — please let me know how to complete it.`;
     }
   }
 
@@ -1238,14 +1239,15 @@ function doHandoff(lang, withDetails = false) {
   const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 
-  // Simulate payment step completed
+  // Order handed to a human. Payment is verified + confirmed by the team on
+  // WhatsApp (Campay is in sandbox) — the bot never auto-confirms payment.
   if (currentStage === 'payment') {
-    currentStage = 'review';
+    currentStage = 'handoff';
     setTimeout(() => {
-      addMessage('bot', lang === 'fr' 
-        ? 'Message envoyé ! Une fois le paiement effectué via les instructions, n\'hésitez pas. En attendant, aimeriez-vous laisser un court avis (note 1-5 et commentaire) pour nous aider à nous améliorer ?' 
-        : 'Message sent! Once payment is complete via the instructions, feel free to reach out. In the meantime, would you like to leave a quick review (1-5 rating and comment) to help us improve?');
-    }, 1500);
+      addMessage('bot', lang === 'fr'
+        ? 'Message envoyé ✅ Notre équipe va confirmer le montant et finaliser le paiement avec vous sur WhatsApp, puis démarrer votre projet.'
+        : 'Message sent ✅ Our team will confirm the amount and complete the payment with you on WhatsApp, then start your project.');
+    }, 1400);
   }
 
   leadContext = {};
@@ -1255,9 +1257,13 @@ function doHandoff(lang, withDetails = false) {
   selectedAddons = [];
 
   return {
-    text: lang === 'fr'
-      ? 'Parfait ! Nous avons ouvert WhatsApp avec un message pré-rempli contenant tout le contexte et les instructions de paiement. L\'équipe vous répondra très rapidement (généralement sous 2 heures).'
-      : 'Perfect! We\'ve opened WhatsApp with a pre-filled message that includes all the context and payment instructions. Our team usually replies within 2 business hours.'
+    text: withDetails
+      ? (lang === 'fr'
+          ? 'Parfait ! Nous avons ouvert WhatsApp avec le récapitulatif de votre commande. Notre équipe confirmera le montant et finalisera le paiement avec vous (généralement sous 2 heures ouvrées).'
+          : 'Perfect! We\'ve opened WhatsApp with your order summary. Our team will confirm the amount and complete the payment with you (usually within 2 business hours).')
+      : (lang === 'fr'
+          ? 'Parfait ! Nous avons ouvert WhatsApp avec le contexte de notre échange. L\'équipe vous répondra très rapidement (généralement sous 2 heures ouvrées).'
+          : 'Perfect! We\'ve opened WhatsApp with the context of our chat. Our team usually replies within 2 business hours.')
   };
 }
 

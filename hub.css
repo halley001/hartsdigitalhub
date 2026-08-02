@@ -297,6 +297,10 @@
   margin-bottom: 0.5rem;
 }
 .cap-text { color: #9aa0a6; font-size: 0.92rem; line-height: 1.6; }
+/* SME service feature list inside enterprise tilt-cards */
+.tilt-card .sv-service-list { margin-top: 1rem; padding-left: 0; list-style: none; display: grid; gap: 0.5rem; }
+.tilt-card .sv-service-list li { font-size: 0.86rem; color: #cfd4d8; padding-left: 1.3rem; position: relative; line-height: 1.4; }
+.tilt-card .sv-service-list li::before { content: "→"; position: absolute; left: 0; color: var(--hub-accent); }
 .cap-tags {
   margin-top: 1rem;
   display: flex;

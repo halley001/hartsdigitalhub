@@ -1,0 +1,8 @@
+# H@rts — hartsdigitalhub.com
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# Canonical tags handle the ?chat= deep-link variants; no need to disallow them.
+
+Sitemap: https://hartsdigitalhub.com/sitemap.xml

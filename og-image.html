@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>H@rts — social share image (export me to og-image.jpg, 1200×630)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:#333; }
+  /* EXPORT: screenshot just the .og card at 1200×630 → save as og-image.jpg */
+  .og {
+    width:1200px; height:630px;
+    background:
+      radial-gradient(900px 500px at 82% -10%, rgba(255,255,255,0.10), transparent 60%),
+      linear-gradient(160deg,#0a0a0a 0%,#000 55%);
+    color:#fff; position:relative; overflow:hidden;
+    font-family:'DM Mono', monospace;
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:72px 80px;
+  }
+  .og::before { /* tech grid */
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size:60px 60px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 60% 30%, #000 20%, transparent 80%);
+            mask-image:radial-gradient(ellipse 80% 70% at 60% 30%, #000 20%, transparent 80%);
+  }
+  .row { position:relative; display:flex; align-items:center; justify-content:space-between; }
+  .brand { font-family:'Syne', sans-serif; font-weight:700; font-size:46px; letter-spacing:-1px; color:#fff; }
+  .kicker {
+    font-size:18px; letter-spacing:0.28em; text-transform:uppercase; color:#cfd4d8;
+    border:1px solid rgba(255,255,255,0.18); border-radius:999px; padding:8px 18px;
+  }
+  .headline {
+    position:relative;
+    font-family:'Syne', sans-serif; font-weight:700;
+    font-size:82px; line-height:1.02; letter-spacing:-2px; max-width:20ch;
+  }
+  .headline .g { color:#8a9099; }
+  .foot { position:relative; display:flex; align-items:center; justify-content:space-between;
+          font-size:22px; color:#aab0b6; letter-spacing:0.02em; }
+  .foot .tags span { color:#fff; }
+  .dot { color:#555; margin:0 12px; }
+</style>
+</head>
+<body>
+  <div class="og" id="og-card">
+    <div class="row">
+      <div class="brand">H@rts</div>
+      <div class="kicker">Digital Hub</div>
+    </div>
+
+    <div class="headline">Engineering Intelligent Software <span class="g">&amp; Next-Gen Digital Hubs</span></div>
+
+    <div class="foot">
+      <div class="tags"><span>Software</span> · <span>Cloud</span> · <span>AI &amp; WhatsApp</span> · <span>Managed IT</span></div>
+      <div>hartsdigitalhub.com</div>
+    </div>
+  </div>
+
+  <!-- Note: brand b accent is monochrome-safe; the design reads fully black & white. -->
+</body>
+</html>

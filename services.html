@@ -9,6 +9,14 @@
   <meta property="og:description" content="Browse our digital packages, transparent USD pricing, and recent work for businesses in Cameroon.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hartsdigitalhub.com/services.html">
+  <meta property="og:site_name" content="H@rts">
+  <meta property="og:image" content="https://hartsdigitalhub.com/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="H@rts — Websites, apps, branding & marketing for SMEs">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://hartsdigitalhub.com/og-image.jpg">
+  <link rel="canonical" href="https://hartsdigitalhub.com/services.html">
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -58,13 +66,17 @@
   <main>
 
     <!-- Hero -->
-    <section class="sv-hero">
-      <span class="sv-hero-eyebrow">Digital agency · Cameroon</span>
-      <h1 class="sv-hero-title">Everything your business<br>needs to grow online.</h1>
-      <p class="sv-hero-sub">Websites, mobile apps, e-commerce, branding and marketing — built for SMEs across Cameroon. No technical skills needed. Pay by MoMo, in interest-free installments.</p>
-      <div class="sv-hero-actions">
-        <a href="#pricing" class="sv-btn-primary">See packages &amp; pricing</a>
-        <a href="/?chat=open" class="sv-btn-ghost">Chat with our assistant</a>
+    <section class="hub-hero" style="min-height:auto">
+      <canvas class="hub-hero-canvas" id="hub-hero-canvas" aria-hidden="true"></canvas>
+      <div class="hub-hero-fallback" aria-hidden="true"></div>
+      <div class="hub-hero-inner" style="padding-bottom:3rem">
+        <span class="hub-kicker">Digital agency · Cameroon</span>
+        <h1 class="hub-hero-title">Everything your business needs to <span class="accent">grow online</span></h1>
+        <p class="hub-hero-sub">Websites, mobile apps, e-commerce, branding and marketing — built for SMEs across Cameroon. No technical skills needed. Pay by MoMo, in interest-free installments.</p>
+        <div class="hub-hero-actions">
+          <a href="#pricing" class="hub-cta">See packages &amp; pricing</a>
+          <a href="/?chat=open" class="hub-cta ghost">Chat with our assistant</a>
+        </div>
       </div>
     </section>
 
@@ -80,16 +92,17 @@
 
     <!-- Services -->
     <section class="section" id="services">
-      <div class="sv-section-head">
-        <h2 class="sv-section-title">What we do</h2>
-        <p class="sv-section-sub">Full-service, concept to launch to ongoing support. Pick a managed package or a one-time build.</p>
+      <div class="hub-section-head reveal">
+        <span class="hub-kicker">What we do</span>
+        <h2 class="hub-section-title">Full-service, concept to launch</h2>
+        <p class="hub-section-sub">Everything an SME needs to grow online — pick a managed package or a one-time build.</p>
       </div>
-      <div class="sv-services-grid">
+      <div class="hub-grid">
 
-        <article class="sv-service-card">
-          
-          <h3 class="sv-service-name">Websites &amp; Landing Pages</h3>
-          <p class="sv-service-desc">Fast, mobile-friendly sites that turn visitors into customers.</p>
+        <article class="tilt-card reveal">
+          <div class="cap-icon">🌐</div>
+          <h3 class="cap-title">Websites &amp; Landing Pages</h3>
+          <p class="cap-text">Fast, mobile-friendly sites that turn visitors into customers.</p>
           <ul class="sv-service-list">
             <li>Business &amp; portfolio sites</li>
             <li>Landing pages that convert</li>
@@ -97,10 +110,10 @@
           </ul>
         </article>
 
-        <article class="sv-service-card">
-          
-          <h3 class="sv-service-name">E-commerce Stores</h3>
-          <p class="sv-service-desc">Sell online with a store built for the local market.</p>
+        <article class="tilt-card reveal">
+          <div class="cap-icon">🛒</div>
+          <h3 class="cap-title">E-commerce Stores</h3>
+          <p class="cap-text">Sell online with a store built for the local market.</p>
           <ul class="sv-service-list">
             <li>Product catalog &amp; checkout</li>
             <li>MoMo &amp; Orange Money ready</li>
@@ -108,10 +121,10 @@
           </ul>
         </article>
 
-        <article class="sv-service-card">
-          
-          <h3 class="sv-service-name">Mobile Apps</h3>
-          <p class="sv-service-desc">Custom apps for bookings, delivery, loyalty and more.</p>
+        <article class="tilt-card reveal">
+          <div class="cap-icon">📱</div>
+          <h3 class="cap-title">Mobile Apps</h3>
+          <p class="cap-text">Custom apps for bookings, delivery, loyalty and more.</p>
           <ul class="sv-service-list">
             <li>Android &amp; web apps</li>
             <li>WhatsApp integration</li>
@@ -119,10 +132,10 @@
           </ul>
         </article>
 
-        <article class="sv-service-card">
-          
-          <h3 class="sv-service-name">Branding &amp; Design</h3>
-          <p class="sv-service-desc">A professional identity customers trust on sight.</p>
+        <article class="tilt-card reveal">
+          <div class="cap-icon">🎨</div>
+          <h3 class="cap-title">Branding &amp; Design</h3>
+          <p class="cap-text">A professional identity customers trust on sight.</p>
           <ul class="sv-service-list">
             <li>Logos &amp; visual identity</li>
             <li>Flyers &amp; business cards</li>
@@ -130,10 +143,10 @@
           </ul>
         </article>
 
-        <article class="sv-service-card">
-          
-          <h3 class="sv-service-name">Digital Marketing</h3>
-          <p class="sv-service-desc">Get found and stay top of mind across channels.</p>
+        <article class="tilt-card reveal">
+          <div class="cap-icon">📣</div>
+          <h3 class="cap-title">Digital Marketing</h3>
+          <p class="cap-text">Get found and stay top of mind across channels.</p>
           <ul class="sv-service-list">
             <li>Social media management</li>
             <li>Google &amp; Facebook Ads</li>
@@ -141,10 +154,10 @@
           </ul>
         </article>
 
-        <article class="sv-service-card">
-          
-          <h3 class="sv-service-name">Setup &amp; Support</h3>
-          <p class="sv-service-desc">We handle the tech so you can run your business.</p>
+        <article class="tilt-card reveal">
+          <div class="cap-icon">🛠️</div>
+          <h3 class="cap-title">Setup &amp; Support</h3>
+          <p class="cap-text">We handle the tech so you can run your business.</p>
           <ul class="sv-service-list">
             <li>Domain &amp; hosting setup</li>
             <li>WhatsApp chatbot</li>
@@ -392,5 +405,6 @@
   <footer id="site-footer"></footer>
 
   <script src="site-chrome.js"></script>
+  <script src="hub.js"></script>
 </body>
 </html>
