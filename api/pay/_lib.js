@@ -12,19 +12,24 @@ import crypto from 'crypto';
 
 export const CAMPAY_BASE = (process.env.CAMPAY_BASE_URL || 'https://demo.campay.net').replace(/\/+$/, '');
 
-// Server-authoritative setup fees (XAF). The client never sends the price.
-export const SETUP_FEES_XAF = {
-  starter: 50000,
-  essential: 75000,
-  growth: 120000,
-  pro: 250000,
-  build_only: 180000
+// Prices are set in USD (canonical). We DISPLAY USD but CHARGE the XAF equivalent,
+// because Campay collects Mobile Money in XAF. Rate is env-configurable.
+export const USD_TO_XAF = Number(process.env.USD_XAF_RATE || 600);
+export const usdToXaf = (usd) => Math.round(Number(usd) * USD_TO_XAF);
+
+// Server-authoritative setup fees (USD). The client never sends the price.
+export const SETUP_FEES_USD = {
+  starter: 80,
+  essential: 125,
+  growth: 200,
+  pro: 400,
+  build_only: 300
 };
 
-// One-time add-ons (XAF), charged together with the setup fee. Also server-authoritative.
-export const ADDON_PRICES_XAF = {
-  logo: 25000,
-  full_branding: 80000
+// One-time add-ons (USD), charged together with the setup fee. Also server-authoritative.
+export const ADDON_PRICES_USD = {
+  logo: 40,
+  full_branding: 130
 };
 
 // --- Campay ---------------------------------------------------------------

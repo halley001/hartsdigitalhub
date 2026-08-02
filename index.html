@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Harts Digital Hub</title>
-  <meta name="description" content="Chat with our AI assistant about digital packages, pricing, and free AI training for businesses in Cameroon. Direct WhatsApp handoff.">
-  <meta property="og:title" content="Harts Digital Hub">
-  <meta property="og:description" content="Chat with our AI assistant about digital packages and free AI training.">
+  <title>H@rts — Intelligent Software & Next-Gen Digital Hubs</title>
+  <meta name="description" content="H@rts engineers custom enterprise systems, AI automation, WhatsApp business engines, cloud architecture and managed IT for businesses across Cameroon and beyond.">
+  <meta property="og:title" content="H@rts — Intelligent Software & Digital Hubs">
+  <meta property="og:description" content="Custom Enterprise Systems, AI Automation, WhatsApp Engines, and Managed IT Services.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hartsdigitalhub.com/">
 
@@ -23,53 +23,398 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 
-  <!-- Styles -->
+  <!-- Styles: existing tokens/chat + enterprise hub layer -->
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="hub.css">
 
-  <!-- JSON-LD Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "Harts Digital Hub",
+    "@type": "Organization",
+    "name": "H@rts (Harts Digital Hub)",
     "url": "https://hartsdigitalhub.com/",
-    "logo": "https://hartsdigitalhub.com/logo.png",
-    "image": "https://hartsdigitalhub.com/og-image.jpg",
-    "description": "Affordable digital marketing, website design, and social media management packages for SMEs in Cameroon.",
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "CM"
-    },
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+237622341343",
-      "contactType": "customer support"
-    }
+    "description": "Custom enterprise software, AI automation, WhatsApp business engines, cloud architecture and managed IT services.",
+    "address": { "@type": "PostalAddress", "addressCountry": "CM" },
+    "contactPoint": { "@type": "ContactPoint", "telephone": "+237622341343", "contactType": "sales" }
   }
   </script>
 </head>
-<body>
+<body class="hub-body">
+<a href="#capabilities" class="skip-link">Skip to content</a>
+<div class="hub-wrap">
 
-  <!-- Identity bar -->
-  <div class="harts-topbar">
-    <div class="harts-topbar-inner">
-      <span class="harts-logo">Harts</span>
-      <span class="harts-tagline">Digital services for businesses in Cameroon</span>
-      <a href="services.html" class="harts-training-link">Services &amp; Pricing</a>
-      <a href="training.html" class="harts-training-link">AI Training &rarr;</a>
+  <!-- ===== Navigation ===== -->
+  <header class="hub-nav">
+    <div class="hub-nav-inner">
+      <a href="/" class="hub-brand">H<b>@</b>rts</a>
+      <button class="hub-nav-toggle" id="hub-nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+      <ul class="hub-nav-links">
+        <li><a class="hub-nav-link" href="#capabilities">Services</a></li>
+        <li><a class="hub-nav-link" href="#whatsapp">WhatsApp Automation</a></li>
+        <li><a class="hub-nav-link" href="#portfolio">Portfolio</a></li>
+        <li><a class="hub-nav-link" href="#pricing">Pricing &amp; SLAs</a></li>
+        <li><a class="hub-nav-link" href="#about">About Us</a></li>
+        <li><a class="hub-cta" href="#quote">Get a Project Quote</a></li>
+      </ul>
     </div>
+  </header>
+
+  <!-- ===== Hero ===== -->
+  <section class="hub-hero">
+    <canvas class="hub-hero-canvas" id="hub-hero-canvas" aria-hidden="true"></canvas>
+    <div class="hub-hero-fallback" aria-hidden="true"></div>
+    <div class="hub-hero-inner">
+      <span class="hub-kicker">Digital Hub · Software Engineering</span>
+      <h1 class="hub-hero-title">Engineering Intelligent Software &amp; <span class="accent">Next-Gen Digital Hubs</span></h1>
+      <p class="hub-hero-sub">Custom Enterprise Systems, AI Automation, WhatsApp Engines, and Managed IT Services — architected, built, and maintained by H@rts.</p>
+      <div class="hub-hero-actions">
+        <a class="hub-cta" href="#quote">Get a Project Quote</a>
+        <a class="hub-cta ghost" href="#whatsapp">Explore WhatsApp Engines</a>
+      </div>
+      <div class="hub-hero-badges">
+        <div><b>24/7</b> Automated WhatsApp channels</div>
+        <div><b>99.9%</b> Managed uptime targets</div>
+        <div><b>EN·FR</b> Bilingual engineering</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Capabilities grid ===== -->
+  <section class="hub-section" id="capabilities">
+    <div class="hub-section-head reveal">
+      <span class="hub-kicker">What we build</span>
+      <h2 class="hub-section-title">Enterprise capabilities, engineered end-to-end</h2>
+      <p class="hub-section-sub">From custom software to the infrastructure that keeps it running — one accountable engineering partner.</p>
+    </div>
+    <div class="hub-grid">
+      <article class="tilt-card reveal">
+        <span class="cap-index">01</span>
+        <div class="cap-icon">🧩</div>
+        <h3 class="cap-title">Custom Software &amp; Web Systems</h3>
+        <p class="cap-text">ERPs, inventory engines, admin dashboards and internal tools built around how your business actually operates.</p>
+        <div class="cap-tags"><span class="cap-tag">ERP</span><span class="cap-tag">Inventory</span><span class="cap-tag">Dashboards</span></div>
+      </article>
+      <article class="tilt-card reveal">
+        <span class="cap-index">02</span>
+        <div class="cap-icon">☁️</div>
+        <h3 class="cap-title">Cloud &amp; Database Architecture</h3>
+        <p class="cap-text">Performance optimization, zero-downtime migrations, and uptime-focused architecture on scalable cloud infrastructure.</p>
+        <div class="cap-tags"><span class="cap-tag">Optimization</span><span class="cap-tag">Migrations</span><span class="cap-tag">Uptime</span></div>
+      </article>
+      <article class="tilt-card reveal">
+        <span class="cap-index">03</span>
+        <div class="cap-icon">🛡️</div>
+        <h3 class="cap-title">Managed IT &amp; SLA Retainers</h3>
+        <p class="cap-text">System care, security hardening and dedicated engineering on a monthly retainer — your outsourced technical team.</p>
+        <div class="cap-tags"><span class="cap-tag">System Care</span><span class="cap-tag">Security</span><span class="cap-tag">Dedicated Eng</span></div>
+      </article>
+      <article class="tilt-card reveal">
+        <span class="cap-index">04</span>
+        <div class="cap-icon">💬</div>
+        <h3 class="cap-title">WhatsApp Business Automation</h3>
+        <p class="cap-text">AI chatbots, automated ordering and CRM sync that turn WhatsApp into a 24/7 sales and support channel.</p>
+        <div class="cap-tags"><span class="cap-tag">AI Chatbots</span><span class="cap-tag">Orders</span><span class="cap-tag">CRM Sync</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== WhatsApp automation section ===== -->
+  <section class="hub-section" id="whatsapp">
+    <div class="hub-wa">
+      <div class="reveal">
+        <span class="hub-kicker">WhatsApp Automation Engine</span>
+        <h2 class="hub-section-title">Turn WhatsApp into your 24/7 automated sales &amp; support channel</h2>
+        <div class="wa-features">
+          <div class="wa-feature">
+            <span class="wa-feature-ico">🤖</span>
+            <div><h4>Automated Customer Service</h4><p>Instant FAQ answers, ticket creation and account checks — no waiting, no missed messages.</p></div>
+          </div>
+          <div class="wa-feature">
+            <span class="wa-feature-ico">📦</span>
+            <div><h4>Database &amp; Inventory Query</h4><p>Real-time stock and price lookups straight from a WhatsApp message, wired to your live database.</p></div>
+          </div>
+          <div class="wa-feature">
+            <span class="wa-feature-ico">📣</span>
+            <div><h4>Broadcast &amp; Lead Engagement</h4><p>Automated notifications, reminders and follow-ups that keep customers moving down the funnel.</p></div>
+          </div>
+          <div class="wa-feature">
+            <span class="wa-feature-ico">🧑‍💼</span>
+            <div><h4>Human Handover</h4><p>Seamless fallback to a live agent the moment a conversation needs a person.</p></div>
+          </div>
+        </div>
+        <div class="hub-hero-actions" style="margin-top:2rem">
+          <a class="hub-cta" href="whatsapp-automation.html">See the full engine →</a>
+        </div>
+      </div>
+
+      <!-- 3D phone + live chat simulator -->
+      <div class="phone-stage reveal">
+        <div class="phone-3d" aria-hidden="true">
+          <div class="phone-screen">
+            <div class="phone-topbar">
+              <div class="ava">H</div>
+              <div class="who"><b>H@rts Bot</b><span>online · typically instant</span></div>
+            </div>
+            <div class="sim-feed" id="sim-feed"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Portfolio / case studies ===== -->
+  <section class="hub-section" id="portfolio">
+    <div class="hub-section-head reveal">
+      <span class="hub-kicker">Selected work</span>
+      <h2 class="hub-section-title">Enterprise solutions in production</h2>
+      <p class="hub-section-sub">Representative builds. Metrics are illustrative until client case studies are published.</p>
+    </div>
+    <div class="work-grid">
+      <article class="tilt-card work-card reveal">
+        <div class="work-thumb">◧</div>
+        <div class="work-body">
+          <span class="work-cat">Retail · Custom Software</span>
+          <h3 class="work-title">Enterprise Inventory System</h3>
+          <p class="work-desc">Real-time stock tracking across branches with role-based access control and audit trails.</p>
+          <div class="work-metrics">
+            <div class="work-metric"><b>Real-time</b><span>Stock sync</span></div>
+            <div class="work-metric"><b>RBAC</b><span>Access control</span></div>
+          </div>
+        </div>
+      </article>
+      <article class="tilt-card work-card reveal">
+        <div class="work-thumb">◨</div>
+        <div class="work-body">
+          <span class="work-cat">Hospitality · Platform</span>
+          <h3 class="work-title">POS &amp; Hospitality Platform</h3>
+          <p class="work-desc">Digital ordering with live operational tracking for kitchens, tables and daily takings.</p>
+          <div class="work-metrics">
+            <div class="work-metric"><b>Digital</b><span>Ordering</span></div>
+            <div class="work-metric"><b>Live</b><span>Ops tracking</span></div>
+          </div>
+        </div>
+      </article>
+      <article class="tilt-card work-card reveal">
+        <div class="work-thumb">◩</div>
+        <div class="work-body">
+          <span class="work-cat">Data · WhatsApp Bot</span>
+          <h3 class="work-title">WhatsApp Database Query Bot</h3>
+          <p class="work-desc">Staff and customers query the business database over WhatsApp — stock, prices, orders — no app needed.</p>
+          <div class="work-metrics">
+            <div class="work-metric"><b>0-install</b><span>Access</span></div>
+            <div class="work-metric"><b>24/7</b><span>Availability</span></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== Pricing / SLAs ===== -->
+  <section class="hub-section" id="pricing">
+    <div class="hub-section-head reveal">
+      <span class="hub-kicker">Engagement models</span>
+      <h2 class="hub-section-title">Two ways to work with us</h2>
+      <p class="hub-section-sub">Every engagement is one of two things — a <b>build</b> (a system we design and ship) or <b>managed care</b> (a monthly retainer that keeps it running). Most clients start with a build, then move onto a retainer at launch.</p>
+    </div>
+
+    <!-- 1 · Build -->
+    <p class="pricing-block-label reveal"><span>01</span> Build — one-time projects</p>
+    <article class="build-band reveal">
+      <div>
+        <h3 class="sla-name">Custom architecture &amp; builds</h3>
+        <p class="sla-tagline">ERPs, inventory engines, POS platforms, dashboards, WhatsApp automation engines.</p>
+        <p class="cap-text" style="margin-top:0.8rem;max-width:52ch">Scoped and quoted per project, delivered in milestones you approve and pay against — so cost and progress stay predictable from kickoff to launch.</p>
+      </div>
+      <div class="build-band-price">
+        <span class="build-from">from</span>
+        <b>$300</b>
+        <span class="build-unit">one-time · milestone-based</span>
+        <a class="sla-cta" href="#quote">Get a build quote</a>
+      </div>
+    </article>
+
+    <!-- 2 · Manage -->
+    <p class="pricing-block-label reveal"><span>02</span> Manage — monthly SLA retainers</p>
+    <div class="sla-grid">
+      <article class="sla-card reveal">
+        <h3 class="sla-name">Standard</h3>
+        <p class="sla-tagline">For live systems that need a safety net</p>
+        <div class="sla-price">$125<small> / mo</small></div>
+        <ul class="sla-list">
+          <li>Business-hours support</li>
+          <li>Monthly maintenance &amp; updates</li>
+          <li>Uptime monitoring &amp; alerts</li>
+          <li>Next-business-day response</li>
+        </ul>
+        <a class="sla-cta" href="#quote">Start with Standard</a>
+      </article>
+      <article class="sla-card featured reveal">
+        <span class="sla-badge">Most popular</span>
+        <h3 class="sla-name">Priority</h3>
+        <p class="sla-tagline">Active development + priority care</p>
+        <div class="sla-price">$400<small> / mo</small></div>
+        <ul class="sla-list">
+          <li>Everything in Standard</li>
+          <li>Priority support &amp; faster SLAs</li>
+          <li>Monthly feature engineering hours</li>
+          <li>Security patching &amp; backups</li>
+          <li>Quarterly architecture review</li>
+        </ul>
+        <a class="sla-cta" href="#quote">Choose Priority</a>
+      </article>
+      <article class="sla-card reveal">
+        <h3 class="sla-name">Enterprise</h3>
+        <p class="sla-tagline">Dedicated engineering &amp; guarantees</p>
+        <div class="sla-price">Custom</div>
+        <ul class="sla-list">
+          <li>Everything in Priority</li>
+          <li>Dedicated engineer allocation</li>
+          <li>Custom uptime &amp; response SLAs</li>
+          <li>24/7 on-call for critical systems</li>
+          <li>Roadmap &amp; capacity planning</li>
+        </ul>
+        <a class="sla-cta" href="#quote">Talk to us</a>
+      </article>
+    </div>
+    <p class="sla-note">Prices shown in USD. Local billing available in XAF via Mobile Money / Orange Money. Retainers are optional and can start at launch.</p>
+
+    <!-- SME cross-link: route smaller buyers to the productized track -->
+    <div class="sme-band reveal">
+      <div>
+        <b>Just need a website, logo or WhatsApp presence?</b>
+        <span>For shops and solo businesses we offer fixed-price starter packages from $80 — no custom build required.</span>
+      </div>
+      <a class="hub-cta ghost" href="services.html">See SME packages →</a>
+    </div>
+  </section>
+
+  <!-- ===== About ===== -->
+  <section class="hub-section" id="about">
+    <div class="hub-section-head reveal">
+      <span class="hub-kicker">About us</span>
+      <h2 class="hub-section-title">Your engineering partner for the digital era</h2>
+      <p class="hub-section-sub">H@rts is a bilingual (EN/FR) software engineering and digital-hub studio. We design, build and operate the systems businesses run on — from custom enterprise software and cloud architecture to AI-driven WhatsApp automation and managed IT. One accountable team, from first line of code to 24/7 uptime.</p>
+    </div>
+    <div class="hub-hero-badges reveal" style="margin-top:0">
+      <div><b>Engineer</b> Design &amp; build custom systems</div>
+      <div><b>Automate</b> AI + WhatsApp business engines</div>
+      <div><b>Operate</b> Managed IT &amp; SLA retainers</div>
+    </div>
+  </section>
+
+  <!-- ===== Lead capture ===== -->
+  <section class="hub-section" id="quote">
+    <div class="lead-shell reveal">
+      <div class="lead-aside">
+        <h3>Get a project quote</h3>
+        <p>Tell us what you're building. We'll reply within one business day with a scoped approach and a clear price.</p>
+        <ul>
+          <li>No obligation, no spam</li>
+          <li>Bilingual EN / FR team</li>
+          <li>Or reach us instantly on WhatsApp</li>
+        </ul>
+      </div>
+      <form class="lead-form" id="lead-form" novalidate>
+        <div class="lead-field">
+          <label for="lf-name">Name</label>
+          <input id="lf-name" name="name" type="text" autocomplete="name" placeholder="Your full name" required>
+        </div>
+        <div class="lead-field">
+          <label for="lf-email">Email</label>
+          <input id="lf-email" name="email" type="email" autocomplete="email" placeholder="you@company.com">
+        </div>
+        <div class="lead-field">
+          <label for="lf-phone">WhatsApp number</label>
+          <input id="lf-phone" name="phone" type="tel" autocomplete="tel" placeholder="+237 …">
+        </div>
+        <div class="lead-field">
+          <label for="lf-service">Service needed</label>
+          <select id="lf-service" name="service">
+            <option value="">Select a service</option>
+            <option>Custom Software / Web System</option>
+            <option>Cloud &amp; Database Architecture</option>
+            <option>Managed IT / SLA Retainer</option>
+            <option>WhatsApp Business Automation</option>
+            <option>Other / Not sure yet</option>
+          </select>
+        </div>
+        <div class="lead-field">
+          <label for="lf-budget">Budget</label>
+          <select id="lf-budget" name="budget">
+            <option value="">Select a range</option>
+            <option>Under $500</option>
+            <option>$500 – $2,000</option>
+            <option>$2,000 – $10,000</option>
+            <option>$10,000+</option>
+            <option>Monthly retainer</option>
+          </select>
+        </div>
+        <div class="lead-field full">
+          <label for="lf-desc">Project description</label>
+          <textarea id="lf-desc" name="description" placeholder="What are you trying to build or automate?"></textarea>
+        </div>
+        <div class="lead-actions">
+          <button type="submit" class="lead-btn primary">Submit request</button>
+          <button type="button" class="lead-btn wa" id="lead-wa-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11-.42-.11-.96-.29-1.65-.59-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.82 2.01.89 2.16.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.29.36-.24.6-.14.24.09 1.53.72 1.8.85.27.14.44.21.5.32.07.11.07.64-.17 1.32Z"/></svg>
+            Send via WhatsApp
+          </button>
+          <p class="lead-status" id="lead-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="hub-footer">
+    <div>
+      <a href="/" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>
+      <p style="margin-top:.6rem;max-width:34ch">Intelligent software &amp; next-gen digital hubs. Bilingual EN / FR. Cameroon &amp; beyond.</p>
+    </div>
+    <nav class="hub-footer-links" aria-label="Footer">
+      <a href="#capabilities">Services</a>
+      <a href="whatsapp-automation.html">WhatsApp Automation</a>
+      <a href="#portfolio">Portfolio</a>
+      <a href="#pricing">Pricing &amp; SLAs</a>
+      <a href="services.html">SME Packages</a>
+      <a href="training.html">AI Training</a>
+    </nav>
+    <div>© <span id="hub-year">2026</span> H@rts · +237 622 341 343</div>
+  </footer>
+
+</div><!-- /hub-wrap -->
+
+<!-- ===== Floating action buttons ===== -->
+<div class="fab-stack">
+  <a class="fab fab-wa" href="https://wa.me/237622341343?text=Hello%20H%40rts!%20I%27d%20like%20to%20talk%20about%20a%20project."
+     target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <span class="fab-ping" aria-hidden="true"></span>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11-.42-.11-.96-.29-1.65-.59-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.82 2.01.89 2.16.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.29.36-.24.6-.14.24.09 1.53.72 1.8.85.27.14.44.21.5.32.07.11.07.64-.17 1.32Z"/></svg>
+    <span class="fab-label">WhatsApp us</span>
+  </a>
+  <button class="fab fab-chat" id="fab-chat" aria-label="Open chat assistant" aria-expanded="false" aria-controls="harts-chat-widget">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="fab-label">Ask our AI assistant</span>
+  </button>
+</div>
+
+<!-- ===== Chat bubble (hosts the existing app.js chat) ===== -->
+<div id="harts-chat-widget" role="dialog" aria-label="H@rts AI assistant">
+  <div class="chat-widget-head">
+    <div class="ava">H</div>
+    <div class="who"><b>H@rts AI Assistant</b><span>● online</span></div>
+    <button class="chat-widget-close" id="chat-widget-close" aria-label="Close chat">×</button>
   </div>
 
-  <!-- Chat interface -->
+  <!-- Chat interface (IDs preserved so app.js works unchanged) -->
   <div class="gemini-chat" id="chat-main">
-    <!-- Welcome state -->
     <div class="chat-welcome" id="chat-welcome">
       <div class="welcome-inner">
-        <h1>How can we help grow<br>your business digitally?</h1>
+        <h1>How can we help grow your business?</h1>
         <div class="chat-suggestions">
-          <button class="chat-chip" onclick="useChip('I need a website')">I need a website</button>
-          <button class="chat-chip" onclick="useChip('Show me your packages')">See packages</button>
-          <button class="chat-chip" onclick="useChip('I need a logo or flyer')">Logo / flyer</button>
+          <button class="chat-chip" onclick="useChip('I need a WhatsApp chatbot')">WhatsApp bot</button>
+          <button class="chat-chip" onclick="useChip('I need custom software')">Custom software</button>
+          <button class="chat-chip" onclick="useChip('Show me your packages')">Packages</button>
           <button class="chat-chip" onclick="useChip('How much does it cost?')">Pricing</button>
         </div>
       </div>
@@ -77,16 +422,9 @@
 
     <div class="chat-messages" id="chat-messages" role="log" aria-live="polite"></div>
 
-    <!-- Input bar -->
     <div class="input-container">
       <form id="chat-form" class="gemini-input" autocomplete="off">
-        <input
-          id="chat-input"
-          type="text"
-          placeholder="Ask about websites, apps, branding, pricing..."
-          aria-label="Type your message"
-          maxlength="600"
-        />
+        <input id="chat-input" type="text" placeholder="Ask about software, WhatsApp bots, pricing…" aria-label="Type your message" maxlength="600" />
         <button id="chat-send" type="submit" class="send-btn" aria-label="Send">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -95,9 +433,11 @@
       </form>
     </div>
   </div>
+</div>
 
-  <!-- App script -->
-  <script src="app.js"></script>
-
+<!-- Scripts: existing chat engine + hub interactions -->
+<script src="app.js"></script>
+<script src="hub.js"></script>
+<script>document.getElementById('hub-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

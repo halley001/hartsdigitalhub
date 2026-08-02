@@ -12,14 +12,14 @@ const I18N = {
   en: {
     'pricing.title': 'Digital Packages',
     'starter.title': 'Starter',
-    'starter.setup': 'XAF 50,000 setup',
-    'starter.price': 'XAF 30,000',
+    'starter.setup': '$80 setup',
+    'starter.price': '$50',
     'growth.title': 'Growth',
-    'growth.setup': 'XAF 120,000 setup',
-    'growth.price': 'XAF 370,000',
+    'growth.setup': '$200 setup',
+    'growth.price': '$600',
     'pro.title': 'Pro',
-    'pro.setup': 'XAF 250,000 setup',
-    'pro.price': 'XAF 845,000',
+    'pro.setup': '$400 setup',
+    'pro.price': '$1,400',
     'permonth': '/ year',
     'starter.f1': 'Landing page',
     'starter.f2': 'Google Business listing',
@@ -47,14 +47,14 @@ const I18N = {
   fr: {
     'pricing.title': 'Forfaits Numériques',
     'starter.title': 'Démarrage',
-    'starter.setup': 'XAF 50 000 installation',
-    'starter.price': 'XAF 30 000',
+    'starter.setup': '$80 installation',
+    'starter.price': '$50',
     'growth.title': 'Croissance',
-    'growth.setup': 'XAF 120 000 installation',
-    'growth.price': 'XAF 370 000',
+    'growth.setup': '$200 installation',
+    'growth.price': '$600',
     'pro.title': 'Pro',
-    'pro.setup': 'XAF 250 000 installation',
-    'pro.price': 'XAF 845 000',
+    'pro.setup': '$400 installation',
+    'pro.price': '$1,400',
     'permonth': '/ an',
     'starter.f1': 'Page d\'accueil',
     'starter.f2': 'Fiche Google Business',
@@ -95,12 +95,14 @@ let selectedAddons = [];        // keys of add-ons the client chose (e.g. ['logo
 let currentLeadId = null;       // Supabase id of the saved lead, so a payment can link back to it
 
 // Server-authoritative setup fees (mirrors api/pay/_lib.js) — used only for display in chat
-const SETUP_FEES_XAF = { starter: 50000, essential: 75000, growth: 120000, pro: 250000, build_only: 180000 };
+// Prices are in USD (canonical). We display USD; Campay charges the XAF equivalent.
+const SETUP_FEES_USD = { starter: 80, essential: 125, growth: 200, pro: 400, build_only: 300 };
+const USD_TO_XAF = 600; // display-only estimate for the "≈ XAF" note; server uses env USD_XAF_RATE
 
-// One-time add-ons (mirrors ADDON_PRICES_XAF in api/pay/_lib.js) — display only; server recomputes
+// One-time add-ons (mirrors ADDON_PRICES_USD in api/pay/_lib.js) — display only; server recomputes
 const ADDONS = {
-  logo:          { price: 25000, label: { en: 'Logo', fr: 'Logo' } },
-  full_branding: { price: 80000, label: { en: 'Full branding (logo, colours, business card, templates)', fr: 'Branding complet (logo, couleurs, carte de visite, templates)' } }
+  logo:          { price: 40, label: { en: 'Logo', fr: 'Logo' } },
+  full_branding: { price: 130, label: { en: 'Full branding (logo, colours, business card, templates)', fr: 'Branding complet (logo, couleurs, carte de visite, templates)' } }
 };
 
 // Simple dynamic user profile for more human-like, contextual responses
@@ -115,8 +117,8 @@ let userProfile = {
 const PACKAGES = {
   starter: {
     name: { en: 'Starter', fr: 'Démarrage' },
-    setup: { en: 'XAF 50,000 setup', fr: 'XAF 50 000 installation' },
-    price: { en: 'XAF 30,000 / year', fr: 'XAF 30 000 / an' },
+    setup: { en: '$80 setup', fr: '$80 installation' },
+    price: { en: '$50 / year', fr: '$50 / an' },
     features: {
       en: ['Landing page', 'Google Business listing', 'WhatsApp Business setup'],
       fr: ['Page d\'accueil', 'Fiche Google Business', 'Configuration WhatsApp Business']
@@ -129,8 +131,8 @@ const PACKAGES = {
   },
   essential: {
     name: { en: 'Essential', fr: 'Essentiel' },
-    setup: { en: 'XAF 75,000 setup', fr: 'XAF 75 000 installation' },
-    price: { en: 'XAF 100,000 / year', fr: 'XAF 100 000 / an' },
+    setup: { en: '$125 setup', fr: '$125 installation' },
+    price: { en: '$165 / year', fr: '$165 / an' },
     features: {
       en: ['3-page website', 'Google Business + WhatsApp setup', 'Social media (1 platform, light management)', 'Basic SEO'],
       fr: ['Site web 3 pages', 'Fiche Google Business + configuration WhatsApp', 'Réseaux sociaux (1 plateforme, gestion légère)', 'SEO de base']
@@ -143,8 +145,8 @@ const PACKAGES = {
   },
   growth: {
     name: { en: 'Growth', fr: 'Croissance' },
-    setup: { en: 'XAF 120,000 setup', fr: 'XAF 120 000 installation' },
-    price: { en: 'XAF 370,000 / year', fr: 'XAF 370 000 / an' },
+    setup: { en: '$200 setup', fr: '$200 installation' },
+    price: { en: '$600 / year', fr: '$600 / an' },
     features: {
       en: ['Full website (5 pages)', 'Social media management (2 platforms)', 'Basic SEO', 'Monthly performance report'],
       fr: ['Site web complet (5 pages)', 'Gestion réseaux sociaux (2 plateformes)', 'SEO de base', 'Rapport mensuel']
@@ -158,8 +160,8 @@ const PACKAGES = {
   },
   pro: {
     name: { en: 'Pro', fr: 'Pro' },
-    setup: { en: 'XAF 250,000 setup', fr: 'XAF 250 000 installation' },
-    price: { en: 'XAF 845,000 / year', fr: 'XAF 845 000 / an' },
+    setup: { en: '$400 setup', fr: '$400 installation' },
+    price: { en: '$1,400 / year', fr: '$1,400 / an' },
     features: {
       en: ['E-commerce store', 'Google/Facebook Ads management', 'WhatsApp chatbot', 'Monthly analytics dashboard', 'Priority support'],
       fr: ['Boutique en ligne', 'Gestion Google/Facebook Ads', 'Chatbot WhatsApp', 'Tableau de bord analytique', 'Support prioritaire']
@@ -172,7 +174,7 @@ const PACKAGES = {
   },
   build_only: {
     name: { en: 'Build & Launch (One-Time)', fr: 'Création & Mise en ligne (Paiement unique)' },
-    setup: { en: 'XAF 180,000 one-time (Starter-level site + launch)', fr: 'XAF 180 000 paiement unique (site niveau Starter + lancement)' },
+    setup: { en: '$300 one-time (Starter-level site + launch)', fr: '$300 paiement unique (site niveau Starter + lancement)' },
     price: { en: 'No recurring fee (management add-on available later)', fr: 'Aucun frais récurrent (option gestion disponible plus tard)' },
     features: {
       en: ['Professional 5-page website', 'Google Business + WhatsApp setup', 'Mobile-friendly design', 'Training on how to manage your new digital assets'],
@@ -364,26 +366,26 @@ function getBotResponse(rawText, lang = currentLang) {
     if (/\b(web\s*sit[e]?|site\s*web?|online|en ligne)\b/i.test(text)) {
       lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
       return { text: lang === 'fr'
-        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter (50 000 XAF installation + 30 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
-        : `For a professional website we have 3 options:\n\n• Starter (XAF 50,000 setup + 30,000/year) — single landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐ most popular\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
+        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
+        : `For a professional website we have 3 options:\n\n• Starter ($80 setup + $50/year) — single landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media ⭐ most popular\n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
       };
     }
     if (/\b(app(?:lication)?|mobile)\b/i.test(text)) {
       return { text: lang === 'fr'
-        ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Le prix dépend des fonctionnalités — une appli simple commence autour de 300 000 XAF, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
-        : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. The cost depends on features — a basic app starts around XAF 300,000, with installment options.\n\nCan you describe what you\'d like the app to do?'
+        ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Le prix dépend des fonctionnalités — une appli simple commence autour de $500, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
+        : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. The cost depends on features — a basic app starts around $500, with installment options.\n\nCan you describe what you\'d like the app to do?'
       };
     }
     if (/\b(logo|flyer|brand|design|carte de visite|business card)\b/i.test(text)) {
       return { text: lang === 'fr'
-        ? 'Pour le design graphique, voici ce que nous proposons :\n\n• Logo professionnel : à partir de 25 000 XAF\n• Pack Logo + Flyer : à partir de 45 000 XAF\n• Branding complet (logo, couleurs, templates) : à partir de 80 000 XAF\n\nPour quel type d\'activité ?'
-        : 'For graphic design, here\'s what we offer:\n\n• Professional logo: from XAF 25,000\n• Logo + Flyer pack: from XAF 45,000\n• Full branding (logo, colors, templates): from XAF 80,000\n\nWhat type of business is this for?'
+        ? 'Pour le design graphique, voici ce que nous proposons :\n\n• Logo professionnel : à partir de $40\n• Pack Logo + Flyer : à partir de $75\n• Branding complet (logo, couleurs, templates) : à partir de $130\n\nPour quel type d\'activité ?'
+        : 'For graphic design, here\'s what we offer:\n\n• Professional logo: from $40\n• Logo + Flyer pack: from $75\n• Full branding (logo, colors, templates): from $130\n\nWhat type of business is this for?'
       };
     }
     if (/\b(social media|réseaux sociaux|instagram|facebook|marketing)\b/i.test(text)) {
       return { text: lang === 'fr'
-        ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (370 000 XAF/an) ou disponible en option.\n\nCombien de plateformes avez-vous en tête ?'
-        : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, and monthly reports. It\'s included in the Growth package (XAF 370,000/year) or available as an add-on.\n\nHow many platforms are you thinking about?'
+        ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth ($600/an) ou disponible en option.\n\nCombien de plateformes avez-vous en tête ?'
+        : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, and monthly reports. It\'s included in the Growth package ($600/year) or available as an add-on.\n\nHow many platforms are you thinking about?'
       };
     }
     return {
@@ -442,8 +444,8 @@ function getBotResponse(rawText, lang = currentLang) {
     const growthCalc = calculatePaymentDetails('growth', 'installments', lang);
     return {
       text: lang === 'fr'
-        ? `Voici nos tarifs (en XAF). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Essentiel : ${p.essential.setup.fr} + ${p.essential.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Facturation annuelle — payez en une fois ou en 2-3 versements sans intérêts par MoMo.\n\nQuel forfait ou service vous intéresse ?`
-        : `Here are our prices (in XAF). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Essential: ${p.essential.setup.en} + ${p.essential.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Billed yearly — pay in full or in 2-3 interest-free MoMo installments.\n\nWhich package or service interests you?`
+        ? `Voici nos tarifs (en USD). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Essentiel : ${p.essential.setup.fr} + ${p.essential.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Facturation annuelle — payez en une fois ou en 2-3 versements sans intérêts par MoMo.\n\nQuel forfait ou service vous intéresse ?`
+        : `Here are our prices (in USD). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Essential: ${p.essential.setup.en} + ${p.essential.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Billed yearly — pay in full or in 2-3 interest-free MoMo installments.\n\nWhich package or service interests you?`
     };
   }
 
@@ -491,32 +493,32 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|webs?it|online presence|présence en ligne|w[ae]bsite)\b/i.test(text)) {
     lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
     return { text: lang === 'fr'
-      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter (50 000 XAF installation + 30 000/an) — page de présentation\n• Growth (120 000 XAF installation + 370 000/an) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch (180 000 XAF unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
-      : 'For a professional website, we have 3 options:\n\n• Starter (XAF 50,000 setup + 30,000/year) — landing page\n• Growth (XAF 120,000 setup + 370,000/year) — 5-page site + social media ⭐\n• Build & Launch (XAF 180,000 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
+      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
+      : 'For a professional website, we have 3 options:\n\n• Starter ($80 setup + $50/year) — landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media ⭐\n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
     };
   }
 
   // ── Mobile app ────────────────────────────────────────────────
   if (/\b(app(?:lication)?s?|mobile app|android|ios|play store|application mobile)\b/i.test(text)) {
     return { text: lang === 'fr'
-      ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Une appli simple commence autour de 300 000 XAF, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
-      : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. A basic app starts around XAF 300,000, with installment options.\n\nCan you describe what you\'d like the app to do?'
+      ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Une appli simple commence autour de $500, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
+      : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. A basic app starts around $500, with installment options.\n\nCan you describe what you\'d like the app to do?'
     };
   }
 
   // ── Logo / flyer / branding ───────────────────────────────────
   if (/\b(logo[s]?|flyer[s]?|brand(?:ing)?|design graphique|carte[s]? de visite|business card[s]?|identité visuelle|visual identity)\b/i.test(text)) {
     return { text: lang === 'fr'
-      ? 'Pour le design graphique :\n\n• Logo professionnel : à partir de 25 000 XAF\n• Pack Logo + Flyer : à partir de 45 000 XAF\n• Branding complet (logo, couleurs, templates) : à partir de 80 000 XAF\n\nPour quel type d\'activité ?'
-      : 'For graphic design:\n\n• Professional logo: from XAF 25,000\n• Logo + Flyer pack: from XAF 45,000\n• Full branding (logo, colors, templates): from XAF 80,000\n\nWhat type of business is this for?'
+      ? 'Pour le design graphique :\n\n• Logo professionnel : à partir de $40\n• Pack Logo + Flyer : à partir de $75\n• Branding complet (logo, couleurs, templates) : à partir de $130\n\nPour quel type d\'activité ?'
+      : 'For graphic design:\n\n• Professional logo: from $40\n• Logo + Flyer pack: from $75\n• Full branding (logo, colors, templates): from $130\n\nWhat type of business is this for?'
     };
   }
 
   // ── Social media ──────────────────────────────────────────────
   if (/\b(social media|réseaux sociaux|instagram|facebook|tiktok|manage.*social|gestion.*réseaux)\b/i.test(text)) {
     return { text: lang === 'fr'
-      ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth (370 000 XAF/an) ou disponible en option.\n\nCombien de plateformes souhaitez-vous gérer ?'
-      : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, monthly reports. It\'s included in the Growth package (XAF 370,000/year) or available as an add-on.\n\nHow many platforms do you have in mind?'
+      ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth ($600/an) ou disponible en option.\n\nCombien de plateformes souhaitez-vous gérer ?'
+      : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, monthly reports. It\'s included in the Growth package ($600/year) or available as an add-on.\n\nHow many platforms do you have in mind?'
     };
   }
 
@@ -773,22 +775,26 @@ function fmtXAF(n, lang) {
     : n.toLocaleString('en-US');
 }
 
+// Money formatters: usd() shows the billed USD price; xaf() shows the ≈ XAF charged on MoMo.
+function usd(n) { return '$' + Number(n).toLocaleString('en-US'); }
+function xaf(n) { return Number(n).toLocaleString('en-US') + ' XAF'; }
+
 function providePaymentInstructions(lang) {
   const pkg = PACKAGES[selectedPackage] || PACKAGES.growth;
   const name = pkg.name[lang] || pkg.name.en;
-  const setupFee = SETUP_FEES_XAF[selectedPackage] || SETUP_FEES_XAF.growth;
+  const setupFee = SETUP_FEES_USD[selectedPackage] || SETUP_FEES_USD.growth;
 
   // Offer optional one-time add-ons before charging.
   selectedAddons = [];
   awaitingAddons = true;
 
-  const fee = fmtXAF(setupFee, lang);
-  const logo = fmtXAF(ADDONS.logo.price, lang);
-  const brand = fmtXAF(ADDONS.full_branding.price, lang);
+  const fee = usd(setupFee);
+  const logo = usd(ADDONS.logo.price);
+  const brand = usd(ADDONS.full_branding.price);
 
   const msg = lang === 'fr'
-    ? `Parfait. Pour démarrer votre ${name}, les frais d'installation sont de ${fee} XAF (une seule fois).\n\n✨ Souhaitez-vous ajouter un extra design ?\n• Logo — ${logo} XAF\n• Branding complet — ${brand} XAF\n\nRépondez « logo », « branding », « les deux », ou « non » pour continuer.`
-    : `Perfect. To start your ${name}, the one-time setup fee is ${fee} XAF.\n\n✨ Want to add a design extra?\n• Logo — ${logo} XAF\n• Full branding — ${brand} XAF\n\nReply "logo", "branding", "both", or "no" to continue.`;
+    ? `Parfait. Pour démarrer votre ${name}, les frais d'installation sont de ${fee} (une seule fois).\n\n✨ Souhaitez-vous ajouter un extra design ?\n• Logo — ${logo}\n• Branding complet — ${brand}\n\nRépondez « logo », « branding », « les deux », ou « non » pour continuer.`
+    : `Perfect. To start your ${name}, the one-time setup fee is ${fee}.\n\n✨ Want to add a design extra?\n• Logo — ${logo}\n• Full branding — ${brand}\n\nReply "logo", "branding", "both", or "no" to continue.`;
 
   return { text: msg };
 }
@@ -828,27 +834,28 @@ function handleAddonSelection(rawText, lang) {
 
 // Builds the "here's your total, send your MoMo number" message (setup + any add-ons).
 function buildPaymentPrompt(lang) {
-  const setupFee = SETUP_FEES_XAF[selectedPackage] || SETUP_FEES_XAF.growth;
+  const setupFee = SETUP_FEES_USD[selectedPackage] || SETUP_FEES_USD.growth;
   const addonTotal = selectedAddons.reduce((s, k) => s + (ADDONS[k]?.price || 0), 0);
   const total = setupFee + addonTotal;
+  const xafApprox = xaf(total * USD_TO_XAF); // MoMo prompt is in XAF, so show the equivalent
 
   let breakdown;
   if (selectedAddons.length) {
     const addonList = selectedAddons
-      .map(k => `• ${ADDONS[k].label[lang] || ADDONS[k].label.en} — ${fmtXAF(ADDONS[k].price, lang)} XAF`)
+      .map(k => `• ${ADDONS[k].label[lang] || ADDONS[k].label.en} — ${usd(ADDONS[k].price)}`)
       .join('\n');
     breakdown = lang === 'fr'
-      ? `Total à régler : ${fmtXAF(total, lang)} XAF\n• Installation — ${fmtXAF(setupFee, lang)} XAF\n${addonList}`
-      : `Total to pay: ${fmtXAF(total, lang)} XAF\n• Setup — ${fmtXAF(setupFee, lang)} XAF\n${addonList}`;
+      ? `Total à régler : ${usd(total)} (≈ ${xafApprox})\n• Installation — ${usd(setupFee)}\n${addonList}`
+      : `Total to pay: ${usd(total)} (≈ ${xafApprox})\n• Setup — ${usd(setupFee)}\n${addonList}`;
   } else {
     breakdown = lang === 'fr'
-      ? `Total à régler : ${fmtXAF(total, lang)} XAF (installation).`
-      : `Total to pay: ${fmtXAF(total, lang)} XAF (setup).`;
+      ? `Total à régler : ${usd(total)} (≈ ${xafApprox}) pour l'installation.`
+      : `Total to pay: ${usd(total)} (≈ ${xafApprox}) for setup.`;
   }
 
   return lang === 'fr'
-    ? `${breakdown}\n\n📲 Envoyez votre numéro MoMo (MTN ou Orange, ex : 6XX XXX XXX) et nous lançons le paiement — vous validez avec votre code secret. Ou tapez « WhatsApp » pour l'équipe.`
-    : `${breakdown}\n\n📲 Send your MoMo number (MTN or Orange, e.g. 6XX XXX XXX) and we'll start the payment — you approve it with your secret code. Or type "WhatsApp" for the team.`;
+    ? `${breakdown}\n\n📲 Envoyez votre numéro MoMo (MTN ou Orange, ex : 6XX XXX XXX) et nous lançons le paiement — vous validez le montant en XAF avec votre code secret. Ou tapez « WhatsApp » pour l'équipe.`
+    : `${breakdown}\n\n📲 Send your MoMo number (MTN or Orange, e.g. 6XX XXX XXX) and we'll start the payment — you approve the XAF amount with your secret code. Or type "WhatsApp" for the team.`;
 }
 
 // Handles the customer's reply while we're waiting for a MoMo number to charge the setup fee.
@@ -907,8 +914,8 @@ async function initiatePayment(pkg, phone, lang) {
     }
 
     addMessage('bot', lang === 'fr'
-      ? `📲 Une demande de paiement de ${Number(data.amount).toLocaleString('fr-FR').replace(/,/g, ' ')} XAF a été envoyée à votre téléphone. Ouvrez la notification Mobile Money et validez avec votre code secret.`
-      : `📲 A payment request for ${Number(data.amount).toLocaleString('en-US')} XAF has been sent to your phone. Open the Mobile Money prompt and approve it with your secret code.`);
+      ? `📲 Une demande de paiement de ${xaf(data.amount_xaf)} (${usd(data.amount_usd)}) a été envoyée à votre téléphone. Ouvrez la notification Mobile Money et validez avec votre code secret.`
+      : `📲 A payment request for ${xaf(data.amount_xaf)} (${usd(data.amount_usd)}) has been sent to your phone. Open the Mobile Money prompt and approve it with your secret code.`);
 
     pollPaymentStatus(data.external_reference, lang, 0);
   } catch (e) {
@@ -1175,26 +1182,26 @@ function calculatePaymentDetails(pkgKey, paymentType, lang = currentLang) {
   const pkg = PACKAGES[pkgKey];
   if (!pkg) return '';
 
-  // Extract numbers (recurring price is now billed yearly).
-  // Amounts use commas (en: 120,000) or spaces (fr: 120 000) as separators — strip both.
+  // Extract USD numbers from the price strings (e.g. "$1,400" -> 1400).
   const setupMatch = (pkg.setup[lang] || pkg.setup.en || '').match(/\d[\d\s,]*/);
   const yearlyMatch = (pkg.price[lang] || pkg.price.en || '').match(/\d[\d\s,]*/);
 
   const setup = setupMatch ? parseInt(setupMatch[0].replace(/[\s,]/g, '')) : 0;
   const yearly = yearlyMatch ? parseInt(yearlyMatch[0].replace(/[\s,]/g, '')) : 0;
   const firstYearTotal = setup + yearly;
+  const d = (n) => '$' + n.toLocaleString('en-US'); // USD formatter
 
   if (paymentType === 'installments') {
     const parts = 3;
     const perPart = Math.round(yearly / parts);
     return lang === 'fr'
-      ? `Installation ${setup.toLocaleString()} XAF, puis le forfait annuel (${yearly.toLocaleString()} XAF) en ${parts} versements sans intérêts par MoMo : ~${perPart.toLocaleString()} XAF × ${parts}.`
-      : `${setup.toLocaleString()} XAF setup, then the yearly fee (${yearly.toLocaleString()} XAF) in ${parts} interest-free MoMo installments: ~${perPart.toLocaleString()} XAF × ${parts}.`;
+      ? `Installation ${d(setup)}, puis le forfait annuel (${d(yearly)}) en ${parts} versements sans intérêts par MoMo : ~${d(perPart)} × ${parts}.`
+      : `${d(setup)} setup, then the yearly fee (${d(yearly)}) in ${parts} interest-free MoMo installments: ~${d(perPart)} × ${parts}.`;
   }
   else {
     return lang === 'fr'
-      ? `Paiement complet : ${setup.toLocaleString()} XAF d'installation + ${yearly.toLocaleString()} XAF pour l'année (total ${firstYearTotal.toLocaleString()} XAF la première année, puis ${yearly.toLocaleString()} XAF/an).`
-      : `Full payment: ${setup.toLocaleString()} XAF setup + ${yearly.toLocaleString()} XAF for the year (total ${firstYearTotal.toLocaleString()} XAF first year, then ${yearly.toLocaleString()} XAF/year).`;
+      ? `Paiement complet : ${d(setup)} d'installation + ${d(yearly)} pour l'année (total ${d(firstYearTotal)} la première année, puis ${d(yearly)}/an).`
+      : `Full payment: ${d(setup)} setup + ${d(yearly)} for the year (total ${d(firstYearTotal)} first year, then ${d(yearly)}/year).`;
   }
 }
 // --- End dynamic helpers ---

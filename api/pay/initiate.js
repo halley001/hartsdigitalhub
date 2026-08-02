@@ -4,7 +4,7 @@
 // arrives via /api/pay/webhook. Amount is computed server-side.
 
 import {
-  CAMPAY_BASE, SETUP_FEES_XAF, ADDON_PRICES_XAF, getCampayToken, normalizePhone,
+  CAMPAY_BASE, SETUP_FEES_USD, ADDON_PRICES_USD, usdToXaf, getCampayToken, normalizePhone,
   supabaseConfigured, sbInsert, sbUpdate
 } from './_lib.js';
 import crypto from 'crypto';
@@ -16,22 +16,25 @@ export default async function handler(req, res) {
 
   const { package: pkg, phone, lead_id = null, add_ons = [] } = req.body || {};
 
-  // Server-authoritative amount — never trust a price from the client
-  const setupFee = SETUP_FEES_XAF[pkg];
-  if (!setupFee) return res.status(400).json({ error: 'Unknown package' });
+  // Server-authoritative price (USD) — never trust an amount from the client
+  const setupUsd = SETUP_FEES_USD[pkg];
+  if (!setupUsd) return res.status(400).json({ error: 'Unknown package' });
 
-  // Validate add-ons against the known catalog and sum their prices
+  // Validate add-ons against the known catalog and sum their USD prices
   const addonKeys = (Array.isArray(add_ons) ? add_ons : [])
-    .filter(k => ADDON_PRICES_XAF[k]);
-  const addonTotal = addonKeys.reduce((sum, k) => sum + ADDON_PRICES_XAF[k], 0);
-  const amount = setupFee + addonTotal;
+    .filter(k => ADDON_PRICES_USD[k]);
+  const addonUsd = addonKeys.reduce((sum, k) => sum + ADDON_PRICES_USD[k], 0);
+
+  const amountUsd = setupUsd + addonUsd;   // what we display/bill in USD
+  const amountXaf = usdToXaf(amountUsd);   // what Campay actually collects (Mobile Money is XAF)
 
   const from = normalizePhone(phone);
   if (!from) return res.status(400).json({ error: 'Invalid phone number' });
 
   const external_reference = crypto.randomUUID();
 
-  // 1) Record the intent as PENDING before calling the gateway
+  // 1) Record the intent as PENDING before calling the gateway.
+  //    amount = XAF actually charged (matches Campay for reconciliation); amount_usd = billed price.
   let row;
   try {
     row = await sbInsert('payments', {
@@ -40,7 +43,8 @@ export default async function handler(req, res) {
       package: pkg,
       payment_type: 'setup',
       add_ons: addonKeys.join(',') || null,
-      amount,
+      amount: amountXaf,
+      amount_usd: amountUsd,
       currency: 'XAF',
       phone: from,
       status: 'PENDING'
@@ -57,10 +61,10 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Token ${token}` },
       body: JSON.stringify({
-        amount: String(amount),
+        amount: String(amountXaf),
         currency: 'XAF',
         from,
-        description: `Harts ${pkg} setup${addonKeys.length ? ' + ' + addonKeys.join('+') : ''}`,
+        description: `Harts ${pkg} setup${addonKeys.length ? ' + ' + addonKeys.join('+') : ''} ($${amountUsd})`,
         external_reference
       })
     });
@@ -80,7 +84,8 @@ export default async function handler(req, res) {
       reference: data.reference,
       ussd_code: data.ussd_code || null,
       operator: data.operator || null,
-      amount,
+      amount_usd: amountUsd,
+      amount_xaf: amountXaf,
       currency: 'XAF'
     });
   } catch (e) {
