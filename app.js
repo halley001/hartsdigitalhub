@@ -1,8 +1,8 @@
 // ============================================================
-//  HARTS DIGITAL HUB — app.js
-//  Chat-first landing page (converted from marketing site)
-//  Knowledgeable assistant that can answer client questions +
-//  seamless handoff to WhatsApp with full context.
+// HARTS DIGITAL HUB — app.js
+// Chat-first landing page (converted from marketing site)
+// Knowledgeable assistant that can answer client questions +
+// seamless handoff to WhatsApp with full context.
 // ============================================================
 
 const WA_NUMBER = '237622341343';
@@ -82,17 +82,17 @@ const I18N = {
 };
 
 let currentLang = localStorage.getItem('lang') || 'en';
-let messages = [];           // { role: 'user' | 'bot', text: string }
-let leadContext = {};        // accumulates details during lead collection
+let messages = []; // { role: 'user' | 'bot', text: string }
+let leadContext = {}; // accumulates details during lead collection
 let awaitingLeadField = null; // 'name' | 'business' | 'phone' | 'city' | 'package' | 'payment_pref' | null
 let lastTopic = null;
 let currentStage = 'discovery'; // discovery | selection | details | payment | review
 let selectedPackage = null;
 let selectedPayment = null; // 'full' | 'installments'
 let awaitingMomoNumber = false; // true while we wait for the customer's MoMo number to charge the setup fee
-let awaitingAddons = false;     // true while we offer optional add-ons before payment
-let selectedAddons = [];        // keys of add-ons the client chose (e.g. ['logo'])
-let currentLeadId = null;       // Supabase id of the saved lead, so a payment can link back to it
+let awaitingAddons = false; // true while we offer optional add-ons before payment
+let selectedAddons = []; // keys of add-ons the client chose (e.g. ['logo'])
+let currentLeadId = null; // Supabase id of the saved lead, so a payment can link back to it
 
 // Server-authoritative setup fees (mirrors api/pay/_lib.js) — used only for display in chat
 // Prices are in USD (canonical). We display USD; Campay charges the XAF equivalent.
@@ -101,15 +101,15 @@ const USD_TO_XAF = 600; // display-only estimate for the "≈ XAF" note; server 
 
 // One-time add-ons (mirrors ADDON_PRICES_USD in api/pay/_lib.js) — display only; server recomputes
 const ADDONS = {
-  logo:          { price: 40, label: { en: 'Logo', fr: 'Logo' } },
+  logo: { price: 40, label: { en: 'Logo', fr: 'Logo' } },
   full_branding: { price: 130, label: { en: 'Full branding (logo, colours, business card, templates)', fr: 'Branding complet (logo, couleurs, carte de visite, templates)' } }
 };
 
 // Simple dynamic user profile for more human-like, contextual responses
 let userProfile = {
-  businessType: null,   // e.g. "restaurant", "shop", "service business"
+  businessType: null, // e.g. "restaurant", "shop", "service business"
   location: null,
-  mainGoal: null,       // e.g. "more customers", "online sales", "professional branding", "mobile app"
+  mainGoal: null, // e.g. "more customers", "online sales", "professional branding", "mobile app"
   mentionedBudget: null
 };
 
@@ -366,8 +366,8 @@ function getBotResponse(rawText, lang = currentLang) {
     if (/\b(web\s*sit[e]?|site\s*web?|online|en ligne)\b/i.test(text)) {
       lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
       return { text: lang === 'fr'
-        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux ⭐ le plus populaire\n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
-        : `For a professional website we have 3 options:\n\n• Starter ($80 setup + $50/year) — single landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media ⭐ most popular\n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
+        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux (le plus populaire)\n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
+        : `For a professional website we have 3 options:\n\n• Starter ($80 setup + $50/year) — single landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media (most popular)\n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
       };
     }
     if (/\b(app(?:lication)?|mobile)\b/i.test(text)) {
@@ -444,8 +444,8 @@ function getBotResponse(rawText, lang = currentLang) {
     const growthCalc = calculatePaymentDetails('growth', 'installments', lang);
     return {
       text: lang === 'fr'
-        ? `Voici nos tarifs (en USD). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Essentiel : ${p.essential.setup.fr} + ${p.essential.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\n💳 Facturation annuelle — payez en une fois ou en 2-3 versements sans intérêts par MoMo.\n\nQuel forfait ou service vous intéresse ?`
-        : `Here are our prices (in USD). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Essential: ${p.essential.setup.en} + ${p.essential.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\n💳 Billed yearly — pay in full or in 2-3 interest-free MoMo installments.\n\nWhich package or service interests you?`
+        ? `Voici nos tarifs (en USD). Exemple concret pour le Growth :\n\n${growthCalc}\n\n• Starter : ${p.starter.setup.fr} + ${p.starter.price.fr}\n• Essentiel : ${p.essential.setup.fr} + ${p.essential.price.fr}\n• Growth : ${p.growth.setup.fr} + ${p.growth.price.fr}\n• Pro : ${p.pro.setup.fr} + ${p.pro.price.fr}\n• Build & Launch (unique) : ${p.build_only.setup.fr}\n\nFacturation annuelle — payez en une fois ou en 2-3 versements sans intérêts par MoMo.\n\nQuel forfait ou service vous intéresse ?`
+        : `Here are our prices (in USD). Concrete example for Growth:\n\n${growthCalc}\n\n• Starter: ${p.starter.setup.en} + ${p.starter.price.en}\n• Essential: ${p.essential.setup.en} + ${p.essential.price.en}\n• Growth: ${p.growth.setup.en} + ${p.growth.price.en}\n• Pro: ${p.pro.setup.en} + ${p.pro.price.en}\n• Build & Launch (one-time): ${p.build_only.setup.en}\n\nBilled yearly — pay in full or in 2-3 interest-free MoMo installments.\n\nWhich package or service interests you?`
     };
   }
 
@@ -493,8 +493,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|webs?it|online presence|présence en ligne|w[ae]bsite)\b/i.test(text)) {
     lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
     return { text: lang === 'fr'
-      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux ⭐\n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
-      : 'For a professional website, we have 3 options:\n\n• Starter ($80 setup + $50/year) — landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media ⭐\n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
+      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux \n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
+      : 'For a professional website, we have 3 options:\n\n• Starter ($80 setup + $50/year) — landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media \n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
     };
   }
 
@@ -642,18 +642,18 @@ function formatPackage(key, lang) {
 
   // Dynamic payment summary
   const paymentSummary = calculatePaymentDetails(key, 'full', lang);
-  html += `<br>💳 ${paymentSummary}<br>`;
+  html += `<br>${paymentSummary}<br>`;
 
   if (pkg.installment) {
     html += `→ You can split the yearly fee into 2-3 interest-free MoMo installments.<br>`;
   }
 
-  if (key === 'growth') html += `<br><strong>★ Most popular package</strong><br>`;
+  if (key === 'growth') html += `<br><strong>Most popular package</strong><br>`;
   if (key === 'build_only') html += `<br>Great lower-commitment option — one-time payment, no recurring fees.<br>`;
 
   html += `<br>Ready to move forward, or want to compare / see exact payment options?`;
   
-  return html;  // Will be rendered as HTML in the bubble
+  return html; // Will be rendered as HTML in the bubble
 }
 
 // ── Conversational Lead Collection ────────────────────────────
@@ -793,8 +793,8 @@ function providePaymentInstructions(lang) {
   const brand = usd(ADDONS.full_branding.price);
 
   const msg = lang === 'fr'
-    ? `Parfait. Pour démarrer votre ${name}, les frais d'installation sont de ${fee} (une seule fois).\n\n✨ Souhaitez-vous ajouter un extra design ?\n• Logo — ${logo}\n• Branding complet — ${brand}\n\nRépondez « logo », « branding », « les deux », ou « non » pour continuer.`
-    : `Perfect. To start your ${name}, the one-time setup fee is ${fee}.\n\n✨ Want to add a design extra?\n• Logo — ${logo}\n• Full branding — ${brand}\n\nReply "logo", "branding", "both", or "no" to continue.`;
+    ? `Parfait. Pour démarrer votre ${name}, les frais d'installation sont de ${fee} (une seule fois).\n\nSouhaitez-vous ajouter un extra design ?\n• Logo — ${logo}\n• Branding complet — ${brand}\n\nRépondez « logo », « branding », « les deux », ou « non » pour continuer.`
+    : `Perfect. To start your ${name}, the one-time setup fee is ${fee}.\n\nWant to add a design extra?\n• Logo — ${logo}\n• Full branding — ${brand}\n\nReply "logo", "branding", "both", or "no" to continue.`;
 
   return { text: msg };
 }
@@ -854,8 +854,8 @@ function buildPaymentPrompt(lang) {
   }
 
   return lang === 'fr'
-    ? `${breakdown}\n\n📲 Envoyez votre numéro MoMo (MTN ou Orange, ex : 6XX XXX XXX) et nous lançons le paiement — vous validez le montant en XAF avec votre code secret. Ou tapez « WhatsApp » pour l'équipe.`
-    : `${breakdown}\n\n📲 Send your MoMo number (MTN or Orange, e.g. 6XX XXX XXX) and we'll start the payment — you approve the XAF amount with your secret code. Or type "WhatsApp" for the team.`;
+    ? `${breakdown}\n\nEnvoyez votre numéro MoMo (MTN ou Orange, ex : 6XX XXX XXX) et nous lançons le paiement — vous validez le montant en XAF avec votre code secret. Ou tapez « WhatsApp » pour l'équipe.`
+    : `${breakdown}\n\nSend your MoMo number (MTN or Orange, e.g. 6XX XXX XXX) and we'll start the payment — you approve the XAF amount with your secret code. Or type "WhatsApp" for the team.`;
 }
 
 // Handles the customer's reply while we're waiting for a MoMo number to charge the setup fee.
@@ -875,8 +875,8 @@ function handleMomoPayment(rawText, lang) {
     setTimeout(() => promptForReview(lang), 900);
     return {
       text: lang === 'fr'
-        ? 'Merci ! Dès réception nous confirmons et démarrons votre projet. 🙏'
-        : 'Thank you! As soon as we receive it we\'ll confirm and start your project. 🙏'
+        ? 'Merci ! Dès réception nous confirmons et démarrons votre projet. '
+        : 'Thank you! As soon as we receive it we\'ll confirm and start your project. '
     };
   }
 
@@ -894,8 +894,8 @@ function handleMomoPayment(rawText, lang) {
   initiatePayment(selectedPackage, trimmed, lang); // async — updates the chat as it progresses
   return {
     text: lang === 'fr'
-      ? '⏳ Nous lançons le paiement Mobile Money…'
-      : '⏳ Starting your Mobile Money payment…'
+      ? 'Nous lançons le paiement Mobile Money…'
+      : 'Starting your Mobile Money payment…'
   };
 }
 
@@ -914,8 +914,8 @@ async function initiatePayment(pkg, phone, lang) {
     }
 
     addMessage('bot', lang === 'fr'
-      ? `📲 Une demande de paiement de ${xaf(data.amount_xaf)} (${usd(data.amount_usd)}) a été envoyée à votre téléphone. Ouvrez la notification Mobile Money et validez avec votre code secret.`
-      : `📲 A payment request for ${xaf(data.amount_xaf)} (${usd(data.amount_usd)}) has been sent to your phone. Open the Mobile Money prompt and approve it with your secret code.`);
+      ? `Une demande de paiement de ${xaf(data.amount_xaf)} (${usd(data.amount_usd)}) a été envoyée à votre téléphone. Ouvrez la notification Mobile Money et validez avec votre code secret.`
+      : `A payment request for ${xaf(data.amount_xaf)} (${usd(data.amount_usd)}) has been sent to your phone. Open the Mobile Money prompt and approve it with your secret code.`);
 
     pollPaymentStatus(data.external_reference, lang, 0);
   } catch (e) {
@@ -930,7 +930,7 @@ async function initiatePayment(pkg, phone, lang) {
 
 // Polls /api/pay/status until the payment clears, fails, or times out.
 async function pollPaymentStatus(ref, lang, attempt) {
-  const MAX_ATTEMPTS = 24;   // ~2 minutes at 5s intervals
+  const MAX_ATTEMPTS = 24; // ~2 minutes at 5s intervals
   const INTERVAL_MS = 5000;
 
   try {
@@ -941,8 +941,8 @@ async function pollPaymentStatus(ref, lang, attempt) {
     if (status === 'SUCCESSFUL') {
       const pkgName = (PACKAGES[selectedPackage]?.name[lang]) || 'your package';
       addMessage('bot', lang === 'fr'
-        ? `✅ Paiement reçu ! Vos frais d'installation pour le ${pkgName} sont confirmés. Bienvenue chez Harts — on démarre votre projet. 🎉`
-        : `✅ Payment received! Your setup fee for ${pkgName} is confirmed. Welcome to Harts — we're starting your project. 🎉`);
+        ? `Paiement reçu ! Vos frais d'installation pour le ${pkgName} sont confirmés. Bienvenue chez Harts — on démarre votre projet. `
+        : `Payment received! Your setup fee for ${pkgName} is confirmed. Welcome to Harts — we're starting your project. `);
       currentStage = 'review';
       setTimeout(() => {
         const handoff = doHandoff(lang, true);
@@ -955,8 +955,8 @@ async function pollPaymentStatus(ref, lang, attempt) {
     if (status === 'FAILED') {
       awaitingMomoNumber = true;
       addMessage('bot', lang === 'fr'
-        ? '❌ Le paiement n\'a pas abouti (annulé ou expiré). Renvoyez votre numéro MoMo pour réessayer, ou tapez « WhatsApp » pour l\'équipe.'
-        : '❌ The payment didn\'t go through (cancelled or timed out). Send your MoMo number again to retry, or type "WhatsApp" for the team.');
+        ? 'Le paiement n\'a pas abouti (annulé ou expiré). Renvoyez votre numéro MoMo pour réessayer, ou tapez « WhatsApp » pour l\'équipe.'
+        : 'The payment didn\'t go through (cancelled or timed out). Send your MoMo number again to retry, or type "WhatsApp" for the team.');
       return;
     }
 
@@ -966,8 +966,8 @@ async function pollPaymentStatus(ref, lang, attempt) {
     } else {
       awaitingMomoNumber = true;
       addMessage('bot', lang === 'fr'
-        ? '⌛ Nous n\'avons pas encore vu la confirmation. Si vous avez validé, elle arrivera bientôt. Sinon, renvoyez votre numéro pour réessayer ou tapez « WhatsApp ».'
-        : '⌛ We haven\'t seen the confirmation yet. If you approved it, it should arrive shortly. Otherwise, resend your number to retry or type "WhatsApp".');
+        ? 'Nous n\'avons pas encore vu la confirmation. Si vous avez validé, elle arrivera bientôt. Sinon, renvoyez votre numéro pour réessayer ou tapez « WhatsApp ».'
+        : 'We haven\'t seen the confirmation yet. If you approved it, it should arrive shortly. Otherwise, resend your number to retry or type "WhatsApp".');
     }
   } catch (e) {
     console.error('pollPaymentStatus failed:', e);
@@ -1245,8 +1245,8 @@ function doHandoff(lang, withDetails = false) {
     currentStage = 'handoff';
     setTimeout(() => {
       addMessage('bot', lang === 'fr'
-        ? 'Message envoyé ✅ Notre équipe va confirmer le montant et finaliser le paiement avec vous sur WhatsApp, puis démarrer votre projet.'
-        : 'Message sent ✅ Our team will confirm the amount and complete the payment with you on WhatsApp, then start your project.');
+        ? 'Message envoyé. Notre équipe va confirmer le montant et finaliser le paiement avec vous sur WhatsApp, puis démarrer votre projet.'
+        : 'Message sent. Our team will confirm the amount and complete the payment with you on WhatsApp, then start your project.');
     }, 1400);
   }
 
@@ -1352,9 +1352,9 @@ function addMessage(role, text, isHTML = false) {
   const avatar = document.createElement('div');
   avatar.className = 'avatar';
   if (role === 'bot') {
-    avatar.textContent = '✦';   // Harts AI sparkle (Gemini-inspired but on-brand)
+    avatar.textContent = '✦'; // Harts AI sparkle (Gemini-inspired but on-brand)
   } else {
-    avatar.textContent = 'U';   // Clean user indicator
+    avatar.textContent = 'U'; // Clean user indicator
   }
 
   if (role === 'bot') {

@@ -160,10 +160,10 @@
     var script = [
       { who: 'user', text: 'Hi, do you have the 50" TV in stock?' },
       { who: 'typing' },
-      { who: 'bot', text: 'Yes! 3 units in stock at the Douala branch — 285,000 XAF. Want me to reserve one? 📦' },
+      { who: 'bot', text: 'Yes! 3 units in stock at the Douala branch — 285,000 XAF. Want me to reserve one? ' },
       { who: 'user', text: 'Yes please, reserve 1' },
       { who: 'typing' },
-      { who: 'bot', text: 'Done ✅ Order #4821 created. Pay via MoMo or pick up in-store. A human agent can confirm delivery — type "agent" anytime.' }
+      { who: 'bot', text: 'Done Order #4821 created. Pay via MoMo or pick up in-store. A human agent can confirm delivery — type "agent" anytime.' }
     ];
     if (reduceMotion) {
       // Render statically, no animation loop
@@ -239,7 +239,7 @@
 
     // Deep link from other pages: index.html?chat=<package|open>
     // (SME pricing CTAs on services.html land here so the buyer's intent
-    //  isn't lost on the enterprise homepage.)
+    // isn't lost on the enterprise homepage.)
     var chatParam = null;
     try { chatParam = new URLSearchParams(window.location.search).get('chat'); } catch (e) { chatParam = null; }
     if (chatParam) {

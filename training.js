@@ -14,7 +14,7 @@ const lessons = {
     content: `
       <h3>Let's start simple</h3>
       <p>Artificial Intelligence — AI — is the ability of a computer to do things that normally only a human brain can do. Things like understanding what you say, recognising your face in a photo, translating a language, or recommending a song you might like.</p>
-      <div class="highlight">💡 AI is not a robot. It is not magic. It is a computer program that has been taught to think in a certain way — using millions of examples.</div>
+      <div class="highlight">AI is not a robot. It is not magic. It is a computer program that has been taught to think in a certain way — using millions of examples.</div>
       <h3>A short history</h3>
       <p>The idea of "thinking machines" has been around for centuries. But modern AI really started in the 1950s when a British mathematician named Alan Turing asked a simple question: <em>"Can machines think?"</em></p>
       <p>Since then, AI has grown in stages:</p>
@@ -29,7 +29,7 @@ const lessons = {
       <p><strong>Narrow AI</strong> is AI built for one specific job — like the face ID on your phone, the spam filter in your email, or the recommendation algorithm on YouTube. This is the only type of AI that exists today.</p>
       <p><strong>General AI</strong> would be AI that can do any thinking task a human can. This does not exist yet, but researchers are working on it.</p>
       <p><strong>Superintelligence</strong> is a concept of AI smarter than all humans combined. This is still science fiction.</p>
-      <div class="highlight">🌍 AI in your daily life: MTN's fraud detection, M-Pesa's transaction security, Google Translate helping you read a French document, and WhatsApp's spam filter are all AI.</div>
+      <div class="highlight">AI in your daily life: MTN's fraud detection, M-Pesa's transaction security, Google Translate helping you read a French document, and WhatsApp's spam filter are all AI.</div>
       <h3>AI in Africa and Cameroon</h3>
       <p>Africa is not behind on AI — it is building its own path. In Nigeria, AI is helping farmers predict crop yields. In Kenya, AI diagnoses eye diseases in rural clinics. In Cameroon, businesses are using AI chatbots for customer service and AI tools to manage social media.</p>
       <p>The global AI economy is worth over $200 billion and growing fast. Understanding AI now gives you an advantage — whether you run a business, work a job, or are still in school.</p>
@@ -47,7 +47,7 @@ const lessons = {
       <p>You type a message. The AI replies. But what actually happens in between? Understanding this makes you a much smarter AI user.</p>
       <h3>Training data — the AI's education</h3>
       <p>AI does not think the way you do. It learns by reading enormous amounts of text — books, websites, conversations, news articles. This is called <strong>training data</strong>. The AI finds patterns in this text and uses those patterns to answer questions.</p>
-      <div class="highlight">📚 ChatGPT was trained on more text than a person could read in 50,000 years. It does not "know" things — it recognises patterns extremely well.</div>
+      <div class="highlight">ChatGPT was trained on more text than a person could read in 50,000 years. It does not "know" things — it recognises patterns extremely well.</div>
       <h3>What is a token?</h3>
       <p>AI does not read word by word. It reads in small chunks called <strong>tokens</strong>. A token is roughly a word or part of a word. "Cameroon" might be one token. "artificial" might be split into "artif" and "icial" — two tokens. The AI processes sequences of tokens and predicts the next most likely token to come next.</p>
       <h3>Large Language Models (LLMs)</h3>
@@ -63,7 +63,7 @@ const lessons = {
       <h3>Why AI sometimes gets things wrong — "hallucination"</h3>
       <p>Because AI predicts the most likely next word rather than looking up real facts, it can sometimes produce text that sounds completely confident but is wrong. This is called <strong>hallucination</strong>.</p>
       <p>Example: Ask an AI for the phone number of a restaurant. It might confidently give you a number — that is completely made up.</p>
-      <div class="highlight">⚠️ Rule: Never use AI for facts that really matter (medical advice, legal information, specific numbers) without double-checking from a trusted source.</div>
+      <div class="highlight">Rule: Never use AI for facts that really matter (medical advice, legal information, specific numbers) without double-checking from a trusted source.</div>
     `,
     quiz: [
       { q: 'What is "training data" in AI?', options: ['A special computer chip', 'The enormous amount of text an AI learns from', 'A password to access AI tools', 'A type of AI robot'], answer: 1 },
@@ -76,7 +76,7 @@ const lessons = {
     content: `
       <h3>What is a prompt?</h3>
       <p>A <strong>prompt</strong> is anything you type or say to an AI to get a response. Every time you send a message to ChatGPT or Claude, you are writing a prompt. Prompt engineering is the skill of writing prompts that consistently get you great results.</p>
-      <div class="highlight">🎯 The single most important rule: the quality of your output depends on the quality of your input. Vague prompt = vague answer. Clear prompt = useful answer.</div>
+      <div class="highlight">The single most important rule: the quality of your output depends on the quality of your input. Vague prompt = vague answer. Clear prompt = useful answer.</div>
       <h3>The golden rule — be specific</h3>
       <p><strong>Weak prompt:</strong> "Write something about my business."</p>
       <p><strong>Strong prompt:</strong> "Write a 150-word Instagram caption for a Cameroonian fashion boutique targeting women aged 18–35. Tone: modern, confident, and fun. End with a call to action to visit our store in Douala."</p>
@@ -86,7 +86,7 @@ const lessons = {
       <p><em>"Translate this sentence to French: Good morning, how can I help you?"</em></p>
       <h3>Few-shot prompting</h3>
       <p>You give the AI one or two examples of what you want before asking it to do the real thing. The AI learns your pattern from those examples.</p>
-      <p><em>"Here is how I write my WhatsApp replies to customers: 'Hello [Name], thank you for reaching out! [Answer]. Feel free to ask anything else. 😊' Now write a reply to this customer message: [paste message]"</em></p>
+      <p><em>"Here is how I write my WhatsApp replies to customers: 'Hello [Name], thank you for reaching out! [Answer]. Feel free to ask anything else. ' Now write a reply to this customer message: [paste message]"</em></p>
       <h3>Chain-of-thought prompting</h3>
       <p>For complex problems, tell the AI to think step by step before giving an answer. This makes it more accurate.</p>
       <p><em>"A customer wants to know which of our packages is best for a small salon. Think step by step about their needs before recommending."</em></p>
@@ -95,11 +95,11 @@ const lessons = {
       <p><em>"You are an experienced business coach working with small businesses in Cameroon. My business is a mobile phone repair shop. What are 5 ways I can attract more customers this month?"</em></p>
       <h3>Ready-to-use prompt templates</h3>
       <ul>
-        <li>📝 <em>"Summarise this in 5 bullet points a 15-year-old could understand: [paste text]"</em></li>
-        <li>📧 <em>"Write a professional but warm email apologising for a late delivery. Keep it under 100 words."</em></li>
-        <li>📱 <em>"Give me 10 social media post ideas for a [type of business] targeting [audience] in [city]."</em></li>
-        <li>💬 <em>"Act as a friendly customer service agent. A customer says: [complaint]. Write a reply."</em></li>
-        <li>📊 <em>"I run a small bakery. My sales this month were [numbers]. What should I focus on next month?"</em></li>
+        <li><em>"Summarise this in 5 bullet points a 15-year-old could understand: [paste text]"</em></li>
+        <li><em>"Write a professional but warm email apologising for a late delivery. Keep it under 100 words."</em></li>
+        <li><em>"Give me 10 social media post ideas for a [type of business] targeting [audience] in [city]."</em></li>
+        <li><em>"Act as a friendly customer service agent. A customer says: [complaint]. Write a reply."</em></li>
+        <li><em>"I run a small bakery. My sales this month were [numbers]. What should I focus on next month?"</em></li>
       </ul>
     `,
     quiz: [
@@ -132,7 +132,7 @@ const lessons = {
         <li><strong>Pictory:</strong> Paste a blog post or script — AI turns it into a video automatically.</li>
         <li><strong>HeyGen:</strong> Create professional videos with an AI avatar reading your script. No camera needed.</li>
       </ul>
-      <div class="highlight">🎥 You can create a professional marketing video in under 10 minutes using CapCut AI or Pictory — no camera, no studio, no editor needed.</div>
+      <div class="highlight">You can create a professional marketing video in under 10 minutes using CapCut AI or Pictory — no camera, no studio, no editor needed.</div>
       <h3>AI for customer service</h3>
       <ul>
         <li><strong>Tidio:</strong> AI chatbot for your website — answers customer questions 24/7.</li>
@@ -159,7 +159,7 @@ const lessons = {
     content: `
       <h3>What is automation?</h3>
       <p>Automation means setting up a system that does a task for you — automatically — without you having to click or type each time. It is like hiring a helper who never sleeps and never forgets.</p>
-      <div class="highlight">⏱ A business owner who automates just 3 hours of work per day saves over 700 hours per year — that is 90 full working days.</div>
+      <div class="highlight">A business owner who automates just 3 hours of work per day saves over 700 hours per year — that is 90 full working days.</div>
       <h3>What kinds of tasks can be automated?</h3>
       <ul>
         <li>Posting to social media on a schedule</li>
@@ -188,7 +188,7 @@ const lessons = {
       </ul>
       <h3>AI + Automation = your most powerful combination</h3>
       <p>When you plug AI into your automations, they become intelligent — not just fast. Example: A customer sends a complaint message → AI reads it and writes a personalised reply → Automation sends the reply → You are notified. All while you sleep.</p>
-      <div class="highlight">🤖 This is not science fiction. Businesses of all sizes — including small shops in Cameroon — are doing this today using free or low-cost tools.</div>
+      <div class="highlight">This is not science fiction. Businesses of all sizes — including small shops in Cameroon — are doing this today using free or low-cost tools.</div>
     `,
     quiz: [
       { q: 'In Zapier, what is a "trigger"?', options: ['A warning message', 'Something that starts an automated workflow', 'A type of payment', 'A design template'], answer: 1 },
@@ -202,7 +202,7 @@ const lessons = {
       <h3>A question to start</h3>
       <p>Imagine a bank uses AI to decide whether you get a loan. You apply. The AI says no. Nobody can explain exactly why. Is that fair? Who do you complain to? Who is responsible?</p>
       <p>This is what <strong>AI governance</strong> is about — the rules, laws, and structures that decide who has power over AI and how to hold them accountable.</p>
-      <div class="highlight">⚖️ AI governance is not just for governments and tech experts. It affects every person who uses a phone, applies for a job, or interacts with any digital service.</div>
+      <div class="highlight">AI governance is not just for governments and tech experts. It affects every person who uses a phone, applies for a job, or interacts with any digital service.</div>
       <h3>Who owns and controls AI?</h3>
       <p>Right now, most of the world's most powerful AI systems are built and owned by a small number of very large technology companies — mostly based in the United States and China. These include:</p>
       <ul>
@@ -238,7 +238,7 @@ const lessons = {
       <h3>Data sovereignty — your data, your rights</h3>
       <p>Every time you use an AI tool, you share data. Your name, your questions, your voice, your face. Who owns that data? Can the company sell it? Can a government access it?</p>
       <p>Data sovereignty is the idea that people and nations should have control over their own data — especially data generated in Africa, which should benefit Africa.</p>
-      <div class="highlight">🔑 Practical tip: Before using any AI tool, check its privacy policy. Look for: does it use my data to train its models? Can I delete my data? Is my data stored in my country or abroad?</div>
+      <div class="highlight">Practical tip: Before using any AI tool, check its privacy policy. Look for: does it use my data to train its models? Can I delete my data? Is my data stored in my country or abroad?</div>
     `,
     quiz: [
       { q: 'What does the EU AI Act classify AI systems by?', options: ['Their cost', 'Their country of origin', 'Their risk level', 'Their language'], answer: 2 },
@@ -252,7 +252,7 @@ const lessons = {
       <h3>The big question everyone is asking</h3>
       <p><em>"Will AI take my job?"</em></p>
       <p>It is the question on everyone's mind. The honest answer is: AI will change almost every job, but it will not simply replace all workers. What it will do is change what workers need to know and do.</p>
-      <div class="highlight">📊 According to the World Economic Forum, AI will eliminate 85 million jobs by 2025 — but create 97 million new ones. The question is: will you be ready for the new ones?</div>
+      <div class="highlight">According to the World Economic Forum, AI will eliminate 85 million jobs by 2025 — but create 97 million new ones. The question is: will you be ready for the new ones?</div>
       <h3>Jobs most affected by AI</h3>
       <p><strong>High risk of automation:</strong></p>
       <ul>
@@ -297,7 +297,7 @@ const lessons = {
         <li>Automated social media accounts (bots) pushing a political message</li>
       </ul>
       <p>Cameroon, like many African countries, has experienced politically motivated misinformation online. AI makes this problem much easier to scale and much harder to detect.</p>
-      <div class="highlight">🔍 Before sharing any political content: check the source, reverse-image search photos, and ask — "does this seem too dramatic to be true?"</div>
+      <div class="highlight">Before sharing any political content: check the source, reverse-image search photos, and ask — "does this seem too dramatic to be true?"</div>
     `,
     quiz: [
       { q: 'According to the World Economic Forum, what will AI do to jobs overall?', options: ['Eliminate all jobs within 10 years', 'Eliminate more jobs than it creates', 'Create more new jobs than it eliminates', 'Have no effect on employment'], answer: 2 },
@@ -318,7 +318,7 @@ const lessons = {
         <li>Face recognition AI works poorly on dark-skinned faces — because most training photos were of light-skinned people.</li>
         <li>Loan approval AI denied more applications from Black applicants than white ones — even when income was the same.</li>
       </ul>
-      <div class="highlight">⚖️ Bias is not always intentional. It is often invisible — built into data that everyone assumed was neutral. Awareness is the first step to fixing it.</div>
+      <div class="highlight">Bias is not always intentional. It is often invisible — built into data that everyone assumed was neutral. Awareness is the first step to fixing it.</div>
       <h3>Deepfakes and misinformation (ethics angle)</h3>
       <p>From a governance perspective, deepfakes are a legal issue. From an ethics perspective, they are a moral issue.</p>
       <p>Using AI to create a fake video of someone — even a public figure — without their consent is a form of deception and can cause serious harm: damaged reputations, lost jobs, relationship breakdown, or even violence. It is wrong, even if it is not yet illegal everywhere.</p>
@@ -346,7 +346,7 @@ const lessons = {
         <li>✓ Do not use AI to cheat in ways that undermine genuine learning or trust</li>
         <li>✓ Speak up if you see AI being used in unfair or harmful ways</li>
       </ul>
-      <div class="highlight">🤝 The best AI user is not the one who uses AI the most — it is the one who uses AI responsibly, honestly, and with consideration for others.</div>
+      <div class="highlight">The best AI user is not the one who uses AI the most — it is the one who uses AI responsibly, honestly, and with consideration for others.</div>
     `,
     quiz: [
       { q: 'Where does AI bias typically come from?', options: ['Bugs in the code', 'Biases and inequalities in human-generated training data', 'Slow internet connections', 'Too many users at once'], answer: 1 },
@@ -360,17 +360,17 @@ const lessons = {
       <h3>You have come a long way</h3>
       <p>Look at how much you have covered:</p>
       <ul>
-        <li>✅ What AI is and where it came from</li>
-        <li>✅ How AI models actually think</li>
-        <li>✅ How to write prompts that get great results</li>
-        <li>✅ The best AI tools for business and daily life</li>
-        <li>✅ How to automate repetitive tasks with AI</li>
-        <li>✅ Who controls AI and what rules govern it</li>
-        <li>✅ How AI is reshaping African economies and jobs</li>
-        <li>✅ The ethics of AI and your responsibilities</li>
+        <li>What AI is and where it came from</li>
+        <li>How AI models actually think</li>
+        <li>How to write prompts that get great results</li>
+        <li>The best AI tools for business and daily life</li>
+        <li>How to automate repetitive tasks with AI</li>
+        <li>Who controls AI and what rules govern it</li>
+        <li>How AI is reshaping African economies and jobs</li>
+        <li>The ethics of AI and your responsibilities</li>
       </ul>
       <p>Now it is time to turn this knowledge into action.</p>
-      <div class="highlight">💡 Knowledge without action changes nothing. One small step this week is worth more than a perfect plan you never start.</div>
+      <div class="highlight">Knowledge without action changes nothing. One small step this week is worth more than a perfect plan you never start.</div>
       <h3>Step 1 — Pick one AI tool to start with this week</h3>
       <p>Do not try to use everything at once. Pick the tool that matches your biggest daily need right now:</p>
       <ul>
@@ -415,17 +415,17 @@ const lessons = {
       <p>You have completed all 9 learning modules of the Harts AI Fundamentals course. This is no small thing. You now understand AI at a level that most people — including many professionals — do not.</p>
       <h3>Full course review</h3>
       <ul>
-        <li>✅ <strong>Module 1:</strong> AI is a computer doing human-intelligence tasks, built on enormous amounts of data.</li>
-        <li>✅ <strong>Module 2:</strong> AI models learn from training data, process tokens, and predict responses — they can hallucinate.</li>
-        <li>✅ <strong>Module 3:</strong> Great prompts are specific. Few-shot and chain-of-thought techniques get better results.</li>
-        <li>✅ <strong>Module 4:</strong> Free AI tools exist for writing, images, video, and customer service.</li>
-        <li>✅ <strong>Module 5:</strong> Automation saves hundreds of hours. Zapier and Make.com connect your apps.</li>
-        <li>✅ <strong>Module 6:</strong> AI governance covers who controls AI, AI laws, accountability, and your rights.</li>
-        <li>✅ <strong>Module 7:</strong> AI is reshaping jobs and African economies. Deepfakes threaten democracy.</li>
-        <li>✅ <strong>Module 8:</strong> AI has real biases. Privacy matters. Responsible use is everyone's responsibility.</li>
-        <li>✅ <strong>Module 9:</strong> One tool, one prompt template, one automation — start this week.</li>
+        <li><strong>Module 1:</strong> AI is a computer doing human-intelligence tasks, built on enormous amounts of data.</li>
+        <li><strong>Module 2:</strong> AI models learn from training data, process tokens, and predict responses — they can hallucinate.</li>
+        <li><strong>Module 3:</strong> Great prompts are specific. Few-shot and chain-of-thought techniques get better results.</li>
+        <li><strong>Module 4:</strong> Free AI tools exist for writing, images, video, and customer service.</li>
+        <li><strong>Module 5:</strong> Automation saves hundreds of hours. Zapier and Make.com connect your apps.</li>
+        <li><strong>Module 6:</strong> AI governance covers who controls AI, AI laws, accountability, and your rights.</li>
+        <li><strong>Module 7:</strong> AI is reshaping jobs and African economies. Deepfakes threaten democracy.</li>
+        <li><strong>Module 8:</strong> AI has real biases. Privacy matters. Responsible use is everyone's responsibility.</li>
+        <li><strong>Module 9:</strong> One tool, one prompt template, one automation — start this week.</li>
       </ul>
-      <div class="highlight">🎓 Complete the 10-question exam below. Passing score is 70% (7 out of 10 correct). Your gold certificate will download automatically when you pass.</div>
+      <div class="highlight">Complete the 10-question exam below. Passing score is 70% (7 out of 10 correct). Your gold certificate will download automatically when you pass.</div>
     `,
     quiz: [
       { q: 'What type of AI exists in the world today?', options: ['Superintelligent AI', 'General AI', 'Narrow AI', 'Universal AI'], answer: 2 },
@@ -527,12 +527,12 @@ function validateEnrollForm() {
 /* ── WhatsApp notification ────────────────────────────────── */
 function notifyViaWhatsApp(name, email, phone, country) {
   const message =
-    `🎓 *New AI Course Enrollment — Harts*\n\n` +
-    `👤 *Name:* ${name}\n` +
-    `📧 *Email:* ${email}\n` +
-    `📱 *WhatsApp:* ${phone}\n` +
-    `🌍 *Country:* ${country}\n` +
-    `🕐 *Time:* ${new Date().toLocaleString('en-GB')}\n\n` +
+    `*New AI Course Enrollment — Harts*\n\n` +
+    `*Name:* ${name}\n` +
+    `*Email:* ${email}\n` +
+    `*WhatsApp:* ${phone}\n` +
+    `*Country:* ${country}\n` +
+    `*Time:* ${new Date().toLocaleString('en-GB')}\n\n` +
     `_Sent from hartsdigitalhub.com/training_`;
   window.open(`https://wa.me/237622341343?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
 }
@@ -548,7 +548,7 @@ function downloadStarterGuide() {
   ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
   ctx.strokeRect(35, 35, 1130, 1627);
   ctx.fillStyle = '#c8a96e'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
-  ctx.fillText('HARTS  ·  HARTS DIGITAL HUB', 600, 80);
+  ctx.fillText('HARTS · HARTS DIGITAL HUB', 600, 80);
   ctx.fillStyle = '#fff'; ctx.font = 'bold 80px sans-serif'; ctx.textAlign = 'left';
   ctx.fillText('AI Starter', 80, 240);
   ctx.fillText('Guide', 80, 340);
@@ -578,7 +578,7 @@ function downloadStarterGuide() {
     ctx.fillStyle = '#1a1a1a'; ctx.fillRect(80, y - 10, 1040, 1); y += 20;
   });
   ctx.fillStyle = '#555'; ctx.font = '16px monospace'; ctx.textAlign = 'center';
-  ctx.fillText('© 2026 Harts · Harts Digital Hub · hartsdigitalhub.com', 600, 1660);
+  ctx.fillText('2026 Harts · Harts Digital Hub · hartsdigitalhub.com', 600, 1660);
   canvas.toBlob(blob => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -717,7 +717,7 @@ function generateCertificate() {
   /* Header text */
   ctx.fillStyle = white; ctx.font = 'bold 17px Georgia, serif';
   ctx.textAlign = 'center';
-  ctx.fillText('HARTS  ·  HARTS DIGITAL HUB  ·  hartsdigitalhub.com', W / 2, 48);
+  ctx.fillText('HARTS · HARTS DIGITAL HUB · hartsdigitalhub.com', W / 2, 48);
 
   /* Gold accent under header */
   ctx.fillStyle = gold; ctx.fillRect(10, 74, W - 20, 4);
@@ -734,7 +734,7 @@ function generateCertificate() {
   ctx.fillStyle = muted; ctx.font = '13px Georgia, serif';
   ctx.letterSpacing = '0.3em';
   ctx.textAlign = 'center';
-  ctx.fillText('C E R T I F I C A T E   O F   C O M P L E T I O N', W / 2, 130);
+  ctx.fillText('C E R T I F I C A T E O F C O M P L E T I O N', W / 2, 130);
 
   /* Gold rule under label */
   ctx.strokeStyle = gold; ctx.lineWidth = 1;
@@ -764,7 +764,7 @@ function generateCertificate() {
 
   /* Subtitle */
   ctx.fillStyle = muted; ctx.font = '13px Georgia, serif';
-  ctx.fillText('AI GOVERNANCE  ·  ETHICS  ·  TOOLS  ·  AUTOMATION  ·  SOCIETY', W / 2, 396);
+  ctx.fillText('AI GOVERNANCE · ETHICS · TOOLS · AUTOMATION · SOCIETY', W / 2, 396);
 
   /* Horizontal divider */
   ctx.strokeStyle = '#e8e0d0'; ctx.lineWidth = 1;
@@ -775,7 +775,7 @@ function generateCertificate() {
   /* Date block — left */
   ctx.fillStyle = muted; ctx.font = '11px Georgia, serif';
   ctx.letterSpacing = '0.15em'; ctx.textAlign = 'center';
-  ctx.fillText('D A T E   I S S U E D', 190, 470);
+  ctx.fillText('D A T E I S S U E D', 190, 470);
   ctx.fillStyle = black; ctx.font = '18px Georgia, serif';
   ctx.fillText(date, 190, 500);
   ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.8;
@@ -802,7 +802,7 @@ function generateCertificate() {
   /* Signature block — right */
   ctx.fillStyle = muted; ctx.font = '11px Georgia, serif';
   ctx.textAlign = 'center';
-  ctx.fillText('A U T H O R I S E D   B Y', 1010, 470);
+  ctx.fillText('A U T H O R I S E D B Y', 1010, 470);
   ctx.fillStyle = black; ctx.font = 'italic bold 22px Georgia, serif';
   ctx.fillText('Harts', 1010, 500);
   ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.8;
@@ -816,7 +816,7 @@ function generateCertificate() {
 
   /* Certificate ID in ribbon */
   ctx.fillStyle = gold; ctx.font = '12px Georgia, serif'; ctx.textAlign = 'center';
-  ctx.fillText(`Certificate ID: ${certId}  ·  hartsdigitalhub.com/verify`, W / 2, H - 20);
+  ctx.fillText(`Certificate ID: ${certId} · hartsdigitalhub.com/verify`, W / 2, H - 20);
 
   /* Download */
   canvas.toBlob(blob => {
