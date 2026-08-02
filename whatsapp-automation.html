@@ -21,25 +21,12 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="hub.css">
 </head>
-<body class="hub-body">
+<body class="hub-body" data-page="whatsapp">
 <a href="#engine" class="skip-link">Skip to content</a>
 <div class="hub-wrap">
 
-  <!-- Nav -->
-  <header class="hub-nav">
-    <div class="hub-nav-inner">
-      <a href="index.html" class="hub-brand">H<b>@</b>rts</a>
-      <button class="hub-nav-toggle" id="hub-nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
-      <ul class="hub-nav-links">
-        <li><a class="hub-nav-link" href="index.html#capabilities">Services</a></li>
-        <li><a class="hub-nav-link" href="whatsapp-automation.html">WhatsApp Automation</a></li>
-        <li><a class="hub-nav-link" href="index.html#portfolio">Portfolio</a></li>
-        <li><a class="hub-nav-link" href="index.html#pricing">Pricing &amp; SLAs</a></li>
-        <li><a class="hub-nav-link" href="index.html#about">About Us</a></li>
-        <li><a class="hub-cta" href="index.html#quote">Get a Project Quote</a></li>
-      </ul>
-    </div>
-  </header>
+  <!-- Nav (injected by site-chrome.js) -->
+  <header id="site-header"></header>
 
   <!-- Hero -->
   <section class="hub-hero" style="min-height:auto">
@@ -144,19 +131,8 @@
     </div>
   </section>
 
-  <footer class="hub-footer">
-    <div>
-      <a href="index.html" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>
-      <p style="margin-top:.6rem;max-width:34ch">Intelligent software &amp; next-gen digital hubs.</p>
-    </div>
-    <nav class="hub-footer-links" aria-label="Footer">
-      <a href="index.html#capabilities">Services</a>
-      <a href="index.html#portfolio">Portfolio</a>
-      <a href="index.html#pricing">Pricing &amp; SLAs</a>
-      <a href="index.html#about">About</a>
-    </nav>
-    <div>© <span id="hub-year">2026</span> H@rts · +237 622 341 343</div>
-  </footer>
+  <!-- Footer (injected by site-chrome.js) -->
+  <footer id="site-footer"></footer>
 
 </div><!-- /hub-wrap -->
 
@@ -169,7 +145,7 @@
   </a>
 </div>
 
+<script src="site-chrome.js"></script>
 <script src="hub.js"></script>
-<script>var y=document.getElementById('hub-year'); if(y) y.textContent=new Date().getFullYear();</script>
 </body>
 </html>

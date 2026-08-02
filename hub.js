@@ -237,6 +237,29 @@
       if (e.key === 'Escape' && widget.classList.contains('open')) close();
     });
 
+    // Deep link from other pages: index.html?chat=<package|open>
+    // (SME pricing CTAs on services.html land here so the buyer's intent
+    //  isn't lost on the enterprise homepage.)
+    var chatParam = null;
+    try { chatParam = new URLSearchParams(window.location.search).get('chat'); } catch (e) { chatParam = null; }
+    if (chatParam) {
+      var PKG_LABELS = { starter: 'Starter', essential: 'Essential', growth: 'Growth', pro: 'Pro', build: 'One-Time Build' };
+      open();
+      var label = PKG_LABELS[chatParam.toLowerCase()];
+      if (label) {
+        var input = document.getElementById('chat-input');
+        if (input) {
+          input.value = "I'm interested in the " + label + " package.";
+          // focus + place caret at the end so they can just hit send
+          setTimeout(function () {
+            input.focus();
+            try { input.setSelectionRange(input.value.length, input.value.length); } catch (e) {}
+          }, 320);
+        }
+      }
+      return; // deep-link handled — skip the once-per-session auto-open
+    }
+
     // Auto pop-up on landing (once per browser session), respecting reduced motion timing
     try {
       if (!sessionStorage.getItem('harts_chat_greeted')) {
@@ -335,20 +358,8 @@
     });
   }
 
-  // ── 6. Mobile menu + scroll reveal ──────────────────────
-  function initNav() {
-    var nav = document.querySelector('.hub-nav');
-    var toggle = document.getElementById('hub-nav-toggle');
-    if (!nav || !toggle) return;
-    toggle.addEventListener('click', function () {
-      nav.classList.toggle('menu-open');
-      toggle.setAttribute('aria-expanded', nav.classList.contains('menu-open'));
-    });
-    nav.querySelectorAll('.hub-nav-link, .hub-cta').forEach(function (a) {
-      a.addEventListener('click', function () { nav.classList.remove('menu-open'); });
-    });
-  }
-
+  // ── 6. Scroll reveal ────────────────────────────────────
+  // (The header/footer + mobile menu now live in site-chrome.js.)
   function initReveal() {
     var els = document.querySelectorAll('.reveal');
     if (!els.length) return;
@@ -371,7 +382,6 @@
     initChatSim();
     initChatWidget();
     initLeadForm();
-    initNav();
     initReveal();
   });
 })();

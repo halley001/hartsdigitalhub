@@ -89,6 +89,15 @@
   transition: color 0.18s, background 0.18s;
 }
 .hub-nav-link:hover { color: #fff; background: rgba(255,255,255,0.04); }
+.hub-nav-link.active { color: #fff; }
+.hub-nav-link.active::after {
+  content: "";
+  display: block;
+  height: 2px;
+  margin-top: 3px;
+  border-radius: 2px;
+  background: #fff;
+}
 .hub-cta {
   color: #000;
   background: #fff;

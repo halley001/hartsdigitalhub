@@ -22,6 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="hub.css">
 
   <!-- JSON-LD: Services offer catalog -->
   <script type="application/ld+json">
@@ -47,30 +48,12 @@
   }
   </script>
 </head>
-<body>
+<body data-page="services">
 
   <a href="#services" class="skip-link">Skip to content</a>
 
-  <!-- Identity bar (matches home page) -->
-  <div class="harts-topbar">
-    <div class="harts-topbar-inner">
-      <a href="index.html" class="harts-logo" style="text-decoration:none;">Harts</a>
-      <span class="harts-tagline">Services &amp; pricing for businesses in Cameroon</span>
-      <a href="index.html" class="harts-training-link">Chat with us &rarr;</a>
-    </div>
-  </div>
-
-  <!-- Secondary nav -->
-  <nav class="main-nav" aria-label="Main navigation" style="top:48px;">
-    <ul class="nav-list">
-      <li><a href="index.html" class="nav-link">Home</a></li>
-      <li><a href="#services" class="nav-link">Services</a></li>
-      <li><a href="#pricing" class="nav-link">Pricing</a></li>
-      <li><a href="#work" class="nav-link">Work</a></li>
-      <li><a href="training.html" class="nav-link">AI Training</a></li>
-      <li><a href="index.html" class="nav-link nav-link-cta">Start on Chat</a></li>
-    </ul>
-  </nav>
+  <!-- Header (injected by site-chrome.js) -->
+  <header id="site-header"></header>
 
   <main>
 
@@ -81,7 +64,7 @@
       <p class="sv-hero-sub">Websites, mobile apps, e-commerce, branding and marketing — built for SMEs across Cameroon. No technical skills needed. Pay by MoMo, in interest-free installments.</p>
       <div class="sv-hero-actions">
         <a href="#pricing" class="sv-btn-primary">See packages &amp; pricing</a>
-        <a href="index.html" class="sv-btn-ghost">Chat with our assistant</a>
+        <a href="/?chat=open" class="sv-btn-ghost">Chat with our assistant</a>
       </div>
     </section>
 
@@ -196,7 +179,7 @@
               <li><span class="checkmark"></span> Google Business listing</li>
               <li><span class="checkmark"></span> WhatsApp Business setup</li>
             </ul>
-            <a href="index.html" class="pricing-cta">Choose Starter</a>
+            <a href="/?chat=starter" class="pricing-cta">Choose Starter</a>
             <a href="https://wa.me/237622341343?text=Hi%20Harts%2C%20I%27m%20interested%20in%20the%20Starter%20package." class="pricing-wa-link" target="_blank" rel="noopener">or ask on WhatsApp</a>
           </div>
         </div>
@@ -217,7 +200,7 @@
               <li><span class="checkmark"></span> Social media (1 platform, light)</li>
               <li><span class="checkmark"></span> Basic SEO</li>
             </ul>
-            <a href="index.html" class="pricing-cta">Choose Essential</a>
+            <a href="/?chat=essential" class="pricing-cta">Choose Essential</a>
             <a href="https://wa.me/237622341343?text=Hi%20Harts%2C%20I%27m%20interested%20in%20the%20Essential%20package." class="pricing-wa-link" target="_blank" rel="noopener">or ask on WhatsApp</a>
           </div>
         </div>
@@ -239,7 +222,7 @@
               <li><span class="checkmark"></span> Basic SEO</li>
               <li><span class="checkmark"></span> Monthly performance report</li>
             </ul>
-            <a href="index.html" class="pricing-cta">Choose Growth</a>
+            <a href="/?chat=growth" class="pricing-cta">Choose Growth</a>
             <a href="https://wa.me/237622341343?text=Hi%20Harts%2C%20I%27m%20interested%20in%20the%20Growth%20package." class="pricing-wa-link" target="_blank" rel="noopener">or ask on WhatsApp</a>
           </div>
         </div>
@@ -261,7 +244,7 @@
               <li><span class="checkmark"></span> Monthly analytics dashboard</li>
               <li><span class="checkmark"></span> Priority support</li>
             </ul>
-            <a href="index.html" class="pricing-cta">Choose Pro</a>
+            <a href="/?chat=pro" class="pricing-cta">Choose Pro</a>
             <a href="https://wa.me/237622341343?text=Hi%20Harts%2C%20I%27m%20interested%20in%20the%20Pro%20package." class="pricing-wa-link" target="_blank" rel="noopener">or ask on WhatsApp</a>
           </div>
         </div>
@@ -286,7 +269,7 @@
               <li><span class="checkmark"></span> Mobile-friendly design</li>
               <li><span class="checkmark"></span> Training on managing your new site</li>
             </ul>
-            <a href="index.html" class="pricing-cta">Get a one-time build</a>
+            <a href="/?chat=build" class="pricing-cta">Get a one-time build</a>
             <a href="https://wa.me/237622341343?text=Hi%20Harts%2C%20I%27m%20interested%20in%20a%20one-time%20website%20build." class="pricing-wa-link" target="_blank" rel="noopener">or ask on WhatsApp</a>
           </div>
         </div>
@@ -397,7 +380,7 @@
         <h2>Ready to grow your business online?</h2>
         <p>Start a chat — tell us what you do and we’ll recommend the right package in minutes.</p>
         <div class="sv-cta-actions">
-          <a href="index.html" class="sv-btn-primary">Start on chat</a>
+          <a href="/?chat=open" class="sv-btn-primary">Start on chat</a>
           <a href="https://wa.me/237622341343?text=Hi%20Harts%2C%20I%27d%20like%20to%20discuss%20a%20project." class="sv-btn-ghost" target="_blank" rel="noopener">Message on WhatsApp</a>
         </div>
       </div>
@@ -405,11 +388,9 @@
 
   </main>
 
-  <footer class="site-footer">
-    <p>&copy; 2026 Harts — Harts Digital Hub · Yaoundé · Douala · Buea &amp; across Cameroon<br>
-    <a href="index.html">Home</a> · <a href="#pricing">Pricing</a> · <a href="training.html">AI Training</a> · <a href="https://wa.me/237622341343" target="_blank" rel="noopener">WhatsApp: +237 622 341 343</a></p>
-    <p style="margin-top:0.75rem;font-size:0.75rem;">*Timelines vary by project. Simple sites &amp; branding 5–10 days; full sites/apps 2–4 weeks.</p>
-  </footer>
+  <!-- Footer (injected by site-chrome.js) -->
+  <footer id="site-footer"></footer>
 
+  <script src="site-chrome.js"></script>
 </body>
 </html>

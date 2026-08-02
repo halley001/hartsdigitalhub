@@ -39,25 +39,12 @@
   }
   </script>
 </head>
-<body class="hub-body">
+<body class="hub-body" data-page="home">
 <a href="#capabilities" class="skip-link">Skip to content</a>
 <div class="hub-wrap">
 
-  <!-- ===== Navigation ===== -->
-  <header class="hub-nav">
-    <div class="hub-nav-inner">
-      <a href="/" class="hub-brand">H<b>@</b>rts</a>
-      <button class="hub-nav-toggle" id="hub-nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
-      <ul class="hub-nav-links">
-        <li><a class="hub-nav-link" href="#capabilities">Services</a></li>
-        <li><a class="hub-nav-link" href="#whatsapp">WhatsApp Automation</a></li>
-        <li><a class="hub-nav-link" href="#portfolio">Portfolio</a></li>
-        <li><a class="hub-nav-link" href="#pricing">Pricing &amp; SLAs</a></li>
-        <li><a class="hub-nav-link" href="#about">About Us</a></li>
-        <li><a class="hub-cta" href="#quote">Get a Project Quote</a></li>
-      </ul>
-    </div>
-  </header>
+  <!-- ===== Navigation (injected by site-chrome.js) ===== -->
+  <header id="site-header"></header>
 
   <!-- ===== Hero ===== -->
   <section class="hub-hero">
@@ -365,22 +352,8 @@
     </div>
   </section>
 
-  <!-- ===== Footer ===== -->
-  <footer class="hub-footer">
-    <div>
-      <a href="/" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>
-      <p style="margin-top:.6rem;max-width:34ch">Intelligent software &amp; next-gen digital hubs. Bilingual EN / FR. Cameroon &amp; beyond.</p>
-    </div>
-    <nav class="hub-footer-links" aria-label="Footer">
-      <a href="#capabilities">Services</a>
-      <a href="whatsapp-automation.html">WhatsApp Automation</a>
-      <a href="#portfolio">Portfolio</a>
-      <a href="#pricing">Pricing &amp; SLAs</a>
-      <a href="services.html">SME Packages</a>
-      <a href="training.html">AI Training</a>
-    </nav>
-    <div>© <span id="hub-year">2026</span> H@rts · +237 622 341 343</div>
-  </footer>
+  <!-- ===== Footer (injected by site-chrome.js) ===== -->
+  <footer id="site-footer"></footer>
 
 </div><!-- /hub-wrap -->
 
@@ -435,9 +408,9 @@
   </div>
 </div>
 
-<!-- Scripts: existing chat engine + hub interactions -->
+<!-- Scripts: shared header/footer + chat engine + hub interactions -->
+<script src="site-chrome.js"></script>
 <script src="app.js"></script>
 <script src="hub.js"></script>
-<script>document.getElementById('hub-year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
