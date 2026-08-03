@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H@rts — Social Templates (B&W)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#1a1a1a; color:#fff; font-family:'DM Mono', monospace; padding:32px; }
+
+  /* ---- page chrome (not exported) ---- */
+  .how { max-width:720px; margin:0 auto 40px; line-height:1.7; color:#cfd4d8; font-size:14px; }
+  .how h1 { font-family:'Syne',sans-serif; font-size:28px; margin-bottom:12px; color:#fff; }
+  .how b { color:#fff; }
+  .label { max-width:1080px; margin:36px auto 10px; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:#8a9099; }
+  .label b { color:#fff; }
+  [contenteditable]:hover { outline:1px dashed rgba(255,255,255,0.25); outline-offset:4px; }
+  [contenteditable]:focus { outline:1px solid rgba(255,255,255,0.5); outline-offset:4px; }
+
+  /* ---- shared frame (EXPORT THESE) ---- */
+  .frame {
+    position:relative; overflow:hidden; margin:0 auto; color:#fff;
+    background:
+      radial-gradient(800px 500px at 82% -12%, rgba(255,255,255,0.08), transparent 60%),
+      linear-gradient(160deg,#0a0a0a 0%,#000 55%);
+    display:flex; flex-direction:column;
+  }
+  .frame::before { /* tech grid */
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(ellipse 85% 70% at 60% 25%, #000 20%, transparent 82%);
+            mask-image:radial-gradient(ellipse 85% 70% at 60% 25%, #000 20%, transparent 82%);
+    pointer-events:none;
+  }
+  .frame > * { position:relative; z-index:1; }
+
+  .kicker { font-size:22px; letter-spacing:0.26em; text-transform:uppercase; color:#cfd4d8;
+            border:1px solid rgba(255,255,255,0.22); border-radius:999px; padding:12px 26px; align-self:flex-start; }
+  .wordmark { font-family:'Syne',sans-serif; font-weight:700; letter-spacing:-1px; }
+  .foot { display:flex; align-items:center; justify-content:space-between; color:#8a9099; }
+  .headline { font-family:'Syne',sans-serif; font-weight:700; line-height:1.03; letter-spacing:-2px; }
+  .g { color:#8a9099; }
+
+  /* ---- 1. Carousel cover 1080x1350 ---- */
+  .cover { width:1080px; height:1350px; padding:90px; justify-content:space-between; }
+  .cover .headline { font-size:104px; }
+  .cover .sub { margin-top:34px; font-size:30px; color:#aab0b6; line-height:1.5; max-width:22ch; }
+  .cover .foot { font-size:26px; }
+  .cover .wordmark { font-size:44px; }
+
+  /* ---- 2. Carousel content slide 1080x1350 ---- */
+  .slide { width:1080px; height:1350px; padding:90px; justify-content:space-between; }
+  .slide .num { font-family:'Syne',sans-serif; font-weight:700; font-size:120px; color:#3a3a3a; letter-spacing:-3px; }
+  .slide .point { font-family:'Syne',sans-serif; font-weight:700; font-size:76px; line-height:1.08; letter-spacing:-1.5px; }
+  .slide .body { margin-top:30px; font-size:32px; color:#aab0b6; line-height:1.55; max-width:24ch; }
+  .slide .foot { font-size:26px; } .slide .wordmark { font-size:40px; }
+  .dots { display:flex; gap:12px; } .dots i { width:12px; height:12px; border-radius:50%; background:#3a3a3a; }
+  .dots i.on { background:#fff; }
+
+  /* ---- 3. Quote / POV 1080x1080 ---- */
+  .quote { width:1080px; height:1080px; padding:90px; justify-content:center; }
+  .quote .mark { font-family:'Syne',sans-serif; font-weight:700; font-size:130px; line-height:0.6; color:#3a3a3a; }
+  .quote .headline { font-size:82px; margin:20px 0 60px; }
+  .quote .foot { position:absolute; left:90px; right:90px; bottom:90px; font-size:26px; }
+  .quote .wordmark { font-size:40px; }
+
+  /* ---- 4. Reel / Story cover 1080x1920 ---- */
+  .reel { width:1080px; height:1920px; padding:90px; justify-content:center; text-align:left; }
+  .reel .safe { position:absolute; left:0; right:0; top:300px; bottom:380px; } /* IG UI safe zone guide */
+  .reel .kicker { margin-bottom:44px; }
+  .reel .headline { font-size:112px; }
+  .reel .cue { margin-top:48px; font-size:32px; color:#cfd4d8; letter-spacing:0.04em; }
+  .reel .foot { position:absolute; left:90px; right:90px; bottom:150px; font-size:28px; }
+  .reel .wordmark { font-size:44px; }
+  .reel .zoneNote { position:absolute; left:90px; top:120px; font-size:20px; color:#4a4a4a; letter-spacing:0.1em; text-transform:uppercase; }
+
+  /* ---- 5. Proof / stat 1080x1080 ---- */
+  .proof { width:1080px; height:1080px; padding:90px; justify-content:space-between; }
+  .proof .stat { font-family:'Syne',sans-serif; font-weight:700; font-size:300px; line-height:0.9; letter-spacing:-6px; }
+  .proof .meaning { font-size:40px; color:#fff; line-height:1.35; max-width:20ch; }
+  .proof .foot { font-size:26px; } .proof .wordmark { font-size:40px; }
+</style>
+</head>
+<body>
+
+  <div class="how">
+    <h1>H@rts social templates</h1>
+    <p><b>How to use:</b> click any text to edit it (dashed outline = editable). Keep it short so it stays inside the frame. Then <b>screenshot the frame</b> (the dark card) and post. Each frame is built at its true export size — the label above it tells you the pixels and where it goes. Rules baked in: black &amp; white only, Syne + DM Mono, <b>no emojis</b>, company voice.</p>
+  </div>
+
+  <!-- 1 -->
+  <div class="label"><b>1 · Carousel cover</b> — 1080×1350 (Instagram 4:5 / LinkedIn) — the hook that stops the scroll</div>
+  <div class="frame cover">
+    <span class="kicker" contenteditable="true">Educate</span>
+    <div>
+      <h1 class="headline" contenteditable="true">Five signs your business has <span class="g">outgrown spreadsheets</span></h1>
+      <p class="sub" contenteditable="true">If two of these sound familiar, it might be time.</p>
+    </div>
+    <div class="foot"><span class="wordmark">H@rts</span><span contenteditable="true">swipe →</span></div>
+  </div>
+
+  <!-- 2 -->
+  <div class="label"><b>2 · Carousel slide</b> — 1080×1350 — one point per slide (duplicate this for each)</div>
+  <div class="frame slide">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <span class="num" contenteditable="true">02</span>
+      <span class="kicker" style="align-self:auto" contenteditable="true">Educate</span>
+    </div>
+    <div>
+      <h2 class="point" contenteditable="true">You can't answer "how much stock do we have?"</h2>
+      <p class="body" contenteditable="true">…without opening three tabs. When the answer takes work, the answer is usually wrong.</p>
+    </div>
+    <div class="foot">
+      <span class="wordmark">H@rts</span>
+      <span class="dots"><i></i><i class="on"></i><i></i><i></i><i></i></span>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="label"><b>3 · Quote / POV</b> — 1080×1080 (square) — a single sharp statement</div>
+  <div class="frame quote">
+    <div class="mark">“</div>
+    <h1 class="headline" contenteditable="true">We don't adapt imported software. We build for <span class="g">how it works here.</span></h1>
+    <div class="foot"><span class="wordmark">H@rts</span><span contenteditable="true">hartsdigitalhub.com</span></div>
+  </div>
+
+  <!-- 4 -->
+  <div class="label"><b>4 · Reel / Story cover</b> — 1080×1920 (9:16) — keep text in the middle (IG hides top/bottom)</div>
+  <div class="frame reel">
+    <span class="zoneNote">keep text between the safe lines</span>
+    <div>
+      <span class="kicker" contenteditable="true">Build in public</span>
+      <h1 class="headline" contenteditable="true">Your WhatsApp, on <span class="g">autopilot</span></h1>
+      <p class="cue" contenteditable="true">Watch how it checks live stock →</p>
+    </div>
+    <div class="foot"><span class="wordmark">H@rts</span><span contenteditable="true">link in bio</span></div>
+  </div>
+
+  <!-- 5 -->
+  <div class="label"><b>5 · Proof / stat</b> — 1080×1080 — for a real client result (your strongest post)</div>
+  <div class="frame proof">
+    <span class="kicker" contenteditable="true">Client result</span>
+    <div class="stat" contenteditable="true">3×</div>
+    <p class="meaning" contenteditable="true">Online bookings for a Yaoundé restaurant, within two months of launch.</p>
+    <div class="foot"><span class="wordmark">H@rts</span><span contenteditable="true">Restaurant · Website</span></div>
+  </div>
+
+</body>
+</html>
