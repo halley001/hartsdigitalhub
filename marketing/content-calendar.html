@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Calendar (Internal) | H@rts</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../hub.css">
+<link rel="stylesheet" href="content-calendar.css">
+</head>
+<body class="cc-body">
+
+  <div class="cc-app">
+
+    <header class="cc-header">
+      <div class="cc-header-top">
+        <h1 class="cc-title">Content Calendar</h1>
+        <span class="cc-badge">Internal</span>
+      </div>
+      <p class="cc-sub">Instagram strategy — web dev &amp; business automation</p>
+    </header>
+
+    <nav class="cc-toolbar">
+      <div class="cc-view-toggle" role="tablist">
+        <button class="cc-view-btn active" data-view="week" role="tab" aria-selected="true">Week</button>
+        <button class="cc-view-btn" data-view="month" role="tab" aria-selected="false">4-Week</button>
+      </div>
+
+      <div class="cc-nav-controls" id="cc-week-controls">
+        <button class="cc-nav-btn" id="cc-prev-week" aria-label="Previous week">&larr;</button>
+        <span class="cc-range-label" id="cc-week-label"></span>
+        <button class="cc-nav-btn" id="cc-next-week" aria-label="Next week">&rarr;</button>
+        <button class="cc-today-btn" id="cc-today-btn">This Week</button>
+      </div>
+
+      <div class="cc-nav-controls" id="cc-month-controls" style="display:none;">
+        <button class="cc-nav-btn" id="cc-prev-month" aria-label="Previous 4 weeks">&larr;</button>
+        <span class="cc-range-label" id="cc-month-label"></span>
+        <button class="cc-nav-btn" id="cc-next-month" aria-label="Next 4 weeks">&rarr;</button>
+      </div>
+    </nav>
+
+    <!-- Week view -->
+    <section class="cc-week-view" id="cc-week-view">
+      <div class="cc-week-grid" id="cc-week-grid"></div>
+    </section>
+
+    <!-- 4-week rotation view -->
+    <section class="cc-month-view" id="cc-month-view" style="display:none;">
+      <div class="cc-pillar-balance">
+        <div class="cc-section-head">
+          <h2 class="cc-section-title">Pillar Balance</h2>
+          <p class="cc-section-sub">Content pillars across this 4-week block. Flags show pillars that are over- or under-represented.</p>
+        </div>
+        <div class="cc-pillar-bars" id="cc-pillar-bars"></div>
+      </div>
+      <div class="cc-month-weeks" id="cc-month-weeks"></div>
+    </section>
+
+  </div>
+
+  <!-- Add / edit modal -->
+  <div class="cc-modal-backdrop" id="cc-modal-backdrop">
+    <div class="cc-modal" role="dialog" aria-modal="true" aria-labelledby="cc-modal-title">
+      <button type="button" class="cc-modal-close" id="cc-modal-close" aria-label="Close">&times;</button>
+      <h2 class="cc-modal-title" id="cc-modal-title">Add Content</h2>
+      <form class="cc-form" id="cc-item-form">
+        <div class="cc-field">
+          <label for="cc-f-title">Title / Hook</label>
+          <input type="text" id="cc-f-title" placeholder="e.g. 5 signs your CRM is holding you back" required>
+        </div>
+        <div class="cc-field-row">
+          <div class="cc-field">
+            <label for="cc-f-format">Format</label>
+            <select id="cc-f-format">
+              <option value="Carousel">Carousel</option>
+              <option value="Reel">Reel</option>
+              <option value="Story">Story</option>
+            </select>
+          </div>
+          <div class="cc-field">
+            <label for="cc-f-pillar">Pillar</label>
+            <select id="cc-f-pillar">
+              <option value="Tutorial">Tutorial</option>
+              <option value="Case Study">Case Study</option>
+              <option value="Myth-Bust">Myth-Bust</option>
+              <option value="Behind-the-Scenes">Behind-the-Scenes</option>
+              <option value="Business Education">Business Education</option>
+              <option value="Tool Comparison">Tool Comparison</option>
+            </select>
+          </div>
+        </div>
+        <div class="cc-field-row">
+          <div class="cc-field">
+            <label for="cc-f-status">Status</label>
+            <select id="cc-f-status">
+              <option value="Idea">Idea</option>
+              <option value="Drafting">Drafting</option>
+              <option value="Ready">Ready</option>
+              <option value="Posted">Posted</option>
+            </select>
+          </div>
+          <div class="cc-field">
+            <label for="cc-f-day">Day</label>
+            <select id="cc-f-day">
+              <option value="mon">Monday</option>
+              <option value="tue">Tuesday</option>
+              <option value="wed">Wednesday</option>
+              <option value="thu">Thursday</option>
+              <option value="fri">Friday</option>
+              <option value="sat">Saturday</option>
+              <option value="sun">Sunday</option>
+            </select>
+          </div>
+        </div>
+        <div class="cc-field">
+          <label for="cc-f-caption">Caption</label>
+          <textarea id="cc-f-caption" rows="4" placeholder="Draft the caption here…"></textarea>
+        </div>
+        <div class="cc-field">
+          <label for="cc-f-notes">Notes</label>
+          <textarea id="cc-f-notes" rows="3" placeholder="Shot list, references, links…"></textarea>
+        </div>
+        <div class="cc-modal-actions">
+          <button type="button" class="cc-btn-danger" id="cc-delete-btn">Delete</button>
+          <div class="cc-modal-actions-right">
+            <button type="button" class="cc-btn-outline" id="cc-cancel-btn">Cancel</button>
+            <button type="submit" class="cc-btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="content-calendar.js"></script>
+</body>
+</html>
