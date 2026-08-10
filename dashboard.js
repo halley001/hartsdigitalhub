@@ -1,9 +1,11 @@
 /* ============================================================
-   HARTS — training.js
+   HARTS — dashboard.js
    AI Training Portal · 10 modules · Gold certificate
+   Authenticated version of training.js — state lives server-side
+   (api/trainee/*) instead of localStorage, so progress follows the
+   trainee across devices.
    ============================================================ */
 
-const STORAGE_KEY = 'hdh_ai_course';
 const TOTAL_MODULES = 10;
 
 /* ── Lesson content ───────────────────────────────────────── */
@@ -442,35 +444,96 @@ const lessons = {
   }
 };
 
-/* ── State helpers ────────────────────────────────────────── */
-function loadState() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
-}
-function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
-
-let state = loadState();
+/* ── Session-backed state ────────────────────────────────────
+   profile shape: { email, name, phone, country, completed:[], cert_id } */
+let profile = null;
 let currentModule = null;
 let quizAnswers = {};
 let quizScore = 0;
 
-/* ── Init ─────────────────────────────────────────────────── */
-window.addEventListener('DOMContentLoaded', () => {
-  if (state.name) showEnrolledUI();
-  renderModuleStates();
-  setupEnrollForm();
-});
-
-function showEnrolledUI() {
-  const section = document.getElementById('tr-progress-section');
-  section.style.display = 'flex';
-  document.getElementById('tr-welcome-name').textContent = `Welcome back, ${state.name}`;
-  updateProgress();
-  document.getElementById('tr-enroll-form').style.display = 'none';
-  document.getElementById('tr-enroll-success').style.display = 'block';
+/* fetch wrapper: on 401, tries one silent token refresh, then retries once */
+async function apiFetch(url, opts = {}) {
+  let r = await fetch(url, { credentials: 'same-origin', ...opts });
+  if (r.status === 401) {
+    const refreshed = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'same-origin' });
+    if (refreshed.ok) r = await fetch(url, { credentials: 'same-origin', ...opts });
+  }
+  return r;
 }
 
+/* ── Init ─────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+  const r = await apiFetch('/api/trainee/me');
+  if (!r.ok) { window.location.href = '/login.html'; return; }
+  profile = await r.json();
+
+  document.getElementById('tr-profile-form').addEventListener('submit', onProfileSubmit);
+  document.getElementById('tr-lesson-backdrop').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeLesson();
+  });
+
+  if (profile.name) {
+    showDashboard();
+  } else {
+    document.getElementById('tr-profile-gate').style.display = 'block';
+  }
+}
+
+function showDashboard() {
+  document.getElementById('tr-profile-gate').style.display = 'none';
+  document.getElementById('tr-dashboard').style.display = 'block';
+  document.getElementById('tr-welcome-name').textContent = `Welcome back, ${profile.name}`;
+  renderModuleStates();
+  updateProgress();
+}
+
+/* ── Profile completion (first login only) ───────────────── */
+async function onProfileSubmit(e) {
+  e.preventDefault();
+  let valid = true;
+  const name = document.getElementById('profile-name').value.trim();
+  const phone = document.getElementById('profile-phone').value.trim();
+  const country = document.getElementById('profile-country').value;
+  document.getElementById('err-profile-name').textContent = '';
+  document.getElementById('err-profile-phone').textContent = '';
+  if (name.length < 2) { document.getElementById('err-profile-name').textContent = 'Please enter your full name.'; valid = false; }
+  if (phone.replace(/\D/g, '').length < 7) { document.getElementById('err-profile-phone').textContent = 'Please enter a valid phone number.'; valid = false; }
+  if (!valid) return;
+
+  const r = await apiFetch('/api/trainee/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, phone, country })
+  });
+  if (!r.ok) return;
+  profile = await r.json();
+  downloadStarterGuide();
+  notifyViaWhatsApp(name, profile.email, phone, country);
+  showDashboard();
+}
+
+function notifyViaWhatsApp(name, email, phone, country) {
+  const message =
+    `*New AI Course Enrollment — Harts*\n\n` +
+    `*Name:* ${name}\n` +
+    `*Email:* ${email}\n` +
+    `*WhatsApp:* ${phone}\n` +
+    `*Country:* ${country}\n` +
+    `*Time:* ${new Date().toLocaleString('en-GB')}\n\n` +
+    `_Sent from app.hartsdigitalhub.com_`;
+  window.open(`https://wa.me/237622341343?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+  window.location.href = '/login.html';
+}
+
+/* ── Progress / module rendering ─────────────────────────── */
 function updateProgress() {
-  const completed = (state.completed || []).length;
+  const completed = (profile.completed || []).length;
   const pct = Math.round((completed / TOTAL_MODULES) * 100);
   document.getElementById('tr-progress-bar').style.width = pct + '%';
   document.getElementById('tr-progress-label').textContent = `${completed} / ${TOTAL_MODULES} modules complete`;
@@ -480,7 +543,7 @@ function updateProgress() {
 }
 
 function renderModuleStates() {
-  (state.completed || []).forEach(num => {
+  (profile.completed || []).forEach(num => {
     const card = document.querySelector(`[data-module="${num}"]`);
     if (card) {
       card.classList.add('completed');
@@ -490,70 +553,7 @@ function renderModuleStates() {
   });
 }
 
-/* ── Enroll form ──────────────────────────────────────────── */
-function setupEnrollForm() {
-  document.getElementById('tr-enroll-form').addEventListener('submit', e => {
-    e.preventDefault();
-    if (!validateEnrollForm()) return;
-    const name = document.getElementById('enroll-name').value.trim();
-    const email = document.getElementById('enroll-email').value.trim();
-    const phone = document.getElementById('enroll-phone').value.trim();
-    const country = document.getElementById('enroll-country').value;
-    state = { ...state, name, email, phone, country, completed: state.completed || [], enrolledAt: Date.now() };
-    saveState(state);
-    showEnrolledUI();
-    renderModuleStates();
-    downloadStarterGuide();
-    notifyViaWhatsApp(name, email, phone, country);
-    saveLeadToApi(name, email, phone, country);
-    document.getElementById('tr-enroll-form').style.display = 'none';
-    document.getElementById('tr-enroll-success').style.display = 'block';
-  });
-}
-
-function validateEnrollForm() {
-  let valid = true;
-  const name = document.getElementById('enroll-name').value.trim();
-  const email = document.getElementById('enroll-email').value.trim();
-  const phone = document.getElementById('enroll-phone').value.trim();
-  document.getElementById('err-name').textContent = '';
-  document.getElementById('err-email').textContent = '';
-  document.getElementById('err-phone').textContent = '';
-  if (name.length < 2) { document.getElementById('err-name').textContent = 'Please enter your full name.'; valid = false; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('err-email').textContent = 'Please enter a valid email.'; valid = false; }
-  if (phone.replace(/\D/g, '').length < 7) { document.getElementById('err-phone').textContent = 'Please enter a valid phone number.'; valid = false; }
-  return valid;
-}
-
-/* ── WhatsApp notification ────────────────────────────────── */
-function notifyViaWhatsApp(name, email, phone, country) {
-  const message =
-    `*New AI Course Enrollment — Harts*\n\n` +
-    `*Name:* ${name}\n` +
-    `*Email:* ${email}\n` +
-    `*WhatsApp:* ${phone}\n` +
-    `*Country:* ${country}\n` +
-    `*Time:* ${new Date().toLocaleString('en-GB')}\n\n` +
-    `_Sent from hartsdigitalhub.com/training_`;
-  window.open(`https://wa.me/237622341343?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
-}
-
-function saveLeadToApi(name, email, phone, country) {
-  if (!('fetch' in window)) return;
-  fetch('/api/lead', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name, phone,
-      package: 'training-foundations',
-      summary: `Foundations enrollment | Email: ${email} | Country: ${country}`,
-      lang: (document.documentElement.lang || 'en'),
-      source: 'training-foundations'
-    })
-  }).catch(() => {});
-}
-
-/* ── Starter Guide ────────────────────────────────────────── */
+/* ── Starter Guide (unchanged from training.js) ──────────── */
 function downloadStarterGuide() {
   const canvas = document.createElement('canvas');
   canvas.width = 1200; canvas.height = 1697;
@@ -577,7 +577,7 @@ function downloadStarterGuide() {
     { t: '03 — 5 free tools to start with', b: 'ChatGPT (writing), Canva AI (design), CapCut AI (video), Remove.bg (images), Make.com (automation). All free to start.' },
     { t: '04 — Your first prompt', b: '"You are a business advisor in Cameroon. I run a [type of business]. Give me 5 low-cost marketing ideas for this week." Try it now.' },
     { t: '05 — AI Governance basics', b: 'Most AI is controlled by a few large companies. Know your rights: the right to an explanation, the right to human review, the right to object.' },
-    { t: '06 — Next steps', b: 'Complete all 10 modules at hartsdigitalhub.com/training to earn your gold Harts AI Certificate. Free, online, for everyone.' },
+    { t: '06 — Next steps', b: 'Complete all 10 modules at app.hartsdigitalhub.com to earn your gold Harts AI Certificate. Free, online, for everyone.' },
   ];
   let y = 470;
   sections.forEach(s => {
@@ -605,7 +605,6 @@ function downloadStarterGuide() {
 
 /* ── Lesson modal ─────────────────────────────────────────── */
 function openLesson(num) {
-  if (!state.name) { document.getElementById('enroll').scrollIntoView({ behavior: 'smooth' }); return; }
   currentModule = num; quizAnswers = {}; quizScore = 0;
   const lesson = lessons[num];
   document.getElementById('lesson-num-label').textContent = `Module ${num} of ${TOTAL_MODULES}`;
@@ -679,15 +678,23 @@ function showFinalExamResult(score, total) {
   if (!passed) document.getElementById('lesson-complete-btn').style.display = 'none';
 }
 
-function completeLesson() {
+async function completeLesson() {
   if (!currentModule) return;
   if (currentModule === 10 && quizScore < 7) return;
-  const completed = state.completed || [];
-  if (!completed.includes(currentModule)) { completed.push(currentModule); state.completed = completed; saveState(state); }
-  const card = document.querySelector(`[data-module="${currentModule}"]`);
+  const moduleJustCompleted = currentModule;
+
+  const r = await apiFetch('/api/trainee/progress', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ module: moduleJustCompleted })
+  });
+  if (r.ok) profile = await r.json();
+
+  const card = document.querySelector(`[data-module="${moduleJustCompleted}"]`);
   if (card) { card.classList.add('completed'); const btn = card.querySelector('.tr-module-btn'); if (btn) btn.textContent = 'Review'; }
   updateProgress();
-  if ((state.completed || []).length === TOTAL_MODULES) {
+
+  if ((profile.completed || []).length === TOTAL_MODULES) {
     closeLesson();
     setTimeout(() => {
       generateCertificate();
@@ -698,47 +705,38 @@ function completeLesson() {
   closeLesson();
 }
 
-/* ── Certificate — gold/black design ─────────────────────── */
+/* ── Certificate — gold/black design (unchanged from training.js,
+     but name + cert ID now come from the server-issued profile) ── */
 function generateCertificate() {
   const canvas = document.getElementById('cert-canvas');
   const ctx = canvas.getContext('2d');
   const W = 1200, H = 840;
-  const name = state.name || 'Learner';
+  const name = profile.name || 'Learner';
   const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  const certId = 'HDH-AI-' + (state.enrolledAt || Date.now()).toString(36).toUpperCase().slice(-6);
+  const certId = profile.cert_id || 'PENDING';
 
   const gold = '#c8a96e';
   const black = '#0a0a0a';
   const white = '#ffffff';
   const muted = '#888888';
 
-  /* Background */
   ctx.fillStyle = white; ctx.fillRect(0, 0, W, H);
-
-  /* Outer black border */
   ctx.fillStyle = black; ctx.fillRect(0, 0, W, H);
-  /* White field */
   ctx.fillStyle = white; ctx.fillRect(10, 10, W - 20, H - 20);
 
-  /* Outer gold frame */
   ctx.strokeStyle = gold; ctx.lineWidth = 3;
   ctx.strokeRect(18, 18, W - 36, H - 36);
-  /* Inner thin frame */
   ctx.strokeStyle = '#e8e0d0'; ctx.lineWidth = 0.8;
   ctx.strokeRect(28, 28, W - 56, H - 56);
 
-  /* Top black header band */
   ctx.fillStyle = black; ctx.fillRect(10, 10, W - 20, 64);
 
-  /* Header text */
   ctx.fillStyle = white; ctx.font = 'bold 17px Georgia, serif';
   ctx.textAlign = 'center';
   ctx.fillText('HARTS · HARTS DIGITAL HUB · hartsdigitalhub.com', W / 2, 48);
 
-  /* Gold accent under header */
   ctx.fillStyle = gold; ctx.fillRect(10, 74, W - 20, 4);
 
-  /* Corner ornaments */
   const ornament = (x, y, size) => {
     ctx.fillStyle = gold; ctx.font = `${size}px Georgia, serif`; ctx.textAlign = 'center';
     ctx.fillText('✦', x, y);
@@ -746,49 +744,37 @@ function generateCertificate() {
   ornament(62, 120, 22); ornament(W - 62, 120, 22);
   ornament(62, H - 60, 22); ornament(W - 62, H - 60, 22);
 
-  /* CERTIFICATE OF COMPLETION label */
   ctx.fillStyle = muted; ctx.font = '13px Georgia, serif';
   ctx.letterSpacing = '0.3em';
   ctx.textAlign = 'center';
   ctx.fillText('C E R T I F I C A T E O F C O M P L E T I O N', W / 2, 130);
 
-  /* Gold rule under label */
   ctx.strokeStyle = gold; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(300, 142); ctx.lineTo(900, 142); ctx.stroke();
 
-  /* "This is to certify that" */
   ctx.fillStyle = muted; ctx.font = 'italic 15px Georgia, serif';
   ctx.textAlign = 'center';
   ctx.fillText('This is to certify that', W / 2, 188);
 
-  /* Recipient name */
   ctx.fillStyle = black; ctx.font = `bold 54px Georgia, serif`;
   ctx.textAlign = 'center';
   ctx.fillText(name, W / 2, 265);
 
-  /* Name underline */
   ctx.strokeStyle = black; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(180, 278); ctx.lineTo(1020, 278); ctx.stroke();
 
-  /* "has successfully completed" */
   ctx.fillStyle = muted; ctx.font = 'italic 15px Georgia, serif';
   ctx.fillText('has successfully completed all 10 modules of', W / 2, 318);
 
-  /* Course name */
   ctx.fillStyle = black; ctx.font = 'bold 30px Georgia, serif';
   ctx.fillText('AI Fundamentals for Everyone', W / 2, 366);
 
-  /* Subtitle */
   ctx.fillStyle = muted; ctx.font = '13px Georgia, serif';
   ctx.fillText('AI GOVERNANCE · ETHICS · TOOLS · AUTOMATION · SOCIETY', W / 2, 396);
 
-  /* Horizontal divider */
   ctx.strokeStyle = '#e8e0d0'; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(60, 430); ctx.lineTo(1140, 430); ctx.stroke();
 
-  /* ── Bottom section ── */
-
-  /* Date block — left */
   ctx.fillStyle = muted; ctx.font = '11px Georgia, serif';
   ctx.letterSpacing = '0.15em'; ctx.textAlign = 'center';
   ctx.fillText('D A T E I S S U E D', 190, 470);
@@ -797,17 +783,13 @@ function generateCertificate() {
   ctx.strokeStyle = '#ccc'; ctx.lineWidth = 0.8;
   ctx.beginPath(); ctx.moveTo(60, 512); ctx.lineTo(320, 512); ctx.stroke();
 
-  /* Harts seal — centre */
   const cx = W / 2, cy = 508;
-  /* Outer gold ring */
   ctx.beginPath(); ctx.arc(cx, cy, 70, 0, Math.PI * 2);
   ctx.fillStyle = black; ctx.fill();
   ctx.strokeStyle = gold; ctx.lineWidth = 2;
   ctx.stroke();
-  /* Inner ring */
   ctx.beginPath(); ctx.arc(cx, cy, 62, 0, Math.PI * 2);
   ctx.strokeStyle = gold; ctx.lineWidth = 0.8; ctx.stroke();
-  /* Seal text */
   ctx.fillStyle = gold; ctx.font = 'bold 20px Georgia, serif'; ctx.textAlign = 'center';
   ctx.fillText('HARTS', cx, cy - 8);
   ctx.font = '10px Georgia, serif';
@@ -815,7 +797,6 @@ function generateCertificate() {
   ctx.font = '9px Georgia, serif';
   ctx.fillText('DIGITAL HUB', cx, cy + 22);
 
-  /* Signature block — right */
   ctx.fillStyle = muted; ctx.font = '11px Georgia, serif';
   ctx.textAlign = 'center';
   ctx.fillText('A U T H O R I S E D B Y', 1010, 470);
@@ -826,15 +807,12 @@ function generateCertificate() {
   ctx.fillStyle = muted; ctx.font = '12px Georgia, serif';
   ctx.fillText('Harts Digital Hub', 1010, 526);
 
-  /* Gold bottom ribbon */
   ctx.fillStyle = gold; ctx.fillRect(10, H - 50, W - 20, 6);
   ctx.fillStyle = black; ctx.fillRect(10, H - 44, W - 20, 34);
 
-  /* Certificate ID in ribbon */
   ctx.fillStyle = gold; ctx.font = '12px Georgia, serif'; ctx.textAlign = 'center';
   ctx.fillText(`Certificate ID: ${certId} · hartsdigitalhub.com/verify`, W / 2, H - 20);
 
-  /* Download */
   canvas.toBlob(blob => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -845,10 +823,4 @@ function generateCertificate() {
   });
 }
 
-/* ── Backdrop click + Esc ─────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('tr-lesson-backdrop').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeLesson();
-  });
-});
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLesson(); });

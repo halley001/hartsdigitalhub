@@ -8,7 +8,7 @@ const MAIN_ONLY_PATHS = new Set([
   '/whatsapp-automation.html',
 ]);
 
-const APP_ONLY_PATHS = new Set(['/training-hub.html', '/verify.html']);
+const APP_ONLY_PATHS = new Set(['/training-hub.html', '/verify.html', '/login.html', '/dashboard.html']);
 
 export default function middleware(request) {
   const url = new URL(request.url);
@@ -16,7 +16,7 @@ export default function middleware(request) {
   const onAppHost = host === APP_HOST;
 
   if (onAppHost && url.pathname === '/') {
-    const rewriteUrl = new URL('/training-hub.html', request.url);
+    const rewriteUrl = new URL('/login.html', request.url);
     return new Response(null, {
       headers: { 'x-middleware-rewrite': rewriteUrl.toString() },
     });

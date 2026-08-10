@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | H@rts Training Hub</title>
+  <meta name="description" content="Sign in to your H@rts Digital Hub Training Hub account — no password needed, just your email.">
+  <meta property="og:title" content="Sign In | H@rts Training Hub">
+  <meta property="og:description" content="Sign in to your H@rts Digital Hub Training Hub account — no password needed, just your email.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://app.hartsdigitalhub.com/">
+  <meta property="og:site_name" content="H@rts">
+  <meta property="og:image" content="https://hartsdigitalhub.com/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="H@rts Digital Hub — Training Hub sign in">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://hartsdigitalhub.com/og-image.jpg">
+  <link rel="canonical" href="https://app.hartsdigitalhub.com/">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#000000">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="hub.css">
+  <link rel="stylesheet" href="training.css">
+</head>
+<body class="hub-body" data-page="login">
+<a href="#login-main" class="skip-link">Skip to content</a>
+<div class="hub-wrap">
+
+  <header id="site-header"></header>
+
+  <main id="login-main">
+    <section class="hub-section" id="login" style="padding-top:4.5rem">
+      <div class="hub-section-head reveal">
+        <span class="hub-kicker">Training Hub</span>
+        <h1 class="hub-section-title">Sign in to your dashboard</h1>
+        <p class="hub-section-sub">Enter your email and we'll send you a one-time sign-in link — no password to create or remember. First time here? The same link creates your account.</p>
+      </div>
+
+      <div class="hub-grid" style="grid-template-columns:1fr; max-width:520px">
+        <article class="tilt-card reveal">
+          <form class="tr-form" id="login-form" novalidate>
+            <div class="tr-field">
+              <label for="login-email">Email address</label>
+              <input type="email" id="login-email" name="email" required placeholder="you@email.com" autocomplete="email">
+              <span class="tr-error" id="login-error"></span>
+            </div>
+            <button type="submit" class="tr-btn-primary" style="width:100%;margin-top:0.5rem;" id="login-submit">Email me a sign-in link &rarr;</button>
+          </form>
+          <div id="login-sent" style="display:none;text-align:center;">
+            <div class="tr-success-icon">&#10003;</div>
+            <h3>Check your email</h3>
+            <p class="cap-text">We just sent a sign-in link to <strong id="login-sent-email"></strong>. Open it on this device to continue — check your spam folder if it doesn't arrive in a minute or two.</p>
+          </div>
+          <div id="login-verifying" style="display:none;text-align:center;">
+            <p class="cap-text">Signing you in&hellip;</p>
+          </div>
+        </article>
+      </div>
+
+      <p class="cap-text" style="text-align:center;margin-top:1.5rem;">
+        New here? <a href="/training-hub.html">See what's included in the Training Hub &rarr;</a>
+      </p>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://agowbkdofhausujswwbb.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnb3dia2RvZmhhdXN1anN3d2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTk5NTUsImV4cCI6MjA5ODgzNTk1NX0.urXxAP0f_3LkpCpQOLDIiHJzJPYztFgEl3hkONpAhJ0';
+
+  function showPanel(id) {
+    ['login-form', 'login-sent', 'login-verifying'].forEach(p => {
+      const el = document.getElementById(p);
+      if (el) el.style.display = (p === id) ? (p === 'login-form' ? 'block' : 'block') : 'none';
+    });
+  }
+
+  async function handleMagicLinkCallback() {
+    if (!location.hash.includes('access_token')) return false;
+    const params = new URLSearchParams(location.hash.slice(1));
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    const expires_in = params.get('expires_in');
+    if (!access_token || !refresh_token) return false;
+
+    showPanel('login-verifying');
+    history.replaceState(null, '', location.pathname);
+
+    try {
+      const r = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token, refresh_token, expires_in }),
+        credentials: 'same-origin'
+      });
+      if (r.ok) {
+        window.location.href = '/dashboard.html';
+        return true;
+      }
+    } catch (e) {}
+    document.getElementById('login-error').textContent = 'That sign-in link is no longer valid. Please request a new one.';
+    showPanel('login-form');
+    return false;
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailEl = document.getElementById('login-email');
+    const errEl = document.getElementById('login-error');
+    const btn = document.getElementById('login-submit');
+    const email = emailEl.value.trim();
+    errEl.textContent = '';
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEl.textContent = 'Please enter a valid email.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    try {
+      const r = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY },
+        body: JSON.stringify({
+          email,
+          create_user: true,
+          options: { emailRedirectTo: 'https://app.hartsdigitalhub.com/login.html' }
+        })
+      });
+      if (!r.ok) throw new Error('otp request failed');
+      document.getElementById('login-sent-email').textContent = email;
+      showPanel('login-sent');
+    } catch (err) {
+      errEl.textContent = "Couldn't send the link — please try again in a moment.";
+      btn.disabled = false;
+      btn.textContent = "Email me a sign-in link →";
+    }
+  });
+
+  handleMagicLinkCallback();
+</script>
+<script src="site-chrome.js"></script>
+</body>
+</html>
