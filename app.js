@@ -96,13 +96,36 @@ let currentLeadId = null; // Supabase id of the saved lead, so a payment can lin
 
 // Server-authoritative setup fees (mirrors api/pay/_lib.js) — used only for display in chat
 // Prices are in USD (canonical). We display USD; Campay charges the XAF equivalent.
-const SETUP_FEES_USD = { starter: 80, essential: 125, growth: 200, pro: 400, build_only: 300 };
+// These FALLBACK_* constants are the resilience net for the knowledge-base hydration
+// below (see hydrateCatalogFromKB) — kept permanently, not just during migration, so
+// the chat is always usable even if /api/services is unreachable.
+const FALLBACK_SETUP_FEES_USD = { starter: 80, essential: 125, growth: 200, pro: 400, build_only: 300 };
 const USD_TO_XAF = 600; // display-only estimate for the "≈ XAF" note; server uses env USD_XAF_RATE
 
 // One-time add-ons (mirrors ADDON_PRICES_USD in api/pay/_lib.js) — display only; server recomputes
-const ADDONS = {
+const FALLBACK_ADDONS = {
   logo: { price: 40, label: { en: 'Logo', fr: 'Logo' } },
   full_branding: { price: 130, label: { en: 'Full branding (logo, colours, business card, templates)', fr: 'Branding complet (logo, couleurs, carte de visite, templates)' } }
+};
+
+// Enterprise service categories (custom software, cloud, managed IT, AI chatbots) — not
+// sold as chat packages like PACKAGES below, but the chatbot needs to be able to answer
+// about them (see the "chatbot intent" branch in getBotResponse). Hydrated from the same
+// knowledge base; this fallback covers the one category the chat can be asked about
+// directly ("I need a chatbot...").
+const FALLBACK_ENTERPRISE = {
+  ai_chatbots: {
+    name: { en: 'AI Chatbots & Automation', fr: 'Chatbots IA & Automatisation' },
+    tagline: {
+      en: 'Chatbots for WhatsApp, your website or other channels — integrated into new or existing systems, not bolted on the side.',
+      fr: 'Des chatbots pour WhatsApp, votre site web ou d\'autres canaux — intégrés à des systèmes nouveaux ou existants, pas ajoutés en périphérie.'
+    },
+    desc: {
+      en: 'We build AI chatbots that answer customers, check your live database, engage leads and hand off to a human the moment it matters — on WhatsApp, your website, or wherever your customers already are, integrated into new or already-existing systems (CRM, ERP, POS).',
+      fr: 'Nous concevons des chatbots IA qui répondent aux clients, vérifient votre base de données en direct, engagent les prospects et transfèrent à un humain au bon moment — sur WhatsApp, votre site web, ou tout autre canal utilisé par vos clients, intégrés à des systèmes nouveaux ou déjà existants (CRM, ERP, POS).'
+    },
+    tags: ['WhatsApp', 'Website Chat', 'CRM / ERP Sync']
+  }
 };
 
 // Simple dynamic user profile for more human-like, contextual responses
@@ -114,7 +137,7 @@ let userProfile = {
 };
 
 // ── Core Knowledge Base (answers to "all" common client questions) ──
-const PACKAGES = {
+const FALLBACK_PACKAGES = {
   starter: {
     name: { en: 'Starter', fr: 'Démarrage' },
     setup: { en: '$80 setup', fr: '$80 installation' },
@@ -186,6 +209,116 @@ const PACKAGES = {
     }
   }
 };
+
+// Live bindings the chat actually reads. Seeded from the FALLBACK_* constants above
+// so the chat is fully usable from the first keystroke, then silently upgraded by
+// hydrateCatalogFromKB() once /api/services resolves (or left as-is if it doesn't —
+// see the fallback chain there). `let` (not `const`) is required: getBotResponse and
+// formatPackage read these via closure, so reassigning the binding later is enough —
+// no other code needs to change when the KB replaces the fallback values.
+let PACKAGES = FALLBACK_PACKAGES;
+let SETUP_FEES_USD = FALLBACK_SETUP_FEES_USD;
+let ADDONS = FALLBACK_ADDONS;
+let ENTERPRISE = FALLBACK_ENTERPRISE;
+
+const KB_CACHE_KEY = 'harts_kb_cache';
+const KB_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+// Reshapes the /api/services response ({items, addons}) into the exact shapes
+// PACKAGES/SETUP_FEES_USD/ADDONS/ENTERPRISE already have, so every consumer
+// (formatPackage, formatEnterpriseService, providePaymentInstructions, etc.)
+// works unchanged regardless of whether the data came from the KB or the fallback.
+function normalizeCatalog(apiResponse) {
+  const items = Array.isArray(apiResponse?.items) ? apiResponse.items : [];
+  const addonRows = Array.isArray(apiResponse?.addons) ? apiResponse.addons : [];
+
+  const packages = {};
+  const setupFees = {};
+  const enterprise = {};
+
+  items.forEach(row => {
+    const feats = row.features && typeof row.features === 'object' ? row.features : { en: [], fr: [] };
+    if (row.kind === 'sme_package') {
+      const priceLabel = row.price_unit === 'year'
+        ? { en: `${usd(row.price_usd)} / year`, fr: `${usd(row.price_usd)} / an` }
+        : row.price_unit === 'one_time'
+          ? { en: 'No recurring fee (management add-on available later)', fr: 'Aucun frais récurrent (option gestion disponible plus tard)' }
+          : { en: 'Custom', fr: 'Sur mesure' };
+      packages[row.id] = {
+        name: { en: row.name_en, fr: row.name_fr },
+        setup: { en: `${usd(row.setup_fee_usd)} setup`, fr: `${usd(row.setup_fee_usd)} installation` },
+        price: priceLabel,
+        features: { en: feats.en || [], fr: feats.fr || [] },
+        desc: { en: row.desc_en || '', fr: row.desc_fr || '' },
+        popular: Boolean(row.popular),
+        installment: (row.installment_note_en || row.installment_note_fr)
+          ? { en: row.installment_note_en || '', fr: row.installment_note_fr || '' }
+          : undefined
+      };
+      if (row.setup_fee_usd != null) setupFees[row.id] = Number(row.setup_fee_usd);
+    } else if (row.kind === 'enterprise_category') {
+      enterprise[row.id] = {
+        name: { en: row.name_en, fr: row.name_fr },
+        tagline: { en: row.tagline_en || '', fr: row.tagline_fr || '' },
+        desc: { en: row.desc_en || '', fr: row.desc_fr || '' },
+        tags: Array.isArray(row.tags) ? row.tags : []
+      };
+    }
+    // 'sla_tier' rows aren't consumed by the chat today (they're a static section
+    // on index.html) — intentionally not mapped here, see the plan's scope notes.
+  });
+
+  const addons = {};
+  addonRows.forEach(row => {
+    addons[row.id] = { price: Number(row.price_usd), label: { en: row.name_en, fr: row.name_fr } };
+  });
+
+  return {
+    packages: Object.keys(packages).length ? packages : null,
+    setupFees: Object.keys(setupFees).length ? setupFees : null,
+    addons: Object.keys(addons).length ? addons : null,
+    enterprise: Object.keys(enterprise).length ? enterprise : null
+  };
+}
+
+// Non-blocking: the chat is already usable on FALLBACK_* the instant the script
+// loads. This only upgrades PACKAGES/SETUP_FEES_USD/ADDONS/ENTERPRISE in place if
+// and when the knowledge base answers — a slow or failed fetch never delays or
+// breaks a conversation already in progress.
+async function hydrateCatalogFromKB() {
+  const applyIfPresent = (normalized) => {
+    if (!normalized) return false;
+    let applied = false;
+    if (normalized.packages) { PACKAGES = normalized.packages; applied = true; }
+    if (normalized.setupFees) { SETUP_FEES_USD = normalized.setupFees; applied = true; }
+    if (normalized.addons) { ADDONS = normalized.addons; applied = true; }
+    if (normalized.enterprise) { ENTERPRISE = normalized.enterprise; applied = true; }
+    return applied;
+  };
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch('/api/services', { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    const data = await res.json();
+    const normalized = normalizeCatalog(data);
+    if (applyIfPresent(normalized)) {
+      try { localStorage.setItem(KB_CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now() })); } catch (e) { /* ignore */ }
+    }
+    return;
+  } catch (e) {
+    // Fall through to the cached copy, then to FALLBACK_* (already in effect).
+  }
+
+  try {
+    const cached = JSON.parse(localStorage.getItem(KB_CACHE_KEY) || 'null');
+    if (cached && (Date.now() - cached.fetchedAt) < KB_CACHE_MAX_AGE_MS) {
+      applyIfPresent(normalizeCatalog(cached.data));
+    }
+  } catch (e) { /* ignore — FALLBACK_* stays in effect */ }
+}
 
 const KNOWLEDGE = {
   en: {
@@ -318,6 +451,14 @@ function getBotResponse(rawText, lang = currentLang) {
         ? 'Pas de problème ! Nous restons disponibles si vous avez des questions ou souhaitez reprendre plus tard. Y a-t-il autre chose que nous pouvons faire pour vous ?'
         : 'No problem at all! We\'re here if you have questions or want to come back later. Is there anything else we can help you with?'
     };
+  }
+
+  // ── Chatbot intent (checked before "Bot identity" below, since that branch's
+  // own pattern includes the bare word "chatbot" for "are you a chatbot?"-style
+  // questions — this one requires an intent verb nearby so a genuine "I need a
+  // chatbot for my website" isn't misread as an identity question) ───────────
+  if (/\b(need|want|get a|build|looking for|interested in)\b[\s\S]{0,25}\b(chatbot|chat[\s-]?bot|bot for)\b|\b(chatbot|chat[\s-]?bot)\b[\s\S]{0,25}\b(for (my|our)|pour (mon|notre))\b|\b(j'ai besoin|je veux|je cherche|nous voulons)\b[\s\S]{0,25}\b(chatbot|chat[\s-]?bot)\b/i.test(text)) {
+    return { packageHTML: formatEnterpriseService('ai_chatbots', lang) };
   }
 
   // ── Bot identity ─────────────────────────────────────────────
@@ -654,6 +795,31 @@ function formatPackage(key, lang) {
   html += `<br>Ready to move forward, or want to compare / see exact payment options?`;
   
   return html; // Will be rendered as HTML in the bubble
+}
+
+// Formats an enterprise service category (custom software, cloud, managed IT, AI
+// chatbots) — these are custom-scoped projects, not fixed chat packages, so unlike
+// formatPackage() there's no price to show; it ends by inviting a WhatsApp handoff.
+function formatEnterpriseService(key, lang) {
+  const svc = ENTERPRISE[key];
+  if (!svc) return null;
+
+  const name = svc.name[lang] || svc.name.en;
+  const tagline = svc.tagline[lang] || svc.tagline.en;
+  const desc = svc.desc[lang] || svc.desc.en;
+  const tags = svc.tags || [];
+
+  let html = `<strong>${name}</strong><br>`;
+  if (tagline) html += `${tagline}<br><br>`;
+  if (desc) html += `${desc}<br>`;
+  if (tags.length) {
+    html += `<br><strong>${lang === 'fr' ? 'Exemples' : 'Includes'}:</strong> ${tags.join(' · ')}<br>`;
+  }
+  html += `<br>${lang === 'fr'
+    ? 'C\'est un projet sur mesure — voulez-vous en discuter avec notre équipe sur WhatsApp ?'
+    : 'This is a custom-scoped project — want to talk it through with our team on WhatsApp?'}`;
+
+  return html;
 }
 
 // ── Conversational Lead Collection ────────────────────────────
@@ -1411,9 +1577,14 @@ function sendMessage() {
   setTimeout(async () => {
     let reply = getBotResponse(val, currentLang);
 
-    // For general/open responses (not in strict collection/payment/review), use LLM for dynamism
-    const useLLM = !awaitingLeadField && currentStage !== 'review' && currentStage !== 'payment' &&
-                   !/(get started|je veux|commencer|paid|payé|installment|versement|price|prix|growth|pro|starter)/i.test(val);
+    // For general/open responses, use the LLM for dynamism (greetings, FAQ-style
+    // questions, etc). Checking the router's actual return payload — not guessing
+    // from input keywords — guarantees anything structured (a formatted package
+    // card, the multi-package listing, or a state-changing action like a WhatsApp
+    // handoff) can never be silently discarded by an LLM reply arriving after it.
+    const useLLM = !reply.packageHTML && !reply.multiPackage && !reply.action && !reply.isHTML &&
+                   !awaitingLeadField && !awaitingAddons && !awaitingMomoNumber &&
+                   currentStage !== 'review' && currentStage !== 'payment';
 
     if (useLLM) {
       try {
@@ -1478,6 +1649,10 @@ function initChat() {
   const chatContainer = document.getElementById('chat-main');
 
   if (!form || !input) return;
+
+  // Fire-and-forget: upgrades PACKAGES/ENTERPRISE from the knowledge base once it
+  // resolves. Never awaited — the chat below is already usable on FALLBACK_* data.
+  hydrateCatalogFromKB();
 
   // Auto-greeting after a short delay
   setTimeout(() => {
