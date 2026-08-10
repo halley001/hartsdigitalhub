@@ -505,6 +505,7 @@ function setupEnrollForm() {
     renderModuleStates();
     downloadStarterGuide();
     notifyViaWhatsApp(name, email, phone, country);
+    saveLeadToApi(name, email, phone, country);
     document.getElementById('tr-enroll-form').style.display = 'none';
     document.getElementById('tr-enroll-success').style.display = 'block';
   });
@@ -535,6 +536,21 @@ function notifyViaWhatsApp(name, email, phone, country) {
     `*Time:* ${new Date().toLocaleString('en-GB')}\n\n` +
     `_Sent from hartsdigitalhub.com/training_`;
   window.open(`https://wa.me/237622341343?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+}
+
+function saveLeadToApi(name, email, phone, country) {
+  if (!('fetch' in window)) return;
+  fetch('/api/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name, phone,
+      package: 'training-foundations',
+      summary: `Foundations enrollment | Email: ${email} | Country: ${country}`,
+      lang: (document.documentElement.lang || 'en'),
+      source: 'training-foundations'
+    })
+  }).catch(() => {});
 }
 
 /* ── Starter Guide ────────────────────────────────────────── */

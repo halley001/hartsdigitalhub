@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Training Portal | Harts Digital Hub</title>
-  <meta name="description" content="Learn Artificial Intelligence from scratch. Sign up free, complete 10 modules including AI Governance, and earn your Harts certificate.">
-  <meta property="og:title" content="AI Training Portal | H@rts Academy">
-  <meta property="og:description" content="Learn AI from scratch — free. Complete the modules, earn your H@rts certificate, and join our talent network.">
+  <title>Training Hub | H@rts Digital Hub</title>
+  <meta name="description" content="Free AI literacy for individuals, tailored upskilling for teams, and a certified talent network — all in the H@rts Digital Hub Training Hub.">
+  <meta property="og:title" content="Training Hub | H@rts Digital Hub">
+  <meta property="og:description" content="Free AI literacy for individuals, tailored upskilling for teams, and a certified talent network — all in the H@rts Digital Hub Training Hub.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://hartsdigitalhub.com/training.html">
   <meta property="og:site_name" content="H@rts">
   <meta property="og:image" content="https://hartsdigitalhub.com/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="H@rts Academy — Learn AI, get certified">
+  <meta property="og:image:alt" content="H@rts Digital Hub — Learn AI, get certified">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://hartsdigitalhub.com/og-image.jpg">
   <link rel="canonical" href="https://hartsdigitalhub.com/training.html">
@@ -29,369 +29,113 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="hub.css">
   <link rel="stylesheet" href="training.css">
 </head>
-<body data-page="training">
-
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+<body class="hub-body" data-page="training">
+<a href="#tr-main" class="skip-link">Skip to content</a>
+<div class="hub-wrap">
 
   <!-- Header (injected by site-chrome.js) -->
   <header id="site-header"></header>
 
-  <main id="main-content" tabindex="-1">
+  <main id="tr-main">
 
-    <!-- Hero -->
-    <section class="tr-hero">
-      <div class="tr-bonus-banner">
-        <span>Sign up now and get your <strong>FREE AI Starter Guide</strong> instantly</span>
-      </div>
-      <h1 class="tr-hero-title">Learn AI.<br>Get Certified.</h1>
-      <p class="tr-hero-sub">A plain-language course on Artificial Intelligence for everyone — entrepreneurs, students, job seekers, and curious minds across Africa and beyond.</p>
-      <div class="tr-hero-stats">
-        <div class="tr-stat"><span class="tr-stat-num">10</span><span class="tr-stat-label">Modules</span></div>
-        <div class="tr-stat-divider"></div>
-        <div class="tr-stat"><span class="tr-stat-num">100%</span><span class="tr-stat-label">Online</span></div>
-        <div class="tr-stat-divider"></div>
-        <div class="tr-stat"><span class="tr-stat-num">Free</span><span class="tr-stat-label">Starter Guide</span></div>
-        <div class="tr-stat-divider"></div>
-        <div class="tr-stat"><span class="tr-stat-num">Cert</span><span class="tr-stat-label">On Completion</span></div>
-      </div>
-      <a href="#enroll" class="tr-btn-primary">Enroll Free &rarr;</a>
-    </section>
-
-    <!-- Progress Bar -->
-    <section class="tr-progress-section" id="tr-progress-section" style="display:none;">
-      <div class="tr-progress-header">
-        <span id="tr-welcome-name" class="tr-welcome"></span>
-        <span id="tr-progress-label">0 / 10 modules complete</span>
-      </div>
-      <div class="tr-progress-bar-wrap">
-        <div class="tr-progress-bar" id="tr-progress-bar" style="width:0%"></div>
-      </div>
-      <button class="tr-btn-outline" id="tr-cert-btn" style="display:none;" onclick="generateCertificate()">Download Certificate</button>
-    </section>
-
-    <!-- Modules -->
-    <section class="tr-modules" id="modules">
-      <h2 class="tr-section-title">Course Modules</h2>
-      <p class="tr-section-sub">10 plain-language modules. No technical background needed. Complete all 10 to earn your Harts AI Certificate.</p>
-
-      <div class="tr-module-grid" id="tr-module-grid">
-
-        <article class="tr-module-card" data-module="1">
-          <div class="tr-module-num">01</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">What is Artificial Intelligence?</h3>
-            <p class="tr-module-desc">AI in plain language — what it is, where it came from, and why it matters to you right now.</p>
-            <ul class="tr-module-topics">
-              <li>Definition of AI without jargon</li>
-              <li>A short history of AI</li>
-              <li>Types of AI that exist today</li>
-              <li>AI examples in everyday African life</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~30 min</span>
-              <button class="tr-module-btn" onclick="openLesson(1)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-1">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="2">
-          <div class="tr-module-num">02</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">How AI Models Think</h3>
-            <p class="tr-module-desc">Peek inside an AI's "brain" — learn how it learns, and why it sometimes gets things wrong.</p>
-            <ul class="tr-module-topics">
-              <li>What is training data?</li>
-              <li>How large language models work</li>
-              <li>What are tokens and parameters?</li>
-              <li>Why AI "hallucinates"</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~35 min</span>
-              <button class="tr-module-btn" onclick="openLesson(2)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-2">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="3">
-          <div class="tr-module-num">03</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">Prompt Engineering</h3>
-            <p class="tr-module-desc">The skill that separates AI beginners from AI power users. Learn to get great results every time.</p>
-            <ul class="tr-module-topics">
-              <li>What is a prompt?</li>
-              <li>Zero-shot and few-shot techniques</li>
-              <li>Writing clear, specific instructions</li>
-              <li>Prompt templates for real life</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~40 min</span>
-              <button class="tr-module-btn" onclick="openLesson(3)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-3">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="4">
-          <div class="tr-module-num">04</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">AI Tools for Business & Life</h3>
-            <p class="tr-module-desc">Discover the best AI tools available today — most are free — and how to put them to work.</p>
-            <ul class="tr-module-topics">
-              <li>ChatGPT, Claude, Gemini compared</li>
-              <li>AI for writing and content</li>
-              <li>AI for images, video, and design</li>
-              <li>AI for customer service</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~45 min</span>
-              <button class="tr-module-btn" onclick="openLesson(4)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-4">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="5">
-          <div class="tr-module-num">05</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">AI Automation & Workflows</h3>
-            <p class="tr-module-desc">Save hours every week by letting AI do your repetitive tasks automatically.</p>
-            <ul class="tr-module-topics">
-              <li>What automation means in plain terms</li>
-              <li>Make.com and Zapier basics</li>
-              <li>Building your first AI workflow</li>
-              <li>Automating social media and email</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~50 min</span>
-              <button class="tr-module-btn" onclick="openLesson(5)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-5">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="6">
-          <div class="tr-module-num">06</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">AI Governance</h3>
-            <p class="tr-module-desc">Who controls AI, who makes the rules, and what that means for your rights as a citizen and user.</p>
-            <ul class="tr-module-topics">
-              <li>Who owns and controls AI?</li>
-              <li>AI laws around the world</li>
-              <li>Who is responsible when AI harms?</li>
-              <li>Your rights as an AI user</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~40 min</span>
-              <button class="tr-module-btn" onclick="openLesson(6)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-6">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="7">
-          <div class="tr-module-num">07</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">AI & Society</h3>
-            <p class="tr-module-desc">How AI is changing jobs, communities, politics, and daily life — especially across Africa.</p>
-            <ul class="tr-module-topics">
-              <li>Will AI take my job?</li>
-              <li>AI and inequality</li>
-              <li>AI in African economies</li>
-              <li>Misinformation and elections</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~40 min</span>
-              <button class="tr-module-btn" onclick="openLesson(7)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-7">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="8">
-          <div class="tr-module-num">08</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">AI Ethics</h3>
-            <p class="tr-module-desc">The difference between what AI can do and what it should do — and your role in that conversation.</p>
-            <ul class="tr-module-topics">
-              <li>Bias and discrimination in AI</li>
-              <li>Deepfakes and misinformation</li>
-              <li>Privacy and your personal data</li>
-              <li>Being a responsible AI user</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~35 min</span>
-              <button class="tr-module-btn" onclick="openLesson(8)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-8">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="9">
-          <div class="tr-module-num">09</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">Your AI Action Plan</h3>
-            <p class="tr-module-desc">Turn everything you have learned into a personal strategy for your career or business.</p>
-            <ul class="tr-module-topics">
-              <li>Reviewing your learning journey</li>
-              <li>Picking your first AI tool</li>
-              <li>Building your 30-day AI habit</li>
-              <li>Sharing AI skills with others</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~30 min</span>
-              <button class="tr-module-btn" onclick="openLesson(9)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-9">&#10003;</div>
-        </article>
-
-        <article class="tr-module-card" data-module="10">
-          <div class="tr-module-num">10</div>
-          <div class="tr-module-body">
-            <h3 class="tr-module-title">Final Exam & Certificate</h3>
-            <p class="tr-module-desc">10 questions covering all modules. Pass with 70% to unlock your Harts AI Certificate.</p>
-            <ul class="tr-module-topics">
-              <li>Full course knowledge review</li>
-              <li>10-question final exam</li>
-              <li>Instant result and feedback</li>
-              <li>Download your gold certificate</li>
-            </ul>
-            <div class="tr-module-footer">
-              <span class="tr-module-time">~45 min</span>
-              <button class="tr-module-btn" onclick="openLesson(10)">Start Lesson</button>
-            </div>
-          </div>
-          <div class="tr-module-check" id="check-10">&#10003;</div>
-        </article>
-
-      </div>
-    </section>
-
-    <!-- Enrollment Form -->
-    <section class="tr-enroll" id="enroll">
-      <div class="tr-enroll-inner">
-        <div class="tr-enroll-left">
-          <h2 class="tr-section-title">Sign Up Free</h2>
-          <p class="tr-section-sub">Create your free account. You instantly get the <strong>AI Starter Guide PDF</strong> and access to all 10 modules.</p>
-          <ul class="tr-enroll-perks">
-            <li>✓ Free AI Starter Guide (instant download)</li>
-            <li>✓ All 10 modules — no payment ever</li>
-            <li>✓ Progress saved automatically</li>
-            <li>✓ Gold certificate on completion</li>
-            <li>✓ WhatsApp community access</li>
-          </ul>
-        </div>
-        <div class="tr-enroll-right">
-          <form class="tr-form" id="tr-enroll-form" novalidate>
-            <div class="tr-field">
-              <label for="enroll-name">Full Name</label>
-              <input type="text" id="enroll-name" name="name" required placeholder="e.g. Marie Ngono" autocomplete="name">
-              <span class="tr-error" id="err-name"></span>
-            </div>
-            <div class="tr-field">
-              <label for="enroll-email">Email Address</label>
-              <input type="email" id="enroll-email" name="email" required placeholder="you@email.com" autocomplete="email">
-              <span class="tr-error" id="err-email"></span>
-            </div>
-            <div class="tr-field">
-              <label for="enroll-phone">WhatsApp Number</label>
-              <input type="tel" id="enroll-phone" name="phone" required placeholder="+237 6XX XXX XXX" autocomplete="tel">
-              <span class="tr-error" id="err-phone"></span>
-            </div>
-            <div class="tr-field">
-              <label for="enroll-country">Country</label>
-              <select id="enroll-country" name="country">
-                <option value="Cameroon" selected>Cameroon</option>
-                <option value="Nigeria">Nigeria</option>
-                <option value="Ghana">Ghana</option>
-                <option value="Senegal">Senegal</option>
-                <option value="Kenya">Kenya</option>
-                <option value="South Africa">South Africa</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <button type="submit" class="tr-btn-primary" style="width:100%;margin-top:0.5rem;">Get Free Guide &amp; Start Learning &rarr;</button>
-          </form>
-          <div class="tr-enroll-success" id="tr-enroll-success" style="display:none;">
-            <div class="tr-success-icon">&#10003;</div>
-            <h3>You're enrolled!</h3>
-            <p>Your AI Starter Guide is downloading now. Scroll up to begin Module 1.</p>
-            <button class="tr-btn-outline" onclick="downloadStarterGuide()">Re-download Guide</button>
-          </div>
+    <!-- ===== Hero ===== -->
+    <section class="hub-hero" style="min-height:auto">
+      <canvas class="hub-hero-canvas" id="hub-hero-canvas" aria-hidden="true"></canvas>
+      <div class="hub-hero-fallback" aria-hidden="true"></div>
+      <div class="hub-hero-inner" style="padding-bottom:3.5rem">
+        <span class="hub-kicker">Training Hub</span>
+        <h1 class="hub-hero-title">Learn AI. Upskill your team. <span class="accent">Get certified.</span></h1>
+        <p class="hub-hero-sub">The H@rts Digital Hub Training Hub is our capacity-building product — free AI literacy for individuals, tailored cohorts for businesses, and a certified talent network in between. It lives at its own address: <strong>app.hartsdigitalhub.com</strong>.</p>
+        <div class="hub-hero-actions">
+          <a class="hub-cta" href="https://app.hartsdigitalhub.com" target="_blank" rel="noopener">Enter the Training Hub →</a>
         </div>
       </div>
     </section>
 
-    <!-- Lesson Modal -->
-    <div class="tr-lesson-backdrop" id="tr-lesson-backdrop" aria-hidden="true">
-      <div class="tr-lesson-modal" role="dialog" aria-modal="true" aria-labelledby="lesson-title">
-        <div class="tr-lesson-header">
-          <span class="tr-lesson-num" id="lesson-num-label">Module 1</span>
-          <button class="tr-lesson-close" onclick="closeLesson()" aria-label="Close lesson">&times;</button>
-        </div>
-        <h2 class="tr-lesson-title" id="lesson-title"></h2>
-        <div class="tr-lesson-content" id="lesson-content"></div>
-        <div class="tr-lesson-quiz" id="lesson-quiz" style="display:none;"></div>
-        <div class="tr-lesson-actions">
-          <button class="tr-btn-outline" onclick="closeLesson()">Back to Modules</button>
-          <button class="tr-btn-primary" id="lesson-complete-btn" onclick="completeLesson()">Mark as Complete &rarr;</button>
-        </div>
+    <!-- ===== Three tracks ===== -->
+    <section class="hub-section" id="tracks">
+      <div class="hub-section-head reveal">
+        <span class="hub-kicker">Three tracks, one hub</span>
+        <h2 class="hub-section-title">Whichever way you learn, it's in one place</h2>
+        <p class="hub-section-sub">Every track lives inside the Training Hub app — pick the one that fits and continue there.</p>
       </div>
-    </div>
+      <div class="hub-grid">
+        <article class="tilt-card reveal">
+          <span class="cap-index">01</span>
+          <h3 class="cap-title">Foundations</h3>
+          <p class="cap-text">A free, self-paced AI literacy course — 10 plain-language modules, a starter guide, and a certificate on completion. No technical background needed.</p>
+          <div class="cap-tags"><span class="cap-tag">Free</span><span class="cap-tag">Self-paced</span><span class="cap-tag">Bilingual EN·FR</span></div>
+          <div class="hub-hero-actions" style="margin-top:1.2rem">
+            <a class="hub-cta ghost" href="https://app.hartsdigitalhub.com/#foundations" target="_blank" rel="noopener">Start Foundations →</a>
+          </div>
+        </article>
+        <article class="tilt-card reveal">
+          <span class="cap-index">02</span>
+          <h3 class="cap-title">Corporate Upskilling</h3>
+          <p class="cap-text">Tailored cohorts that bring an existing team up to speed on the tools your business runs on — scoped to you, no fixed pricing published.</p>
+          <div class="cap-tags"><span class="cap-tag">Cohort-based</span><span class="cap-tag">By quote</span><span class="cap-tag">Online or on-site</span></div>
+          <div class="hub-hero-actions" style="margin-top:1.2rem">
+            <a class="hub-cta ghost" href="https://app.hartsdigitalhub.com/#corporate" target="_blank" rel="noopener">Request a Proposal →</a>
+          </div>
+        </article>
+        <article class="tilt-card reveal">
+          <span class="cap-index">03</span>
+          <h3 class="cap-title">Certification &amp; Talent Network</h3>
+          <p class="cap-text">Complete a track, earn a H@rts Digital Hub certificate, and join the talent network we draw on for client work.</p>
+          <div class="cap-tags"><span class="cap-tag">Certification</span><span class="cap-tag">Talent pipeline</span></div>
+          <div class="hub-hero-actions" style="margin-top:1.2rem">
+            <a class="hub-cta ghost" href="https://app.hartsdigitalhub.com/#talent" target="_blank" rel="noopener">Explore Talent Network →</a>
+          </div>
+        </article>
+      </div>
+    </section>
 
-    <!-- FAQ -->
-    <section class="tr-faq" id="faq-train">
-      <h2 class="tr-section-title">Frequently Asked Questions</h2>
+    <!-- ===== FAQ ===== -->
+    <section class="hub-section" id="faq-train">
+      <div class="hub-section-head reveal">
+        <span class="hub-kicker">FAQ</span>
+        <h2 class="hub-section-title">Quick questions</h2>
+      </div>
       <div class="tr-faq-list">
         <details class="tr-faq-item">
-          <summary>Is this course really free?</summary>
+          <summary>Is Foundations really free?</summary>
           <p>Yes — completely free. All 10 modules, the starter guide, and your certificate cost nothing. No credit card, no hidden fees.</p>
         </details>
         <details class="tr-faq-item">
-          <summary>Do I need a technical background?</summary>
-          <p>No. This course is written for everyone who can read and write. No coding, no maths, no prior experience needed.</p>
+          <summary>Do you train companies or teams?</summary>
+          <p>Yes — that's Corporate Upskilling. We scope a tailored cohort to your team and reply with a proposal on WhatsApp; no fixed pricing is published since every cohort is different.</p>
         </details>
         <details class="tr-faq-item">
-          <summary>How long does the full course take?</summary>
-          <p>Roughly 6–7 hours total across 10 modules. Go at your own pace — progress is saved automatically.</p>
-        </details>
-        <details class="tr-faq-item">
-          <summary>What is AI Governance and why is it in the course?</summary>
-          <p>AI Governance is about who controls AI, what rules exist, and what rights you have. We believe everyone — not just tech experts — should understand these rules. It's one of the most important modules.</p>
-        </details>
-        <details class="tr-faq-item">
-          <summary>Is the certificate recognised?</summary>
-          <p>It is a Harts certificate of completion. You can share it on LinkedIn or your CV to show employers and clients that you understand AI. Each certificate has a unique ID that can be verified.</p>
-        </details>
-        <details class="tr-faq-item">
-          <summary>Can I do this on my phone?</summary>
-          <p>Yes — fully mobile-friendly. No app to install.</p>
+          <summary>How do I verify a certificate?</summary>
+          <p>Every certificate carries an ID like <code>HDH-AI-XXXXXX</code>. Message us the ID on WhatsApp via <a href="https://app.hartsdigitalhub.com/verify.html" target="_blank" rel="noopener">the verification page</a> and we'll confirm it directly.</p>
         </details>
       </div>
     </section>
 
-    <!-- CTA -->
-    <section class="tr-cta-footer">
-      <h2>Ready to become AI-literate?</h2>
-      <p>Join learners across Africa building real AI skills with Harts.</p>
-      <a href="#enroll" class="tr-btn-primary">Enroll for Free &rarr;</a>
+    <!-- ===== CTA ===== -->
+    <section class="hub-section" id="cta">
+      <div class="hub-section-head reveal" style="text-align:center;max-width:640px;margin:0 auto">
+        <h2 class="hub-section-title">Ready to start?</h2>
+        <p class="hub-section-sub" style="margin:0 auto 1.5rem">Everything above happens inside the Training Hub app.</p>
+        <div class="hub-hero-actions" style="justify-content:center">
+          <a class="hub-cta" href="https://app.hartsdigitalhub.com" target="_blank" rel="noopener">Enter the Training Hub →</a>
+        </div>
+      </div>
     </section>
-
-    <!-- Certificate Canvas (hidden) -->
-    <canvas id="cert-canvas" style="display:none;" width="1200" height="840"></canvas>
 
   </main>
 
   <!-- Footer (injected by site-chrome.js) -->
   <footer id="site-footer"></footer>
 
-  <script src="training.js"></script>
-  <script src="site-chrome.js"></script>
+</div><!-- /hub-wrap -->
+
+<script src="hub.js"></script>
+<script src="site-chrome.js"></script>
 </body>
 </html>

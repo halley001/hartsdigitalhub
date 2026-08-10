@@ -76,6 +76,29 @@
   background: var(--border);
 }
 
+/* ── Track Nav (hero) ─────────────────────────────────────── */
+.tr-track-nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+.tr-track-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  text-decoration: none;
+  transition: border-color 0.18s, color 0.18s;
+}
+.tr-track-chip:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
 /* ── Buttons ──────────────────────────────────────────────── */
 .tr-btn-primary {
   display: inline-block;

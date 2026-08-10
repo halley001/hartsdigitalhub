@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "app.hartsdigitalhub.com" }],
+      "destination": "/training-hub.html"
+    }
+  ]
+}
