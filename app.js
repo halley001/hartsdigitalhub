@@ -1068,7 +1068,7 @@ function handleMomoPayment(rawText, lang) {
 // Calls our serverless endpoint to start a Campay collection, then polls for the result.
 async function initiatePayment(pkg, phone, lang) {
   try {
-    const res = await fetch('/api/pay/initiate', {
+    const res = await fetch('/api/pay/collect', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ package: pkg, phone, lead_id: currentLeadId, add_ons: selectedAddons })
@@ -1094,13 +1094,13 @@ async function initiatePayment(pkg, phone, lang) {
   }
 }
 
-// Polls /api/pay/status until the payment clears, fails, or times out.
+// Polls /api/pay/collect (GET) until the payment clears, fails, or times out.
 async function pollPaymentStatus(ref, lang, attempt) {
   const MAX_ATTEMPTS = 24; // ~2 minutes at 5s intervals
   const INTERVAL_MS = 5000;
 
   try {
-    const res = await fetch(`/api/pay/status?ref=${encodeURIComponent(ref)}`);
+    const res = await fetch(`/api/pay/collect?ref=${encodeURIComponent(ref)}`);
     const data = await res.json().catch(() => ({}));
     const status = (data.status || 'PENDING').toUpperCase();
 

@@ -1,17 +1,29 @@
-// POST /api/pay/initiate
-// Starts a Campay Mobile Money "collect" for a package SETUP fee.
-// The customer approves the USSD prompt on their phone; confirmation
-// arrives via /api/pay/webhook. Amount is computed server-side.
+// POST /api/pay/collect — starts a Campay Mobile Money "collect" for a package
+//   SETUP fee (was /api/pay/initiate). Confirmation arrives via /api/pay/webhook.
+// GET  /api/pay/collect?ref=<external_reference> — polls a collection's status
+//   (was /api/pay/status).
+//
+// Merged into one file (dispatched by req.method) to stay within the Vercel
+// Hobby plan's 12-serverless-function-per-deployment limit — adding
+// api/services.js as a 13th function pushed deploys over it. Safe to merge:
+// both directions are called only from our own client code (app.js's
+// initiatePayment/pollPaymentStatus, currently unreachable dead code kept for
+// when Campay goes to production) — unlike /api/pay/webhook.js, which is
+// Campay's registered external callback URL and is untouched.
 
 import {
   CAMPAY_BASE, SETUP_FEES_USD, ADDON_PRICES_USD, usdToXaf, getCampayToken, normalizePhone,
-  supabaseConfigured, sbInsert, sbUpdate
+  fetchCampayTransaction, supabaseConfigured, sbInsert, sbUpdate, sbSelectOne
 } from './_lib.js';
 import crypto from 'crypto';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method === 'POST') return handleInitiate(req, res);
+  if (req.method === 'GET') return handleStatus(req, res);
+  return res.status(405).json({ error: 'Method not allowed' });
+}
 
+async function handleInitiate(req, res) {
   if (!supabaseConfigured()) return res.status(500).json({ error: 'Payment store not configured' });
 
   const { package: pkg, phone, lead_id = null, add_ons = [] } = req.body || {};
@@ -92,5 +104,52 @@ export default async function handler(req, res) {
     console.error('initiate error:', e);
     await sbUpdate('payments', 'external_reference', external_reference, { status: 'FAILED' }).catch(() => {});
     return res.status(500).json({ error: 'Payment initiation failed' });
+  }
+}
+
+async function handleStatus(req, res) {
+  if (!supabaseConfigured()) return res.status(500).json({ error: 'Payment store not configured' });
+
+  const ref = req.query?.ref;
+  if (!ref) return res.status(400).json({ error: 'Missing ref' });
+
+  try {
+    const record = await sbSelectOne('payments', 'external_reference', ref);
+    if (!record) return res.status(404).json({ error: 'Not found' });
+
+    // Finalized already
+    if (record.status === 'SUCCESSFUL' || record.status === 'FAILED') {
+      return res.status(200).json({ status: record.status });
+    }
+
+    // Still pending and we have a gateway reference → live check
+    if (record.reference) {
+      try {
+        const txn = await fetchCampayTransaction(record.reference);
+        const trueStatus = (txn.status || '').toUpperCase();
+        const amountOk = Number(txn.amount) === Number(record.amount);
+        let finalStatus = 'PENDING';
+        if (trueStatus === 'SUCCESSFUL' && amountOk) finalStatus = 'SUCCESSFUL';
+        else if (trueStatus === 'FAILED' || (trueStatus === 'SUCCESSFUL' && !amountOk)) finalStatus = 'FAILED';
+
+        if (finalStatus !== 'PENDING') {
+          await sbUpdate('payments', 'external_reference', ref, {
+            status: finalStatus,
+            operator: txn.operator || null,
+            operator_reference: txn.operator_reference || null,
+            paid_at: finalStatus === 'SUCCESSFUL' ? new Date().toISOString() : null
+          });
+        }
+        return res.status(200).json({ status: finalStatus });
+      } catch (e) {
+        console.error('status live-check failed:', e);
+        return res.status(200).json({ status: 'PENDING' });
+      }
+    }
+
+    return res.status(200).json({ status: record.status || 'PENDING' });
+  } catch (e) {
+    console.error('status error:', e);
+    return res.status(500).json({ error: 'Status check failed' });
   }
 }
