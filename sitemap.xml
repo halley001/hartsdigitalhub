@@ -31,6 +31,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://hartsdigitalhub.com/privacy-policy.html</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://app.hartsdigitalhub.com/</loc>
     <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>

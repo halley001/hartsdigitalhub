@@ -313,7 +313,7 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).then(function () { cb && cb(true); })
+    }).then(function (res) { cb && cb(res.ok); })
       .catch(function () { cb && cb(false); });
   }
 

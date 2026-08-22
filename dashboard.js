@@ -507,7 +507,10 @@ async function onProfileSubmit(e) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, phone, country })
   });
-  if (!r.ok) return;
+  if (!r.ok) {
+    document.getElementById('err-profile-name').textContent = 'Something went wrong saving your profile — please try again.';
+    return;
+  }
   profile = await r.json();
   downloadStarterGuide();
   notifyViaWhatsApp(name, profile.email, phone, country);

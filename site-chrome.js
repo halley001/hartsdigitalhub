@@ -31,7 +31,8 @@
     { label: 'Pricing & SLAs',      href: 'index.html#pricing' },
     { label: 'About',               href: 'about.html' },
     { label: 'SME Packages',        href: 'services.html' },
-    { label: 'AI Training',         href: 'training.html' }
+    { label: 'AI Training',         href: 'training.html' },
+    { label: 'Privacy Policy',      href: 'privacy-policy.html' }
   ];
 
   function navHTML(page) {
