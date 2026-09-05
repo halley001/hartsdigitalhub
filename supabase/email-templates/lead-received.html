@@ -1,0 +1,71 @@
+<!--
+  H@rts — transactional: "we've got your request" (customer auto-reply)
+  PROPOSED. Nothing sends this yet. Today a visitor submits #lead-form or finishes
+  the chat lead flow, api/lead.js stores the row and alerts the team, and the
+  visitor receives nothing at all — the first thing they see is a WhatsApp message
+  from a number they don't recognise, possibly hours later.
+
+  Where it would live: api/_notify.js already holds a Resend client and is already
+  called by api/lead.js. Add a second send there, addressed to lead.email, guarded
+  on lead.email being present (the homepage form collects it; the chat flow does
+  not, so this only fires for form leads unless the chat starts asking for email).
+
+  Placeholders (substituted server-side, not Supabase template vars):
+    {{name}}     first name, or "there" when the form was submitted without one
+    {{service}}  the service they picked in the form
+    {{summary}}  what they typed, echoed back so they can see we read it
+  Subject: We've got your request, {{name}}
+-->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your request reached us. Here is what happens next and how quickly.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f4;margin:0;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e4e4e4;">
+
+      <tr><td style="padding:28px 32px 0 32px;">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.02em;color:#0a0a0a;">H@rts</span>
+        <div style="height:1px;line-height:1px;font-size:0;background:#0a0a0a;margin-top:18px;">&nbsp;</div>
+      </td></tr>
+
+      <tr><td style="padding:28px 32px 0 32px;color:#0a0a0a;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px;font-size:18px;font-weight:600;">We have your request, {{name}}</p>
+        <p style="margin:0 0 12px;">A person on our team reads every one of these — this is only here so you are not left wondering whether it arrived.</p>
+        <p style="margin:0 0 20px;">Expect a reply within one business day, on WhatsApp if you left a number, otherwise here. If it is urgent, message us directly and skip the queue.</p>
+      </td></tr>
+
+      <!-- Echoing their own words back is the single clearest signal that a human
+           will be reading this, rather than a form that swallowed it. -->
+      <tr><td style="padding:4px 32px 0 32px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-left:2px solid #0a0a0a;">
+          <tr><td style="padding:2px 0 2px 16px;color:#525252;font-size:14px;line-height:1.6;">
+            <p style="margin:0 0 4px;color:#8a8a8a;font-size:12px;text-transform:uppercase;letter-spacing:.08em;">What you sent us</p>
+            <p style="margin:0 0 6px;color:#0a0a0a;"><strong>{{service}}</strong></p>
+            <p style="margin:0;">{{summary}}</p>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <tr><td style="padding:24px 32px 0 32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#0a0a0a;">
+            <a href="https://wa.me/237622341343" style="display:inline-block;padding:14px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">Continue on WhatsApp</a>
+          </td>
+        </tr></table>
+      </td></tr>
+
+      <tr><td style="padding:22px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 18px;">Wrong details, or something you forgot to mention? Just reply to this email — it reaches the same person.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px 28px 32px;">
+        <div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;margin-bottom:16px;">&nbsp;</div>
+        <p style="margin:0;color:#8a8a8a;font-size:12px;line-height:1.7;">
+          Harts Digital Hub &middot; Douala, Cameroon &middot; Mon&ndash;Sat, 8am&ndash;6pm WAT<br>
+          <a href="mailto:support@hartsdigitalhub.com" style="color:#8a8a8a;">support@hartsdigitalhub.com</a> &middot;
+          <a href="https://wa.me/237622341343" style="color:#8a8a8a;">WhatsApp +237 622 341 343</a><br>
+          You are receiving this because you sent us a project request. We do not add this address to any list.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>

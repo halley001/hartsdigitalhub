@@ -1,0 +1,74 @@
+<!--
+  H@rts — transactional: certificate issued
+  PROPOSED. Nothing sends this yet.
+
+  Where it would live: api/trainee/progress.js, inside the branch that mints
+  patch.cert_id — that fires exactly once per trainee, when the tenth module
+  completes, so it cannot double-send on a repeated request.
+
+  This is the one email in the set the recipient is likely to keep and forward to
+  an employer, so the certificate ID and the public verify URL matter more than
+  anything else on the page. verify.html is already live and takes the ID.
+
+  Placeholders: {{name}} {{cert_id}} {{completed_at}}
+  Subject: Your H@rts certificate — {{cert_id}}
+-->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">All ten modules complete. Your certificate ID is {{cert_id}}.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f4;margin:0;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e4e4e4;">
+
+      <tr><td style="padding:28px 32px 0 32px;">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.02em;color:#0a0a0a;">H@rts</span>
+        <div style="height:1px;line-height:1px;font-size:0;background:#0a0a0a;margin-top:18px;">&nbsp;</div>
+      </td></tr>
+
+      <tr><td style="padding:28px 32px 0 32px;color:#0a0a0a;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px;font-size:18px;font-weight:600;">All ten modules, done</p>
+        <p style="margin:0 0 20px;">That is the whole course finished, {{name}}. Your certificate is issued and recorded against the ID below — anyone can check it is real without going through you.</p>
+      </td></tr>
+
+      <tr><td style="padding:4px 32px 0 32px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #0a0a0a;">
+          <tr><td align="center" style="padding:24px 16px;">
+            <p style="margin:0 0 8px;color:#8a8a8a;font-size:12px;text-transform:uppercase;letter-spacing:.08em;">Certificate ID</p>
+            <p style="margin:0 0 6px;color:#0a0a0a;font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;font-size:24px;letter-spacing:.08em;font-weight:700;">{{cert_id}}</p>
+            <p style="margin:0;color:#8a8a8a;font-size:13px;">Completed {{completed_at}}</p>
+          </td></tr>
+        </table>
+      </td></tr>
+
+      <tr><td style="padding:24px 32px 0 32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#0a0a0a;">
+            <a href="https://app.hartsdigitalhub.com/dashboard.html" style="display:inline-block;padding:14px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">Download your certificate</a>
+          </td>
+        </tr></table>
+      </td></tr>
+
+      <tr><td style="padding:22px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 8px;">Anyone can confirm it at
+          <a href="https://app.hartsdigitalhub.com/verify.html" style="color:#0a0a0a;">app.hartsdigitalhub.com/verify.html</a>
+          using the ID above — worth including both when you put this on a CV or send it to an employer.</p>
+        <p style="margin:0 0 18px;">The Training Hub stays open, so you can go back over any module whenever you want.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px;"><div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;">&nbsp;</div></td></tr>
+
+      <tr><td style="padding:20px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 8px;color:#0a0a0a;font-weight:600;">Certificat délivré</p>
+        <p style="margin:0 0 20px;">Les dix modules sont terminés. Votre identifiant de certificat est <span style="font-family:'SFMono-Regular',Consolas,monospace;color:#0a0a0a;">{{cert_id}}</span>, vérifiable par n&rsquo;importe qui sur app.hartsdigitalhub.com/verify.html.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px 28px 32px;">
+        <div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;margin-bottom:16px;">&nbsp;</div>
+        <p style="margin:0;color:#8a8a8a;font-size:12px;line-height:1.7;">
+          Harts Digital Hub &middot; Douala, Cameroon &middot; Mon&ndash;Sat, 8am&ndash;6pm WAT<br>
+          <a href="mailto:support@hartsdigitalhub.com" style="color:#8a8a8a;">support@hartsdigitalhub.com</a> &middot;
+          <a href="https://wa.me/237622341343" style="color:#8a8a8a;">WhatsApp +237 622 341 343</a>
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>

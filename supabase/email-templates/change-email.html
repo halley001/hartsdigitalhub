@@ -1,0 +1,54 @@
+<!--
+  H@rts — Supabase Auth → Email Templates → "Change Email Address"
+  Fires only if a trainee changes the address on their account. Supabase sends it
+  to BOTH the old and the new address, so the copy names both explicitly.
+  Variables: {{ .ConfirmationURL }}  {{ .Email }} (current)  {{ .NewEmail }} (requested)
+  Subject:   Confirm your new email address
+-->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Confirm the address change on your H@rts account.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f4;margin:0;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e4e4e4;">
+
+      <tr><td style="padding:28px 32px 0 32px;">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.02em;color:#0a0a0a;">H@rts</span>
+        <div style="height:1px;line-height:1px;font-size:0;background:#0a0a0a;margin-top:18px;">&nbsp;</div>
+      </td></tr>
+
+      <tr><td style="padding:28px 32px 0 32px;color:#0a0a0a;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px;font-size:18px;font-weight:600;">Confirm your new address</p>
+        <p style="margin:0 0 12px;">A request was made to move your H@rts account from <strong>{{ .Email }}</strong> to <strong>{{ .NewEmail }}</strong>.</p>
+        <p style="margin:0 0 20px;">Your course progress and certificate stay exactly as they are — only the sign-in address changes.</p>
+      </td></tr>
+
+      <tr><td style="padding:8px 32px 0 32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#0a0a0a;">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">Confirm the change</a>
+          </td>
+        </tr></table>
+      </td></tr>
+
+      <tr><td style="padding:22px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 18px;">If you did not request this, do not open the link — and tell us on WhatsApp so we can check the account.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px;"><div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;">&nbsp;</div></td></tr>
+
+      <tr><td style="padding:20px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 8px;color:#0a0a0a;font-weight:600;">Confirmez votre nouvelle adresse</p>
+        <p style="margin:0 0 20px;">Une demande a été faite pour déplacer votre compte de {{ .Email }} vers {{ .NewEmail }}. Votre progression et votre certificat sont conservés. Si vous n&rsquo;êtes pas à l&rsquo;origine de cette demande, n&rsquo;ouvrez pas le lien et prévenez-nous sur WhatsApp.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px 28px 32px;">
+        <div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;margin-bottom:16px;">&nbsp;</div>
+        <p style="margin:0;color:#8a8a8a;font-size:12px;line-height:1.7;">
+          Harts Digital Hub &middot; Douala, Cameroon &middot; Mon&ndash;Sat, 8am&ndash;6pm WAT<br>
+          <a href="mailto:support@hartsdigitalhub.com" style="color:#8a8a8a;">support@hartsdigitalhub.com</a> &middot;
+          <a href="https://wa.me/237622341343" style="color:#8a8a8a;">WhatsApp +237 622 341 343</a>
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>

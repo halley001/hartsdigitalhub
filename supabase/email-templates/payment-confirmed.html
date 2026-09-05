@@ -1,0 +1,85 @@
+<!--
+  H@rts — transactional: payment confirmed (customer receipt)
+  PROPOSED. Nothing sends this yet.
+
+  Where it would live: api/pay/webhook.js, at the exact point it writes
+  status = 'SUCCESSFUL' — and ONLY there. That branch already re-queries Campay
+  and reconciles the amount before it trusts the callback, which is precisely the
+  guarantee a receipt needs. Do not send from api/pay/collect.js: at that point the
+  payment is PENDING and a receipt would be a lie.
+
+  Note both currencies. We bill in USD and Campay collects XAF, so a customer who
+  sees only one of the two numbers cannot reconcile it against their MoMo SMS.
+
+  Placeholders: {{name}} {{package}} {{add_ons}} {{amount_usd}} {{amount_xaf}}
+                {{operator}} {{operator_reference}} {{paid_at}}
+  Subject: Payment received — {{package}} setup
+-->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">We received {{amount_xaf}} XAF for your {{package}} setup. Reference {{operator_reference}}.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f4;margin:0;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e4e4e4;">
+
+      <tr><td style="padding:28px 32px 0 32px;">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.02em;color:#0a0a0a;">H@rts</span>
+        <div style="height:1px;line-height:1px;font-size:0;background:#0a0a0a;margin-top:18px;">&nbsp;</div>
+      </td></tr>
+
+      <tr><td style="padding:28px 32px 0 32px;color:#0a0a0a;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px;font-size:18px;font-weight:600;">Payment received, {{name}}</p>
+        <p style="margin:0 0 20px;">Your {{package}} setup fee has cleared. Keep this email — it is your receipt, and the reference below is the one to quote if anything ever needs checking.</p>
+      </td></tr>
+
+      <tr><td style="padding:4px 32px 0 32px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e4e4e4;font-size:14px;line-height:1.6;">
+          <tr>
+            <td style="padding:12px 16px;color:#8a8a8a;width:180px;border-bottom:1px solid #f0f0f0;">Package</td>
+            <td style="padding:12px 16px;color:#0a0a0a;border-bottom:1px solid #f0f0f0;">{{package}}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 16px;color:#8a8a8a;border-bottom:1px solid #f0f0f0;">Add-ons</td>
+            <td style="padding:12px 16px;color:#0a0a0a;border-bottom:1px solid #f0f0f0;">{{add_ons}}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 16px;color:#8a8a8a;border-bottom:1px solid #f0f0f0;">Amount</td>
+            <td style="padding:12px 16px;color:#0a0a0a;border-bottom:1px solid #f0f0f0;">
+              <strong>{{amount_xaf}} XAF</strong> charged &middot; billed as ${{amount_usd}}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:12px 16px;color:#8a8a8a;border-bottom:1px solid #f0f0f0;">Paid with</td>
+            <td style="padding:12px 16px;color:#0a0a0a;border-bottom:1px solid #f0f0f0;">{{operator}} &middot; {{paid_at}}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 16px;color:#8a8a8a;">Reference</td>
+            <td style="padding:12px 16px;color:#0a0a0a;font-family:'SFMono-Regular',Consolas,monospace;">{{operator_reference}}</td>
+          </tr>
+        </table>
+      </td></tr>
+
+      <tr><td style="padding:24px 32px 0 32px;color:#0a0a0a;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 8px;font-weight:600;">What happens next</p>
+        <p style="margin:0 0 20px;color:#525252;font-size:14px;">Someone from the team messages you on WhatsApp within one business day to collect what we need to start — content, logo files, access to anything that already exists. Work begins as soon as that lands.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px 0 32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#0a0a0a;">
+            <a href="https://wa.me/237622341343" style="display:inline-block;padding:14px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">Message the team</a>
+          </td>
+        </tr></table>
+      </td></tr>
+
+      <tr><td style="padding:22px 32px 28px 32px;">
+        <div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;margin-bottom:16px;">&nbsp;</div>
+        <p style="margin:0;color:#8a8a8a;font-size:12px;line-height:1.7;">
+          Harts Digital Hub &middot; Douala, Cameroon &middot; Mon&ndash;Sat, 8am&ndash;6pm WAT<br>
+          <a href="mailto:support@hartsdigitalhub.com" style="color:#8a8a8a;">support@hartsdigitalhub.com</a> &middot;
+          <a href="https://wa.me/237622341343" style="color:#8a8a8a;">WhatsApp +237 622 341 343</a><br>
+          Does this payment look wrong to you? Reply to this email and we will check it against the gateway record.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>

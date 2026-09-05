@@ -42,7 +42,7 @@ const I18N = {
     'chat.send': 'Send',
     'chat.human': 'Talk to a real person',
     'chat.suggestions': 'Quick questions',
-    'chat.welcome': 'Hi! This is H@rts, your Harts Digital Hub AI assistant. How can we help you today?\n\nWe can help with custom websites, mobile apps, logos, flyers, branding, social media, and other digital services. Flexible payment options available.'
+    'chat.welcome': 'Hi — H@rts here.\n\nMost people land here with something specific in mind: customer messages going unanswered, a system held together by spreadsheets, or a business that\'s just hard to find online.\n\nWhat brings you in today?'
   },
   fr: {
     'pricing.title': 'Forfaits Numériques',
@@ -77,7 +77,7 @@ const I18N = {
     'chat.send': 'Envoyer',
     'chat.human': 'Parler à un vrai conseiller',
     'chat.suggestions': 'Questions rapides',
-    'chat.welcome': 'Bonjour ! Ici H@rts, votre assistant IA de Harts Digital Hub. Comment pouvons-nous vous aider aujourd\'hui ?\n\nNous pouvons vous aider pour des sites web personnalisés, des applications mobiles, des logos, des flyers, du branding, des réseaux sociaux et d\'autres services numériques. Options de paiement flexibles disponibles.'
+    'chat.welcome': 'Bonjour — ici H@rts.\n\nLa plupart des visiteurs arrivent avec un problème précis : des messages clients sans réponse, un système qui tient avec des tableurs, ou une activité difficile à trouver en ligne.\n\nQu\'est-ce qui vous amène aujourd\'hui ?'
   }
 };
 
@@ -88,6 +88,11 @@ let awaitingLeadField = null; // 'name' | 'business' | 'phone' | 'city' | 'packa
 let lastTopic = null;
 let currentStage = 'discovery'; // discovery | selection | details | payment | review
 let selectedPackage = null;
+// Did the visitor NAME a package, or did the router infer one from context?
+// "I need a website" anchors on Growth so follow-up questions have something to
+// resolve against — but an inferred pick must never turn into an order on its
+// own. Anything that commits to a package (the lead flow) checks this first.
+let packageInferred = false;
 let selectedPayment = null; // 'full' | 'installments'
 let awaitingMomoNumber = false; // true while we wait for the customer's MoMo number to charge the setup fee
 let awaitingAddons = false; // true while we offer optional add-ons before payment
@@ -125,6 +130,42 @@ const FALLBACK_ENTERPRISE = {
       fr: 'Nous concevons des chatbots IA qui répondent aux clients, vérifient votre base de données en direct, engagent les prospects et transfèrent à un humain au bon moment — sur WhatsApp, votre site web, ou tout autre canal utilisé par vos clients, intégrés à des systèmes nouveaux ou déjà existants (CRM, ERP, POS).'
     },
     tags: ['WhatsApp', 'Website Chat', 'CRM / ERP Sync']
+  },
+  custom_software: {
+    name: { en: 'Custom Software & Web Systems', fr: 'Logiciels & Systèmes Web sur Mesure' },
+    tagline: {
+      en: 'The system your business actually runs on — built around how you work, not the other way round.',
+      fr: 'Le système sur lequel votre entreprise tourne vraiment — conçu autour de votre façon de travailler, et non l\'inverse.'
+    },
+    desc: {
+      en: 'When spreadsheets, WhatsApp groups and off-the-shelf tools stop holding things together, we build the system that replaces them: stock and inventory engines, ERPs, admin dashboards, booking and order platforms, internal tools. We start by mapping how your team works today, then build only what earns its place.',
+      fr: 'Quand les tableurs, les groupes WhatsApp et les outils génériques ne suffisent plus, nous construisons le système qui les remplace : gestion de stock, ERP, tableaux de bord, plateformes de réservation ou de commandes, outils internes. Nous commençons par cartographier votre façon de travailler, puis nous construisons uniquement ce qui est utile.'
+    },
+    tags: ['ERP / Inventory', 'Admin Dashboards', 'Internal Tools', 'Booking & Orders']
+  },
+  cloud_database: {
+    name: { en: 'Cloud & Database Architecture', fr: 'Architecture Cloud & Base de Données' },
+    tagline: {
+      en: 'For when the system works — until it gets busy.',
+      fr: 'Pour quand le système fonctionne — jusqu\'à ce qu\'il y ait du monde.'
+    },
+    desc: {
+      en: 'We diagnose why things are slow, falling over, or costing more than they should, then fix it properly: query and performance optimisation, database redesign, zero-downtime migrations off whatever you\'re on now, and infrastructure that scales with your traffic instead of against it.',
+      fr: 'Nous diagnostiquons pourquoi c\'est lent, instable ou trop coûteux, puis nous corrigeons en profondeur : optimisation des requêtes et des performances, refonte de base de données, migrations sans interruption, et infrastructure qui évolue avec votre trafic.'
+    },
+    tags: ['Performance Tuning', 'Zero-Downtime Migration', 'Scalable Infrastructure']
+  },
+  managed_it: {
+    name: { en: 'Managed IT & SLA Retainers', fr: 'Infogérance & Contrats SLA' },
+    tagline: {
+      en: 'Someone whose job it is to keep your systems running — so it stops being yours.',
+      fr: 'Quelqu\'un dont le métier est de maintenir vos systèmes — pour que ce ne soit plus le vôtre.'
+    },
+    desc: {
+      en: 'A monthly retainer covering monitoring, updates, backups, security patching and a real response-time commitment when something breaks. Three tiers: Standard ($125/mo), Priority ($400/mo) and Enterprise (scoped to you). Most clients move onto a retainer once we\'ve launched their build.',
+      fr: 'Un forfait mensuel couvrant la supervision, les mises à jour, les sauvegardes, les correctifs de sécurité et un vrai engagement de délai de réponse en cas de panne. Trois niveaux : Standard (125$/mois), Priority (400$/mois) et Enterprise (sur mesure). La plupart de nos clients passent au forfait après le lancement.'
+    },
+    tags: ['Standard $125/mo', 'Priority $400/mo', 'Enterprise (custom)']
   }
 };
 
@@ -304,7 +345,11 @@ async function hydrateCatalogFromKB() {
     if (!res.ok) throw new Error(`status ${res.status}`);
     const data = await res.json();
     const normalized = normalizeCatalog(data);
-    if (applyIfPresent(normalized)) {
+    // The same endpoint carries the FAQ rows — the Hobby plan caps this project
+    // at 12 serverless functions and we are at exactly 12, so /api/services
+    // serves both rather than there being a /api/faq.
+    const gotFaq = mergeFAQFromKB(data.faqs);
+    if (applyIfPresent(normalized) || gotFaq) {
       try { localStorage.setItem(KB_CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now() })); } catch (e) { /* ignore */ }
     }
     return;
@@ -316,6 +361,7 @@ async function hydrateCatalogFromKB() {
     const cached = JSON.parse(localStorage.getItem(KB_CACHE_KEY) || 'null');
     if (cached && (Date.now() - cached.fetchedAt) < KB_CACHE_MAX_AGE_MS) {
       applyIfPresent(normalizeCatalog(cached.data));
+      mergeFAQFromKB(cached.data && cached.data.faqs);
     }
   } catch (e) { /* ignore — FALLBACK_* stays in effect */ }
 }
@@ -363,6 +409,321 @@ const KNOWLEDGE = {
   }
 };
 
+// ── FAQ knowledge base ────────────────────────────────────────
+// The bundled tier of the same three-tier pattern the service catalog uses:
+// live KB (/api/services → the `faq` table) → localStorage cache → this array.
+// These are the questions that come up on almost every conversation, kept here
+// so they are answerable on the first keystroke and with the network down.
+//
+// EVERY answer below is grounded in something this repo already states —
+// services.html (process, ownership, what we build), training.html (Foundations
+// is free, 10 modules, certificates, corporate cohorts), the service catalog, or
+// marketing/faq-knowledge-base-100.md. Nothing here is invented policy. Questions
+// we cannot answer from those sources are listed in marketing/faq-gaps.md instead
+// of being guessed at, because a confident wrong answer about who owns a website
+// or who pays a fee is worse than no answer at all.
+//
+// `kw` carries words the question phrasing itself doesn't contain but a visitor
+// is likely to use. Matching is scored, not regex — see matchFAQ().
+const FALLBACK_FAQ = [
+  // ── Web building ──
+  { id: 'own', cat: 'web', kw: ['own', 'ownership', 'owns', 'mine', 'code', 'files', 'source', 'propriétaire', 'appartient'],
+    q: { en: 'Who owns the website once it is built?',
+         fr: 'À qui appartient le site une fois terminé ?' },
+    a: { en: 'You do. On a one-time Build & Launch project everything is yours outright — the site, the files, the accounts. On a managed package it is still your site; the difference is that we keep running it for you rather than handing you the keys and walking off.',
+         fr: 'À vous. Sur un projet Création & Mise en ligne, tout vous appartient — le site, les fichiers, les comptes. Sur un forfait géré, le site reste le vôtre ; la différence est que nous continuons à le faire tourner pour vous au lieu de vous remettre les clés et de disparaître.' } },
+
+  { id: 'process', cat: 'web', kw: ['process', 'steps', 'work', 'how', 'start', 'processus', 'étapes', 'déroule'],
+    q: { en: 'How does the process work from start to launch?',
+         fr: 'Comment se déroule un projet du début à la mise en ligne ?' },
+    a: { en: 'Four steps, all remote over WhatsApp. First you tell us what you do and what you need, and we recommend a package. Then we confirm scope, price and payment plan in writing. Then we design and build, and you review and approve — in plain language, no jargon. Then we go live, and managed packages keep getting support after that.',
+         fr: 'Quatre étapes, à distance sur WhatsApp. Vous nous dites ce que vous faites et ce dont vous avez besoin, et nous recommandons un forfait. Nous confirmons ensuite le périmètre, le prix et le plan de paiement par écrit. Nous concevons et développons, vous relisez et validez — en langage clair. Puis nous mettons en ligne, et les forfaits gérés continuent d\'être suivis ensuite.' } },
+
+  { id: 'skills', cat: 'web', kw: ['technical', 'skills', 'know', 'complicated', 'difficult', 'technique', 'compétences', 'compliqué'],
+    q: { en: 'Do I need any technical skills?',
+         fr: 'Faut-il des compétences techniques ?' },
+    a: { en: 'None. We handle design, development, content, launch and ongoing support. You share what your business does and approve the work — that is the whole of your side of it.',
+         fr: 'Aucune. Nous gérons la conception, le développement, le contenu, la mise en ligne et le support. Vous nous expliquez votre activité et vous validez le travail — c\'est tout ce qui vous incombe.' } },
+
+  { id: 'timeline', cat: 'web', kw: ['long', 'time', 'timeline', 'ready', 'fast', 'quickly', 'delay', 'temps', 'délai', 'prêt', 'rapidement'],
+    q: { en: 'How long does a website take to build?',
+         fr: 'Combien de temps prend la création d\'un site ?' },
+    a: { en: 'A simple site or a branding job is usually ready in 5 to 10 days. A full website or a web app is more like 2 to 4 weeks, depending on how complex it is and how quickly you get us your content — that second part is genuinely the usual bottleneck.',
+         fr: 'Un site simple ou un travail de branding est prêt en 5 à 10 jours en général. Un site complet ou une application web, plutôt 2 à 4 semaines, selon la complexité et la vitesse à laquelle vous nous fournissez le contenu — c\'est honnêtement ce qui ralentit le plus souvent.' } },
+
+  { id: 'ecommerce', cat: 'web', kw: ['sell', 'shop', 'store', 'ecommerce', 'checkout', 'payment', 'online', 'vendre', 'boutique', 'paiement'],
+    q: { en: 'Can I sell products online?',
+         fr: 'Puis-je vendre mes produits en ligne ?' },
+    a: { en: 'Yes — a store with a product catalogue and checkout, built for the local market. That sits in the Pro package, or as a scoped one-time build if you would rather not have a yearly fee.',
+         fr: 'Oui — une boutique avec catalogue produits et paiement, pensée pour le marché local. C\'est dans le forfait Pro, ou en projet ponctuel chiffré si vous préférez éviter un abonnement annuel.' } },
+
+  { id: 'mobile', cat: 'web', kw: ['mobile', 'phone', 'responsive', 'téléphone', 'portable'],
+    q: { en: 'Will the site work properly on phones?',
+         fr: 'Le site fonctionnera-t-il bien sur téléphone ?' },
+    a: { en: 'Yes, and it is designed that way from the start rather than checked at the end. Most of your customers will arrive on a phone, so that is the version that gets the attention.',
+         fr: 'Oui, et c\'est pensé ainsi dès le départ, pas vérifié à la fin. La plupart de vos clients arriveront depuis un téléphone : c\'est cette version qui reçoit le plus d\'attention.' } },
+
+  { id: 'seo', cat: 'web', kw: ['seo', 'google', 'search', 'found', 'ranking', 'référencement', 'trouver', 'recherche'],
+    q: { en: 'Will people be able to find us on Google?',
+         fr: 'Est-ce que les clients nous trouveront sur Google ?' },
+    a: { en: 'Basic SEO is included from the Essential package upward, and every package sets up your Google Business listing — which for most local businesses is what actually brings people in. We will not promise you a number one ranking; anyone who does is guessing.',
+         fr: 'Le SEO de base est inclus à partir du forfait Essentiel, et tous les forfaits configurent votre fiche Google Business — ce qui, pour la plupart des commerces locaux, est ce qui amène réellement des clients. Nous ne promettons pas une première place : quiconque le fait devine.' } },
+
+  { id: 'update', cat: 'web', kw: ['update', 'change', 'edit', 'myself', 'manage', 'maintain', 'modifier', 'mettre', 'jour', 'gérer'],
+    q: { en: 'Can I update the website myself afterwards?',
+         fr: 'Puis-je modifier le site moi-même ensuite ?' },
+    a: { en: 'On a one-time build, yes — training on how to manage what we hand over is part of the project. On a managed package you can, but you do not have to: changes are part of what you are already paying for.',
+         fr: 'Sur un projet ponctuel, oui — la formation à la gestion de ce que nous livrons fait partie du projet. Sur un forfait géré, vous pouvez, mais ce n\'est pas nécessaire : les modifications font partie de ce que vous payez déjà.' } },
+
+  { id: 'existing_site', cat: 'web', kw: ['already', 'existing', 'have', 'redesign', 'rebuild', 'déjà', 'existant', 'refonte'],
+    q: { en: 'We already have a website — can you work with it?',
+         fr: 'Nous avons déjà un site — pouvez-vous travailler dessus ?' },
+    a: { en: 'Usually yes. If it works and you just want something added — a chatbot, a booking flow, a store — we build onto what is there rather than starting again. If it is fighting you more than helping, we will say so plainly instead of quietly charging you to patch it.',
+         fr: 'En général oui. S\'il fonctionne et que vous voulez seulement ajouter quelque chose — un chatbot, un système de réservation, une boutique — nous construisons dessus plutôt que de tout refaire. S\'il vous handicape plus qu\'il ne vous aide, nous vous le dirons franchement.' } },
+
+  // ── AI chatbots & automation ──
+  { id: 'bot_does', cat: 'ai', kw: ['chatbot', 'bot', 'does', 'capable', 'features', 'fait', 'capable'],
+    q: { en: 'What can the chatbot actually do?',
+         fr: 'Que peut réellement faire le chatbot ?' },
+    a: { en: 'It answers customer questions in real time, checks your live prices or availability, qualifies leads, takes bookings, and hands the conversation to a person the moment it needs one. The chat window is just the surface — the value is that it is wired into your actual data.',
+         fr: 'Il répond aux clients en temps réel, vérifie vos prix ou disponibilités en direct, qualifie les prospects, prend des réservations, et passe la main à un humain dès que c\'est nécessaire. La fenêtre de chat n\'est que la surface — la valeur vient du fait qu\'il est branché sur vos vraies données.' } },
+
+  { id: 'bot_unknown', cat: 'ai', kw: ['wrong', 'mistake', 'know', 'unsure', 'hallucinate', 'made', 'faux', 'erreur', 'invente'],
+    q: { en: 'What happens if the bot does not know the answer?',
+         fr: 'Que se passe-t-il si le bot ne connaît pas la réponse ?' },
+    a: { en: 'It says so and hands over to a person. We would rather it admit it does not know than give your customer bad information — that is a deliberate design choice, and it is grounded in your real business data rather than free-styling.',
+         fr: 'Il le dit et passe la main à un humain. Nous préférons qu\'il admette ne pas savoir plutôt que de donner une mauvaise information à votre client — c\'est un choix délibéré, et il s\'appuie sur vos vraies données plutôt que d\'improviser.' } },
+
+  { id: 'replace_staff', cat: 'ai', kw: ['replace', 'staff', 'job', 'employee', 'team', 'fire', 'remplacer', 'employé', 'équipe', 'personnel'],
+    q: { en: 'Will it replace my staff?',
+         fr: 'Est-ce que ça va remplacer mon personnel ?' },
+    a: { en: 'No. It takes the repetitive first-contact work — the twentieth "what does it cost" of the day — so your team spends its time on the conversations that actually need a person. It is a floor under your response times, not a replacement for judgement.',
+         fr: 'Non. Il prend en charge le premier contact répétitif — le vingtième « c\'est combien » de la journée — pour que votre équipe consacre son temps aux échanges qui exigent vraiment quelqu\'un. C\'est un filet sous vos délais de réponse, pas un remplacement du jugement humain.' } },
+
+  { id: 'concurrent', cat: 'ai', kw: ['many', 'same', 'once', 'simultaneous', 'volume', 'busy', 'plusieurs', 'même', 'temps', 'simultané'],
+    q: { en: 'Can it handle several conversations at the same time?',
+         fr: 'Peut-il gérer plusieurs conversations en même temps ?' },
+    a: { en: 'Yes, and that is one of the bigger wins. A person answers one customer at a time; the bot handles dozens at once without anyone sitting in a queue.',
+         fr: 'Oui, et c\'est l\'un des gains les plus nets. Une personne répond à un client à la fois ; le bot en gère des dizaines simultanément sans que personne n\'attende.' } },
+
+  { id: 'languages', cat: 'ai', kw: ['language', 'french', 'english', 'bilingual', 'langue', 'français', 'anglais', 'bilingue'],
+    q: { en: 'Can the bot talk to customers in French and English?',
+         fr: 'Le bot parle-t-il français et anglais ?' },
+    a: { en: 'Both, out of the box — it replies in whichever language the customer writes in. Other languages can be added depending on who your customers are.',
+         fr: 'Les deux, nativement — il répond dans la langue utilisée par le client. D\'autres langues peuvent être ajoutées selon votre clientèle.' } },
+
+  { id: 'integrations', cat: 'ai', kw: ['crm', 'erp', 'pos', 'integrate', 'integration', 'connect', 'existing', 'intégrer', 'connecter'],
+    q: { en: 'Can it connect to the CRM or system we already use?',
+         fr: 'Peut-il se connecter au CRM ou au système que nous utilisons déjà ?' },
+    a: { en: 'That is specifically how we build — into what you already run, not asking you to switch tools. Tell us the name of the system and we will tell you honestly whether it is straightforward or messy before you commit to anything.',
+         fr: 'C\'est précisément notre façon de faire — dans ce que vous utilisez déjà, sans vous demander de changer d\'outil. Donnez-nous le nom du système et nous vous dirons franchement si c\'est simple ou compliqué avant tout engagement.' } },
+
+  { id: 'review_before', cat: 'ai', kw: ['review', 'approve', 'control', 'before', 'live', 'test', 'valider', 'relire', 'avant'],
+    q: { en: 'Can we see what the bot says before it goes live?',
+         fr: 'Peut-on voir ce que dit le bot avant la mise en ligne ?' },
+    a: { en: 'Yes — we walk through sample conversations with you before launch, and you can ask for changes to tone or wording at any point after it is running.',
+         fr: 'Oui — nous parcourons des exemples de conversations avec vous avant le lancement, et vous pouvez demander des ajustements de ton ou de formulation à tout moment ensuite.' } },
+
+  { id: 'after_hours', cat: 'ai', kw: ['night', 'hours', 'weekend', 'closed', 'sleep', 'nuit', 'weekend', 'fermé', 'heures'],
+    q: { en: 'What about messages that come in at night or on weekends?',
+         fr: 'Et les messages reçus la nuit ou le week-end ?' },
+    a: { en: 'They get answered straight away instead of waiting until morning. That gap is where most businesses quietly lose people — someone who does not hear back within about ten minutes usually messages the next business on the list.',
+         fr: 'Ils reçoivent une réponse immédiate au lieu d\'attendre le lendemain. C\'est dans ce vide que la plupart des entreprises perdent des clients sans s\'en rendre compte — quelqu\'un sans réponse en dix minutes écrit en général au concurrent suivant.' } },
+
+  { id: 'data_safe', cat: 'ai', kw: ['data', 'safe', 'privacy', 'secure', 'sell', 'share', 'gdpr', 'données', 'sécurité', 'confidentialité', 'vendre'],
+    q: { en: 'Is our customer data safe, and do you sell it?',
+         fr: 'Nos données clients sont-elles en sécurité, et les vendez-vous ?' },
+    a: { en: 'Your data is yours and we never sell or share it — we use it to run the system you are paying for, nothing else. It sits on secure cloud infrastructure with access locked down server-side; the chatbot never gets direct access to your database, and nothing is exposed publicly.',
+         fr: 'Vos données vous appartiennent et nous ne les vendons ni ne les partageons jamais — elles servent uniquement à faire fonctionner le système que vous payez. Elles sont hébergées sur une infrastructure cloud sécurisée, avec les accès verrouillés côté serveur ; le chatbot n\'a jamais d\'accès direct à votre base, et rien n\'est exposé publiquement.' } },
+
+  // ── Training ──
+  { id: 'training_free', cat: 'training', kw: ['training', 'course', 'free', 'cost', 'learn', 'formation', 'cours', 'gratuit', 'apprendre'],
+    q: { en: 'Is the AI training course really free?',
+         fr: 'La formation IA est-elle vraiment gratuite ?' },
+    a: { en: 'Completely free. All ten modules, the starter guide and your certificate cost nothing — no card, no hidden fee. It is called Foundations and it lives in the Training Hub at app.hartsdigitalhub.com.',
+         fr: 'Entièrement gratuite. Les dix modules, le guide de démarrage et le certificat ne coûtent rien — pas de carte bancaire, pas de frais cachés. Elle s\'appelle Foundations et se trouve dans l\'espace de formation, sur app.hartsdigitalhub.com.' } },
+
+  { id: 'training_length', cat: 'training', kw: ['modules', 'lessons', 'long', 'pace', 'schedule', 'modules', 'leçons', 'rythme', 'durée'],
+    q: { en: 'How long is the course and how is it structured?',
+         fr: 'Combien de temps dure le cours et comment est-il structuré ?' },
+    a: { en: 'Ten plain-language modules, self-paced — you go at your own speed and pick up where you left off. No fixed start date and no deadline to miss.',
+         fr: 'Dix modules en langage clair, à votre rythme — vous avancez comme vous voulez et reprenez où vous en étiez. Pas de date de début imposée ni d\'échéance à manquer.' } },
+
+  { id: 'training_cert', cat: 'training', kw: ['certificate', 'certification', 'diploma', 'verify', 'proof', 'certificat', 'diplôme', 'vérifier', 'preuve'],
+    q: { en: 'Do I get a certificate, and can an employer check it?',
+         fr: 'Est-ce que je reçois un certificat, et un employeur peut-il le vérifier ?' },
+    a: { en: 'Yes — finish all ten modules and a certificate is issued with an ID in the form HDH-AI-XXXXXXXX. Anyone can check that ID is genuine at app.hartsdigitalhub.com/verify.html, or by messaging it to us on WhatsApp, so an employer never has to take your word for it.',
+         fr: 'Oui — terminez les dix modules et un certificat est délivré avec un identifiant de la forme HDH-AI-XXXXXXXX. N\'importe qui peut vérifier cet identifiant sur app.hartsdigitalhub.com/verify.html, ou en nous l\'envoyant sur WhatsApp : un employeur n\'a donc jamais à vous croire sur parole.' } },
+
+  { id: 'training_background', cat: 'training', kw: ['background', 'beginner', 'experience', 'qualification', 'coding', 'niveau', 'débutant', 'expérience'],
+    q: { en: 'Do I need a technical background to take the course?',
+         fr: 'Faut-il un bagage technique pour suivre la formation ?' },
+    a: { en: 'No. It is written in plain language for people with no technical background — that is the entire point of calling it Foundations.',
+         fr: 'Non. Elle est rédigée en langage clair pour des personnes sans bagage technique — c\'est précisément le sens du nom Foundations.' } },
+
+  { id: 'training_corporate', cat: 'training', kw: ['team', 'company', 'staff', 'corporate', 'cohort', 'upskill', 'équipe', 'entreprise', 'salariés'],
+    q: { en: 'Do you train whole teams or companies?',
+         fr: 'Formez-vous des équipes ou des entreprises entières ?' },
+    a: { en: 'Yes — that is Corporate Upskilling: a cohort scoped to your team and the tools your business actually runs on. There is no published price because no two cohorts are the same; tell us the team size and what they need to be able to do, and we come back with a proposal.',
+         fr: 'Oui — c\'est le programme Corporate Upskilling : une cohorte adaptée à votre équipe et aux outils que votre entreprise utilise réellement. Aucun prix n\'est publié car aucune cohorte ne se ressemble ; dites-nous la taille de l\'équipe et l\'objectif, et nous revenons avec une proposition.' } },
+
+  { id: 'training_signin', cat: 'training', kw: ['login', 'signin', 'password', 'account', 'register', 'enrol', 'enroll', 'connexion', 'compte', 'inscrire', 'mot'],
+    q: { en: 'How do I sign in to the Training Hub?',
+         fr: 'Comment se connecter à l\'espace de formation ?' },
+    a: { en: 'With your email address — there is no password to create or forget. You enter your email at app.hartsdigitalhub.com, we send a sign-in link, and opening it puts you straight into the course.',
+         fr: 'Avec votre adresse e-mail — aucun mot de passe à créer ni à oublier. Vous saisissez votre e-mail sur app.hartsdigitalhub.com, nous envoyons un lien de connexion, et l\'ouvrir vous amène directement dans le cours.' } },
+
+  { id: 'training_network', cat: 'training', kw: ['talent', 'network', 'job', 'hire', 'work', 'career', 'talents', 'réseau', 'emploi', 'recrut'],
+    q: { en: 'What is the talent network?',
+         fr: 'Qu\'est-ce que le réseau de talents ?' },
+    a: { en: 'Finish a track and you can join the pool we draw on for client work. It is not a job guarantee and we will not pretend otherwise — it is a real list that real projects get staffed from.',
+         fr: 'Terminez un parcours et vous pouvez rejoindre le vivier dans lequel nous puisons pour les projets clients. Ce n\'est pas une garantie d\'emploi et nous ne prétendrons pas le contraire — c\'est une vraie liste, utilisée pour de vrais projets.' } }
+];
+
+let FAQ = FALLBACK_FAQ;
+
+// Words carrying no signal for matching. Kept small on purpose: an over-eager
+// stopword list strips the very words that separate two similar questions.
+const FAQ_STOPWORDS = new Set([
+  'the','and','you','your','our','for','are','can','does','did','will','with','that','this','what','how','why','who','when',
+  'have','has','was','were','from','they','them','there','their','about','would','could','should','into','than','then',
+  'just','like','get','got','want','need','tell','know','some','any','all','not','but','its','it','is','a','i','we','us','do',
+  'les','des','une','uns','vous','nous','votre','vos','notre','nos','pour','avec','que','qui','quoi','est','sont','dans',
+  'sur','pas','plus','par','mais','ils','elle','elles','cela','ceci','ces','cette','ce','du','de','la','le','un','et','en'
+]);
+
+function faqTokens(str) {
+  return String(str)
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')   // accents never block a match: cafe === café
+    .match(/[a-z0-9]+/g) || [];
+}
+
+// Vocabulary index, rebuilt whenever the FAQ array is replaced by the KB. `rare`
+// counts how many entries each token appears in: a token belonging to exactly one
+// question ("ownership", "certificate", "process") is a strong enough signal to
+// match on its own, which a flat two-word minimum would throw away.
+let faqIndex = null;
+let faqIndexFor = null;
+
+function buildFAQIndex() {
+  const rare = new Map();
+  const entries = FAQ.map(item => {
+    // Per language, NOT merged. Merging them meant an English question was scored
+    // for coverage against English + French vocabulary combined, so every English
+    // match was diluted by French words it could never contain: "who owns the
+    // website once you build it" scored 0.53 instead of 0.75 and lost its match.
+    const qsOf = (s) => new Set(faqTokens(s || '').filter(t => t.length > 2 && !FAQ_STOPWORDS.has(t)));
+    const qByLang = { en: qsOf(item.q && item.q.en), fr: qsOf(item.q && item.q.fr) };
+    const qTokens = new Set([...qByLang.en, ...qByLang.fr]);
+    const kwTokens = new Set(
+      faqTokens((item.kw || []).join(' ')).filter(t => t.length > 2 && !FAQ_STOPWORDS.has(t))
+    );
+    const all = new Set([...qTokens, ...kwTokens]);
+    all.forEach(t => rare.set(t, (rare.get(t) || 0) + 1));
+    return { item, qTokens, qByLang, kwTokens, all };
+  });
+  faqIndex = { entries, rare };
+  faqIndexFor = FAQ;
+}
+
+// Scored match rather than another 100 regex branches. Precision matters far more
+// than recall: a wrong canned answer is worse than falling through to the LLM,
+// which at least reads the whole conversation. Hence the two admission rules
+// below — and the negative tests that go with them, which matter more than the
+// positive ones.
+function matchFAQ(text, lang) {
+  if (!FAQ.length) return null;
+  if (faqIndexFor !== FAQ || !faqIndex) buildFAQIndex();
+
+  // One content word is enough when it is a unique authored keyword — "do i get
+  // a certificate" reduces to a single token once stopwords go, and refusing to
+  // match it would be absurd. The solo-keyword rule below still has to clear.
+  const asked = faqTokens(text).filter(t => t.length > 2 && !FAQ_STOPWORDS.has(t));
+  if (!asked.length) return null;
+  const askedSet = new Set(asked);
+
+  let best = null;
+  let bestScore = 0;
+
+  for (const entry of faqIndex.entries) {
+    const item = entry.item;
+    const answer = (item.a && item.a[lang]) || null;
+    // No translation for this language → deliberately fall through to the LLM,
+    // which answers in the visitor's language, rather than replying in English.
+    if (!answer) continue;
+    if (!entry.qTokens.size) continue;
+
+    let hits = 0;
+    let uniqueHit = false;
+    entry.all.forEach(t => {
+      if (!askedSet.has(t)) return;
+      hits++;
+      // A single word can carry a match on its own, but ONLY if it is a
+      // hand-authored keyword that occurs nowhere else in the KB. Allowing any
+      // unique word from the question sentence was too loose: "can you build us
+      // an inventory system" matched the website-timeline entry on the stray
+      // word "build", and "losing customers at night" matched the languages
+      // entry on "customers". Keywords are deliberate; sentence words are not.
+      if (t.length >= 5 && entry.kwTokens.has(t) && faqIndex.rare.get(t) === 1) uniqueHit = true;
+    });
+    // A lone keyword may carry the match only if it accounts for a real share of
+    // what was typed. Without this, one stray word decided a long sentence:
+    // "my restaurant is losing customers at night" matched the after-hours entry
+    // on "night" alone, when the visitor was describing a problem, not asking a
+    // question about opening hours.
+    if (hits < 2 && !(uniqueHit && hits / askedSet.size >= 0.33)) continue;
+
+    // Coverage is measured against the QUESTION's own words only. Counting the
+    // keyword list in the denominator punished entries for carrying French
+    // synonyms, which is backwards — extra keywords should widen what can match,
+    // never dilute the score of an English hit.
+    const qSet = (entry.qByLang && entry.qByLang[lang] && entry.qByLang[lang].size)
+      ? entry.qByLang[lang]
+      : entry.qByLang.en;
+    const coverage = Math.min(1, hits / Math.max(1, qSet.size));
+    let score = coverage * 0.6 + (hits / askedSet.size) * 0.4;
+    if (uniqueHit) score += 0.15;
+
+    if (score > bestScore) { bestScore = score; best = { item, answer }; }
+  }
+
+  if (!best || bestScore < 0.30) return null;
+  return { text: best.answer, faq: true, faqId: best.item.id, faqCat: best.item.cat, score: bestScore };
+}
+
+// Fold KB rows into the bundled set: a row with the same id replaces the local
+// copy, anything new is appended. Bundled entries therefore survive even a
+// partial KB, and their hand-written French is not lost to an English-only row.
+function mergeFAQFromKB(rows) {
+  if (!Array.isArray(rows) || !rows.length) return false;
+  const merged = FALLBACK_FAQ.slice();
+  const indexById = new Map(merged.map((it, i) => [it.id, i]));
+
+  rows.forEach(row => {
+    if (!row || !row.id || !row.question_en || !row.answer_en) return;
+    const entry = {
+      id: row.id,
+      cat: row.category || 'general',
+      q: { en: row.question_en, fr: row.question_fr || null },
+      a: { en: row.answer_en, fr: row.answer_fr || null }
+    };
+    const at = indexById.get(row.id);
+    if (at != null) {
+      // Keep the bundled French if the KB row has none.
+      entry.q.fr = entry.q.fr || merged[at].q.fr;
+      entry.a.fr = entry.a.fr || merged[at].a.fr;
+      entry.kw = merged[at].kw;
+      merged[at] = entry;
+    } else {
+      merged.push(entry);
+    }
+  });
+
+  FAQ = merged;
+  return true;
+}
+
 // ── Intent / Question Router ──────────────────────────────────
 function getBotResponse(rawText, lang = currentLang) {
   const text = rawText.toLowerCase().trim();
@@ -395,8 +756,8 @@ function getBotResponse(rawText, lang = currentLang) {
         : (lang === 'fr' ? 'Bonsoir' : 'Good evening');
     return {
       text: lang === 'fr'
-        ? `${timeGreet} ! Ici H@rts, votre assistant IA de Harts Digital Hub. Nous pouvons vous aider à obtenir un site web, une application mobile, un logo, des flyers, ou à gérer vos réseaux sociaux et votre marketing au Cameroun. Par quoi pouvons-nous vous aider ?`
-        : `${timeGreet}! This is H@rts, your Harts Digital Hub AI assistant. We can help you get a website, mobile app, logo, flyers, or manage your social media and digital marketing in Cameroon. How can we help you?`
+        ? `${timeGreet} — ici H@rts. Qu'est-ce qui vous amène : un projet en tête, ou vous explorez encore ?`
+        : `${timeGreet} — H@rts here. What brings you in: a project you're planning, or still just looking around?`
     };
   }
 
@@ -404,8 +765,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/^(bye+|goodbye|see you|au revoir|à bientôt|ciao|bonne journée|bonne soirée|tchao|take care|later)\b/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Au revoir ! N\'hésitez pas à revenir si vous avez des questions. Bonne journée !'
-        : 'Goodbye! Feel free to come back anytime. Have a great day!'
+        ? 'Bonne journée ! Ce fil reste ouvert si vous voulez reprendre — et l\'équipe est sur WhatsApp au +237 622 341 343 si vous préférez parler à quelqu\'un.'
+        : 'Take care! This thread stays here if you want to pick it back up — and the team\'s on WhatsApp at +237 622 341 343 if you\'d rather talk to a person.'
     };
   }
 
@@ -413,43 +774,58 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(thank(s| you)?|merci|thx|ty|much appreciated|grand merci|super merci)\b/i.test(text) && !/^no\b/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Avec plaisir ! N\'hésitez pas si vous avez d\'autres questions ou si vous souhaitez démarrer avec un de nos services.'
-        : 'You\'re very welcome! Feel free to ask anything else, or let me know when you\'re ready to get started.'
+        ? 'Avec plaisir. Autre chose à clarifier, ou on passe à la suite ?'
+        : 'Anytime. Anything else you want to dig into, or shall we talk next steps?'
     };
   }
 
   // ── Positive short replies (OK / Yes / Sure) — context-aware ─
   if (/^(yes+|yep|yup|sure+|ok+|okay|alright|agree|correct|oui|d'accord|bien sûr|absolument|affirmative|go ahead|let\'s go|allons-y)\b/i.test(text)) {
     if (selectedPackage && currentStage === 'selection') {
+      const pkgName = p[selectedPackage].name[lang] || p[selectedPackage].name.en;
+
+      // A bare "yes" on top of an INFERRED package is not a purchase decision —
+      // it is usually answering whatever question was last on screen, which may
+      // well have come from the LLM rather than from us. Say the package name out
+      // loud and let them agree to it; the next yes commits.
+      if (packageInferred) {
+        packageInferred = false;
+        return {
+          text: lang === 'fr'
+            ? `Pour être sûrs de parler de la même chose : c'est le ${pkgName} qui correspond en général à ce que vous décrivez.\n\nOn part là-dessus, ou vous préférez d'abord voir les autres options ?`
+            : `Just so we're talking about the same thing: ${pkgName} is the one that usually fits what you've described.\n\nGo with that, or would you rather see the other options first?`
+        };
+      }
+
       awaitingLeadField = 'name';
       currentStage = 'details';
-      const pkgName = p[selectedPackage].name[lang] || p[selectedPackage].name.en;
       return {
         text: lang === 'fr'
-          ? `Super ! On part sur le ${pkgName}. Pour préparer votre dossier, quel est votre nom complet ?`
-          : `Great! Let's go with ${pkgName}. To set things up, what's your full name?`
+          ? `On part sur le ${pkgName}, donc.\n\nPour préparer le dossier correctement — quel est votre nom complet ?`
+          : `${pkgName} it is.\n\nSo we can set this up properly — what's your full name?`
       };
     }
     if (currentStage === 'discovery') {
       return {
         text: lang === 'fr'
-          ? 'Avec plaisir ! Dites-nous ce dont vous avez besoin — site web, application, logo, flyers, marketing digital... Et quel type d\'activité avez-vous ?'
-          : 'Great! Tell us what you need — website, mobile app, logo, flyers, digital marketing... And what type of business do you have?'
+          ? 'Alors dites-nous ce que fait votre activité, et ce qui coince en ce moment. C\'est en général assez pour vous orienter.'
+          : 'Then tell us what the business does, and what\'s not working right now. That\'s usually enough to point you somewhere useful.'
       };
     }
-    return { text: lang === 'fr' ? 'Nous sommes là ! Que souhaitez-vous faire ?' : 'We\'re here! What would you like to do?' };
+    return { text: lang === 'fr' ? 'Allez-y — qu\'est-ce que vous aviez en tête ?' : 'Go ahead — what did you have in mind?' };
   }
 
   // ── Negative / cancel ────────────────────────────────────────
   if (/^(no+|nope|nah|non|pas intéressé|cancel|annuler|never ?mind|pas maintenant|not now|stop|leave me|laisse[z]?[\s-]moi)\b/i.test(text)) {
     selectedPackage = null;
+    packageInferred = false;
     awaitingLeadField = null;
     currentStage = 'discovery';
     leadContext = {};
     return {
       text: lang === 'fr'
-        ? 'Pas de problème ! Nous restons disponibles si vous avez des questions ou souhaitez reprendre plus tard. Y a-t-il autre chose que nous pouvons faire pour vous ?'
-        : 'No problem at all! We\'re here if you have questions or want to come back later. Is there anything else we can help you with?'
+        ? 'Pas de souci. Le fil reste ouvert si vous voulez y revenir, et l\'équipe est sur WhatsApp au +237 622 341 343 en attendant.'
+        : 'No problem. This thread stays open if you want to come back to it, and the team\'s on WhatsApp at +237 622 341 343 in the meantime.'
     };
   }
 
@@ -458,24 +834,85 @@ function getBotResponse(rawText, lang = currentLang) {
   // questions — this one requires an intent verb nearby so a genuine "I need a
   // chatbot for my website" isn't misread as an identity question) ───────────
   if (/\b(need|want|get a|build|looking for|interested in)\b[\s\S]{0,25}\b(chatbot|chat[\s-]?bot|bot for)\b|\b(chatbot|chat[\s-]?bot)\b[\s\S]{0,25}\b(for (my|our)|pour (mon|notre))\b|\b(j'ai besoin|je veux|je cherche|nous voulons)\b[\s\S]{0,25}\b(chatbot|chat[\s-]?bot)\b/i.test(text)) {
-    return { packageHTML: formatEnterpriseService('ai_chatbots', lang) };
+    return enterpriseReply('ai_chatbots', lang);
+  }
+
+  // ── Chatbot pricing ─────────────────────────────────────────
+  // "How much for a chatbot?" is a buying question, and chatbots are scoped work,
+  // not an SME package. Anchoring the topic here routes it into the enterprise
+  // pricing answer further down ("here's what moves the number") instead of the
+  // package list or, as it used to, the bot-identity reply.
+  if (/\b(chat ?bot|bot)\b/i.test(text) && /(price|prix|cost|combien|how much|tarif|budget|quote|devis)/i.test(text)) {
+    lastTopic = 'ai_chatbots';
+  }
+
+  // ── Custom software / internal systems ──────────────────────
+  // Kept above the generic "website" branch so "custom system to manage stock"
+  // isn't answered with a $80 landing-page package.
+  if (/\b(custom (software|system|platform|solution|build)|bespoke|internal (tool|system)|erp\b|inventory|stock (management|system)|admin (panel|dashboard)|management system|logiciel sur mesure|système sur mesure|gestion de stock|outil interne)\b/i.test(text)) {
+    lastTopic = 'custom_software'; currentStage = 'selection';
+    return enterpriseReply('custom_software', lang);
+  }
+
+  // ── Cloud / database / performance ──────────────────────────
+  if (/\b(cloud|database|db\b|server|hosting (issue|problem)|slow (site|system|app|database)|scal(e|ing|ability)|migrat(e|ion)|downtime|performance (issue|problem)|optimi[sz]ation|base de données|serveur|lenteur|migration)\b/i.test(text)) {
+    lastTopic = 'cloud_database'; currentStage = 'selection';
+    return enterpriseReply('cloud_database', lang);
+  }
+
+  // ── Managed IT / SLA / support retainer ─────────────────────
+  if (/\b(managed it|manage my it|sla\b|retainer|maintenance|support contract|monitoring|keep it running|ongoing support|infogérance|contrat de maintenance|supervision)\b/i.test(text)) {
+    lastTopic = 'managed_it'; currentStage = 'selection';
+    return enterpriseReply('managed_it', lang);
+  }
+
+  // ── Integration with an existing system ─────────────────────
+  // MUST stay above "Bot identity" — that branch matches the bare word "chatbot",
+  // so "can a chatbot connect to our system?" would otherwise be answered as if
+  // the visitor had asked whether they're talking to a robot.
+  if (/\b(connect|integrat|plug|sync|work with|talk to|hook (it )?up|link)\w*\b[\s\S]{0,40}\b(system|crm|erp|pos|software|database|tool|platform|what we (already )?(use|have)|existing)\b|\b(crm|erp|pos)\b[\s\S]{0,30}\b(integration|connect)\b|\b(intégr|connect)\w*\b[\s\S]{0,40}\b(système|logiciel|existant|base de données)\b/i.test(text)) {
+    lastTopic = 'ai_chatbots'; currentStage = 'selection';
+    return {
+      isHTML: true,
+      text: lang === 'fr'
+        ? `Oui — et c'est justement là que la plupart des chatbots échouent.<br><br>Un bot qui ne fait que répondre à des questions est vite inutile. L'intérêt vient quand il <strong>lit vos vraies données</strong> : stock disponible, statut d'une commande, créneaux libres. C'est ce que nous construisons — connecté à ce que vous utilisez déjà (CRM, ERP, POS, base de données), sans le remplacer.<br><br>Avec quel système devrait-il se connecter ? Si vous nous donnez le nom, nous vous dirons franchement si c'est simple ou compliqué.`
+        : `Yes — and that's exactly where most chatbots fall down.<br><br>A bot that only answers scripted questions gets useless fast. It earns its keep when it can <strong>read your actual data</strong>: what's in stock, where an order is, which slots are free. That's what we build — wired into what you already run (CRM, ERP, POS, database), not replacing it.<br><br>What system would it need to talk to? Give us the name and we'll tell you honestly whether that's straightforward or messy.`
+    };
+  }
+
+  // ── Slow / missed customer responses (the core chatbot pain) ─
+  if (/\b(losing (customers?|leads?|sales?|clients?)|miss(ing|ed)? (messages?|leads?|customers?|enquir)|no ?(one|body) (answers?|replies)|too slow to (reply|respond)|slow (to )?(reply|respond|response)|leads? go(ing)? cold|can'?t keep up with (messages?|whatsapp)|répondre (assez )?vite|perdons des clients|messages sans réponse)\b/i.test(text)) {
+    lastTopic = 'ai_chatbots'; currentStage = 'selection';
+    return {
+      isHTML: true,
+      text: lang === 'fr'
+        ? `C'est le problème le plus courant qu'on nous apporte — et il coûte plus cher qu'il n'y paraît. Un client qui n'a pas de réponse en 10 minutes écrit souvent au concurrent suivant.<br><br>Un chatbot IA répond instantanément, 24h/24, à un nombre illimité de conversations en même temps — puis transfère à un humain dès qu'il faut un vrai jugement. Vos soirées et vos week-ends redeviennent les vôtres.<br><br>Pour bien cadrer : sur quel canal vos clients vous écrivent-ils le plus — WhatsApp, votre site, ou les réseaux sociaux ?`
+        : `That's the single most common thing people bring us — and it costs more than it looks. A customer who doesn't hear back within about ten minutes usually just messages the next business on the list.<br><br>An AI chatbot answers instantly, around the clock, across unlimited conversations at once — then hands off to a human the moment something needs real judgement. Your evenings and weekends go back to being yours.<br><br>So we point you at the right thing: where do most of your customers message you — WhatsApp, your website, or social?`
+    };
   }
 
   // ── Bot identity ─────────────────────────────────────────────
-  if (/(are you (a |an |real )?bot|are you (an? )?ai|is this (a |an |real )?human|robot|automated|chatbot|assistant virtuel|qui (êtes|es)-?tu|parle[rz]*.*machine|who am i talking)/i.test(text)) {
+  // Every alternative here has to be identity-framed. The old pattern matched the
+  // bare words "chatbot", "robot" and "automated", so "how much does a chatbot
+  // cost?" and "can this be automated?" — both real buying questions — were
+  // answered with "yes, I'm an AI", which is the single most robotic thing the
+  // assistant could do. The branches above no longer need to be ordered defensively
+  // around it.
+  if (/(are you (a |an |real )?(bot|robot|human|person|ai)\b|is this (a |an |real )?(human|person|bot|robot|chat ?bot)\b|am i (talking|speaking) (to|with) (a |an )?(bot|robot|human|person|machine)|who am i talking to|assistant virtuel|(es-tu|t'es|tu es) (un(e)? )?(robot|humain|bot|ia|machine)|(êtes-vous|vous êtes|c'est) (un(e)? )?(robot|humain|bot|ia|machine)|je parle à (un(e)? )?(robot|humain|machine|ia))/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Ici H@rts, l\'assistant IA de Harts Digital Hub — pas un humain, mais nous connaissons bien nos services ! Pour parler directement à un membre de notre équipe, dites "équipe" ou "WhatsApp" et nous vous connectons immédiatement.'
-        : 'This is H@rts, the Harts Digital Hub AI assistant — not a human, but we know our services well! To speak directly to a team member, just say "team" or "WhatsApp" and we\'ll connect you right away.'
+        ? 'H@rts, l\'assistant IA de Harts Digital Hub — pas un humain, autant le dire franchement.\n\nOn répond bien sur ce qu\'on fait et ce que ça coûte. Dès qu\'il faut un vrai jugement — un devis sur mesure, une date ferme — on passe la main : dites "équipe" et on vous met en relation sur WhatsApp.'
+        : 'H@rts, the Harts Digital Hub AI assistant — not a person, and there\'s no point pretending otherwise.\n\nWe\'re solid on what we do and what it costs. Anything needing real judgement — a scoped quote, a firm date — goes to a human: say "team" and we\'ll put you through on WhatsApp.'
     };
   }
 
   // ── Portfolio / examples ─────────────────────────────────────
   if (/\b(portfolio|example[s]?|past work|show me.*work|previous client|sample[s]?|réalisation[s]?|travaux?|exemple[s]?|référence[s]?|vos travaux)\b/i.test(text)) {
     return {
+      isHTML: true,
       text: lang === 'fr'
-        ? 'Nous avons aidé des restaurants, boutiques, salons et consultants à travers le Cameroun. Pour voir des exemples concrets (captures d\'écran, liens de projets), contactez notre équipe sur WhatsApp : +237 622 341 343. Ils répondent rapidement !'
-        : 'We\'ve helped restaurants, shops, salons, and consultants across Cameroon. To see concrete examples (screenshots, project links), reach our team on WhatsApp: +237 622 341 343. They respond quickly!'
+        ? 'Il y a une section <a href="index.html#portfolio">Portfolio</a> sur la page d\'accueil, avec des systèmes actuellement en production — c\'est ce qui parle le mieux.<br><br>Si vous avez quelque chose de précis en tête, dites-nous quel type de build et on vous dira franchement si on a déjà livré l\'équivalent.'
+        : 'There\'s a <a href="index.html#portfolio">Portfolio</a> section on the homepage with systems currently running in production — that\'s the most useful look.<br><br>If you have something specific in mind, tell us the kind of build and we\'ll say plainly whether we\'ve shipped something close to it.'
     };
   }
 
@@ -483,104 +920,162 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(office|visit|come in|physical|en personne|bureau|adresse|address|can i visit|venir vous voir|où êtes-vous)\b/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Nous travaillons entièrement à distance — WhatsApp, appels et documents partagés. Ça marche pour toutes les villes du Cameroun. Pas besoin de se déplacer, c\'est l\'un des avantages de travailler avec nous !'
-        : 'We work fully remotely — WhatsApp, calls, and shared documents. That works for every city in Cameroon. No need to travel in — that\'s one of the advantages of working with us!'
+        ? 'Nous sommes basés à Douala et travaillons avec des clients partout au Cameroun, essentiellement à distance — WhatsApp, appels, documents partagés. Si une rencontre en personne compte pour votre projet, l\'équipe peut s\'organiser (lundi au samedi, 8h–18h).'
+        : 'We\'re based in Douala and work with clients across Cameroon, mostly remotely — WhatsApp, calls, shared documents. If meeting in person matters for your project, the team can arrange it (Mon–Sat, 8am–6pm).'
     };
   }
 
   // ── "I want / I need / I'm interested" ───────────────────────
   if (/\b(i want|i need|i'?d like|i'?m interested|looking for|je veux|j'aimerais|je cherche|je voudrais|je suis intéressé|interested in)\b/i.test(text)) {
-    const pkgMatch = text.match(/\b(starter|growth|pro|démarrage|croissance)\b/i);
+    const pkgMatch = text.match(/\b(starter|essential|essentiel|growth|pro|build ?(&|and) ?launch|démarrage|croissance)\b/i);
     if (pkgMatch) {
       const suggested = normalizePackage(pkgMatch[0]);
       leadContext = { package: suggested };
       selectedPackage = suggested;
+      packageInferred = false;   // they named it
       awaitingLeadField = 'name';
       currentStage = 'details';
       const pkgName = p[suggested].name[lang] || p[suggested].name.en;
       return {
         text: lang === 'fr'
-          ? `Excellent ! Le ${pkgName} est un très bon choix. Pour préparer votre dossier, quel est votre nom complet ?`
-          : `Excellent choice! The ${pkgName} is a great fit. To get things set up, what's your full name?`
+          ? `Le ${pkgName}, entendu. On pourra toujours vous déplacer si, en discutant, ce n'est pas le bon niveau.\n\nQuel est votre nom complet ?`
+          : `${pkgName}, noted. We can still move you if it turns out that's not the right level once we talk.\n\nWhat's your full name?`
       };
     }
     if (/\b(web\s*sit[e]?|site\s*web?|online|en ligne)\b/i.test(text)) {
       lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
-      return { text: lang === 'fr'
-        ? `Pour un site web professionnel nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux (le plus populaire)\n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nLequel vous correspond le mieux ?`
-        : `For a professional website we have 3 options:\n\n• Starter ($80 setup + $50/year) — single landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media (most popular)\n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?`
-      };
+      packageInferred = true;    // we guessed — they only said "website"
+      return { text: websiteOptions(lang) };
     }
     if (/\b(app(?:lication)?|mobile)\b/i.test(text)) {
-      return { text: lang === 'fr'
-        ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Le prix dépend des fonctionnalités — une appli simple commence autour de $500, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
-        : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. The cost depends on features — a basic app starts around $500, with installment options.\n\nCan you describe what you\'d like the app to do?'
-      };
+      return { text: appIntentReply(lang) };
     }
     if (/\b(logo|flyer|brand|design|carte de visite|business card)\b/i.test(text)) {
-      return { text: lang === 'fr'
-        ? 'Pour le design graphique, voici ce que nous proposons :\n\n• Logo professionnel : à partir de $40\n• Pack Logo + Flyer : à partir de $75\n• Branding complet (logo, couleurs, templates) : à partir de $130\n\nPour quel type d\'activité ?'
-        : 'For graphic design, here\'s what we offer:\n\n• Professional logo: from $40\n• Logo + Flyer pack: from $75\n• Full branding (logo, colors, templates): from $130\n\nWhat type of business is this for?'
-      };
+      return { text: designOptions(lang) };
     }
     if (/\b(social media|réseaux sociaux|instagram|facebook|marketing)\b/i.test(text)) {
-      return { text: lang === 'fr'
-        ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth ($600/an) ou disponible en option.\n\nCombien de plateformes avez-vous en tête ?'
-        : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, and monthly reports. It\'s included in the Growth package ($600/year) or available as an add-on.\n\nHow many platforms are you thinking about?'
-      };
+      return { text: socialReply(lang) };
     }
     return {
       text: lang === 'fr'
-        ? 'Nous sommes là pour vous aider ! Dites-nous exactement ce dont vous avez besoin (site web, appli mobile, logo, flyers, marketing digital...) et votre type d\'activité — nous vous guiderons vers la meilleure option.'
-        : 'We\'re here to help! Tell us exactly what you need (website, mobile app, logo, flyers, digital marketing...) and what type of business you have — we\'ll guide you to the best option.'
+        ? 'Dites-nous ce que fait votre activité et ce que vous cherchez à régler — c\'est en général assez pour vous orienter vers la bonne chose.'
+        : 'Tell us what the business does and what you\'re trying to fix — that\'s usually enough for us to point you at the right thing.'
     };
   }
 
   // ── Get started / book / proceed ─────────────────────────────
   if (/\b(get started|book|reserve|commencer|démarrer|s'inscrire|passer commande|start now|commencer maintenant|let'?s do it|procéd|proceed|ready|je suis prêt)\b/i.test(text)) {
     if (selectedPackage) {
+      const pkgName = p[selectedPackage].name[lang] || p[selectedPackage].name.en;
+
+      // "Let's get started" is real intent, but if we only inferred the package
+      // we still don't know which one they mean. One short question is cheaper
+      // than starting the wrong order and unwinding it on WhatsApp later.
+      if (packageInferred) {
+        packageInferred = false;
+        return {
+          text: lang === 'fr'
+            ? `Avec plaisir. On part sur lequel — ${pkgName}, ou vous voulez d'abord comparer avec les autres ?`
+            : `Let's do it. Which one are we setting up — ${pkgName}, or do you want to compare with the others first?`
+        };
+      }
+
       awaitingLeadField = 'name';
       currentStage = 'details';
-      const pkgName = p[selectedPackage].name[lang] || p[selectedPackage].name.en;
       return {
         text: lang === 'fr'
-          ? `Parfait ! On part sur le ${pkgName}. Pour commencer, quel est votre nom complet ?`
-          : `Perfect! Let's go with ${pkgName}. To get started, what's your full name?`
+          ? `Entendu — ${pkgName}.\n\nQuel est votre nom complet ?`
+          : `Right — ${pkgName}.\n\nWhat's your full name?`
       };
     }
     return {
       text: lang === 'fr'
-        ? 'Super ! Pour vous orienter vers la meilleure option, dites-moi : quel type de service vous intéresse (site web, application, logo, marketing) et quel est votre type d\'activité ?'
-        : 'Let\'s do it! To point you to the best option, tell us: what service are you interested in (website, app, logo, marketing) and what type of business do you have?'
+        ? 'Avec plaisir. Avant de vous envoyer quelque part — qu\'est-ce que vous cherchez à régler en priorité ?'
+        : 'Happy to. Before we point you anywhere — what\'s the thing you\'re trying to fix first?'
     };
   }
 
   // ── Package details ──────────────────────────────────────────
   if (/\b(starter|démarrage)\b/i.test(text)) {
-    lastTopic = 'starter'; selectedPackage = 'starter'; currentStage = 'selection';
+    lastTopic = 'starter'; selectedPackage = 'starter'; currentStage = 'selection'; packageInferred = false;
     return { packageHTML: formatPackage('starter', lang) };
   }
   if (/\b(essential|essentiel)\b/i.test(text)) {
-    lastTopic = 'essential'; selectedPackage = 'essential'; currentStage = 'selection';
+    lastTopic = 'essential'; selectedPackage = 'essential'; currentStage = 'selection'; packageInferred = false;
     return { packageHTML: formatPackage('essential', lang) };
   }
   if (/\b(growth|croissance)\b/i.test(text)) {
-    lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
+    lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection'; packageInferred = false;
     return { packageHTML: formatPackage('growth', lang) };
   }
   if (/\b(pro)\b/i.test(text) && /(package|forfait|price|prix|details?|info|tell me|montrez|donnez)/i.test(text)) {
-    lastTopic = 'pro'; selectedPackage = 'pro'; currentStage = 'selection';
+    lastTopic = 'pro'; selectedPackage = 'pro'; currentStage = 'selection'; packageInferred = false;
     return { packageHTML: formatPackage('pro', lang) };
   }
 
+  // ── Price question with enterprise context ──────────────────
+  // If the visitor has been talking about a custom-scoped service, a bare "how
+  // much?" must NOT dump the SME package list at them — those prices belong to a
+  // different track and quoting $80 against an ERP conversation reads as a bait.
+  if (/(price|prix|cost|combien|how much|tarif|budget|quote|devis)/i.test(text) &&
+      ENTERPRISE[lastTopic] && !/\b(starter|essential|growth|pro|package|forfait)\b/i.test(text)) {
+    const svcName = ENTERPRISE[lastTopic].name[lang] || ENTERPRISE[lastTopic].name.en;
+    return {
+      isHTML: true,
+      text: lang === 'fr'
+        ? `Honnêtement, ce serait malhonnête de vous donner un chiffre maintenant — <strong>${svcName}</strong> est un projet sur mesure, et le prix dépend entièrement de ce qu'il doit faire.<br><br>Ce qui fait vraiment bouger le chiffre :<br>• le nombre de personnes qui vont l'utiliser<br>• s'il doit se connecter à des systèmes que vous avez déjà<br>• si vous partez de zéro ou remplacez quelque chose<br><br>Dites-nous en deux phrases ce que le système doit faire, et notre équipe vous revient avec une fourchette réelle — pas un chiffre inventé.<br><br>Pour situer : nos contrats d'infogérance démarrent à 125$/mois, et les projets de développement sont chiffrés individuellement.`
+        : `Honestly, it'd be a disservice to throw a number at you right now — <strong>${svcName}</strong> is scoped per project, and the price depends entirely on what it has to do.<br><br>What actually moves the number:<br>• how many people will use it<br>• whether it has to talk to systems you already run<br>• whether you're starting fresh or replacing something<br><br>Tell us in a sentence or two what the system needs to do, and our team comes back with a real range — not a made-up figure.<br><br>For a rough anchor: managed IT retainers start at $125/mo, and build projects are quoted individually.`
+    };
+  }
+
+  // ── Cold price question, no context yet ─────────────────────
+  // "How much does it cost?" as an opener is unanswerable — we sell a $50/year
+  // landing page and six-figure-scope custom systems. One short question here
+  // beats a wall of package cards that may be aimed at the wrong track entirely.
+  if (/(price|prix|cost|combien|how much|tarif|budget)/i.test(text) &&
+      !lastTopic && !selectedPackage &&
+      !/(packages?|forfaits?|website|site web|logo|social|réseaux)/i.test(text)) {
+    return {
+      isHTML: true,
+      text: lang === 'fr'
+        ? `Bonne question — et la vraie réponse est « ça dépend », alors précisons rapidement.<br><br>Nous travaillons sur deux voies :<br><br>• <strong>Forfaits PME</strong> — prix publics, à partir de 80$ d'installation + 50$/an pour une présence en ligne (site, Google Business, WhatsApp, réseaux sociaux).<br><br>• <strong>Projets sur mesure</strong> — logiciels, chatbots IA, cloud, infogérance. Chiffrés individuellement ; les contrats de maintenance démarrent à 125$/mois.<br><br>Laquelle correspond à votre situation ? Ou décrivez simplement votre besoin et nous vous orientons.`
+        : `Fair question — and the honest answer is "it depends", so let's narrow it fast.<br><br>We work on two tracks:<br><br>• <strong>SME packages</strong> — published prices, from $80 setup + $50/year for getting a business found online (site, Google Business, WhatsApp, social).<br><br>• <strong>Custom projects</strong> — software, AI chatbots, cloud, managed IT. Quoted per project; support retainers start at $125/mo.<br><br>Which sounds closer to you? Or just describe what you're trying to fix and we'll point you at the right one.`
+    };
+  }
+
+  // ── High-confidence FAQ pre-pass ─────────────────────────────
+  // Placement is the whole design here. The main FAQ pass runs last so nothing
+  // can regress, but a policy question usually CONTAINS the word that trips a
+  // generic branch: "will the website work on mobile" was answered with the
+  // website price list, because that branch saw "website" and never read the
+  // rest of the sentence.
+  //
+  // So a confident match is allowed to pre-empt the GENERIC product branches
+  // below (website / app / branding / social / package lists) — but it sits
+  // BELOW the specific intent and pricing branches above, which are better
+  // answers than any FAQ row. Measured before choosing this spot: "how much does
+  // a chatbot cost" scores 0.58 against the wrong entry, and "connect a bot to
+  // our CRM" 0.66 — both would have been hijacked had this run any earlier.
+  const strongFaq = matchFAQ(rawText, lang);
+  if (strongFaq && strongFaq.score >= 0.50) return strongFaq;
+
   // ── All packages ─────────────────────────────────────────────
-  if (/(packages?|forfaits?|show.*package|see.*package|all package|what.*package|your package|pricing|tarif[s]?|how much|combien.*coût|cost[s]?|prix)/i.test(text) && !/\b(starter|essential|growth|pro)\b/i.test(text)) {
+  // A price question that already names what they want ("how much for a
+  // website?") must fall through to the specific branch below — answering it with
+  // all four package cards at once is the brochure dump we're trying to avoid.
+  if (/(packages?|forfaits?|show.*package|see.*package|all package|what.*package|your package|pricing|tarif[s]?|how much|combien.*coût|cost[s]?|prix)/i.test(text) &&
+      !/\b(starter|essential|growth|pro)\b/i.test(text) &&
+      !/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|online presence|présence en ligne|logo|flyer|brand(?:ing)?|social media|réseaux sociaux|instagram|facebook|tiktok|app(?:lication)?s?|mobile)\b/i.test(text)) {
     lastTopic = 'growth';
     return { text: lang === 'fr' ? 'Voici nos forfaits :' : 'Here are our packages:', multiPackage: true };
   }
 
   // ── Pricing / cost ───────────────────────────────────────────
-  if (/(price|prix|cost|combien|how much|tarif|setup fee|frais|installation fee)/i.test(text)) {
+  // Same rule as the block above: only answer with the whole price list when the
+  // question is actually about the whole price list. "How much for a logo?" gets
+  // the logo answer, not five packages.
+  if (/(price|prix|cost|combien|how much|tarif|setup fee|frais|installation fee)/i.test(text) &&
+      !/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|online presence|présence en ligne|logo|flyer|brand(?:ing)?|social media|réseaux sociaux|instagram|facebook|tiktok|app(?:lication)?s?|mobile)\b/i.test(text)) {
     lastTopic = 'pricing';
     const growthCalc = calculatePaymentDetails('growth', 'installments', lang);
     return {
@@ -594,8 +1089,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/(what'?s? included|include[sd]?|inclus|what.*get|ce qui est|features?|fonctionnalit|contient)/i.test(text)) {
     if (lastTopic && p[lastTopic]) return { packageHTML: formatPackage(lastTopic, lang) };
     return { text: lang === 'fr'
-      ? 'Nous pouvons vous détailler chaque forfait. Dites-nous simplement "Starter", "Growth" ou "Pro".'
-      : 'We can break down any package for you. Just say "Starter", "Growth", or "Pro".'
+      ? 'On peut détailler n\'importe lequel — dites simplement "Starter", "Essentiel", "Growth" ou "Pro".'
+      : 'We can break down any of them — just say "Starter", "Essential", "Growth" or "Pro".'
     };
   }
 
@@ -617,7 +1112,7 @@ function getBotResponse(rawText, lang = currentLang) {
 
   // ── One-time / no monthly ────────────────────────────────────
   if (/(build only|one.?time|paiement unique|juste le site|build.*launch|sans abonnement|no monthly|without subscription)/i.test(text)) {
-    lastTopic = 'build_only'; selectedPackage = 'build_only'; currentStage = 'selection';
+    lastTopic = 'build_only'; selectedPackage = 'build_only'; currentStage = 'selection'; packageInferred = false;
     return { packageHTML: formatPackage('build_only', lang) };
   }
 
@@ -625,42 +1120,35 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/(too expensive|cher|trop cher|c'est beaucoup|can.*lower|reduce.*price|less expensive|moins cher|affordable|budget limit|budget serré)/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Nous comprenons — le budget est important. Nos services commencent à des prix accessibles et on propose des versements sans intérêts pour répartir le coût. Le forfait Growth, par exemple, est souvent rentabilisé rapidement grâce aux nouveaux clients qu\'il attire. Voulez-vous qu\'on regarde ensemble les options concrètes pour votre situation ?'
-        : 'We completely understand — budget matters. Our services start at accessible prices and we offer interest-free installments to spread the cost. The Growth package, for example, often pays for itself quickly through new customers. Want us to walk you through the concrete options for your situation?'
+        ? 'C\'est une objection légitime, et on préfère y répondre franchement plutôt que d\'insister.\n\nDeux choses concrètes : le forfait annuel se règle en 2 ou 3 versements MoMo sans intérêts, et si le budget est vraiment serré, le Starter existe exactement pour ça — on monte plus tard si ça marche.\n\nVous avez un chiffre en tête ? On vous dira honnêtement ce qui rentre dedans.'
+        : 'Fair objection, and we\'d rather answer it straight than push.\n\nTwo concrete things: the yearly fee splits into 2-3 interest-free MoMo instalments, and if budget is genuinely tight, Starter exists for exactly that — you move up later if it works.\n\nDo you have a number in mind? We\'ll tell you honestly what fits inside it.'
     };
   }
 
   // ── Website (typo-tolerant) ───────────────────────────────────
   if (/\b(web\s*sit[e]?s?|websit[e]?|site\s*web?|webs?it|online presence|présence en ligne|w[ae]bsite)\b/i.test(text)) {
     lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
-    return { text: lang === 'fr'
-      ? 'Pour un site web professionnel, nous avons 3 options :\n\n• Starter ($80 installation + $50/an) — page de présentation\n• Growth ($200 installation + $600/an) — site 5 pages + réseaux sociaux \n• Build & Launch ($300 unique) — site complet, aucun frais récurrent\n\nQuel profil correspond à votre situation ?'
-      : 'For a professional website, we have 3 options:\n\n• Starter ($80 setup + $50/year) — landing page\n• Growth ($200 setup + $600/year) — 5-page site + social media \n• Build & Launch ($300 one-time) — full site, no recurring fees\n\nWhich one fits your situation?'
-    };
+    packageInferred = true;      // "website" is a need, not a package choice
+    return { text: websiteOptions(lang) };
   }
 
-  // ── Mobile app ────────────────────────────────────────────────
+  // ── "I need an app" ───────────────────────────────────────────
+  // We do NOT build native app-store apps — api/chat.js's system prompt says so
+  // too. This branch used to promise custom Android/iOS builds "from around $500",
+  // a service and a price that exist in no catalog, contradicting the LLM half of
+  // the same conversation.
   if (/\b(app(?:lication)?s?|mobile app|android|ios|play store|application mobile)\b/i.test(text)) {
-    return { text: lang === 'fr'
-      ? 'Nous développons des applications mobiles sur mesure (Android et iOS) pour les entreprises au Cameroun. Une appli simple commence autour de $500, avec des versements disponibles.\n\nPouvez-vous décrire ce que vous souhaitez que l\'appli fasse ?'
-      : 'We develop custom mobile apps (Android & iOS) for businesses in Cameroon. A basic app starts around $500, with installment options.\n\nCan you describe what you\'d like the app to do?'
-    };
+    return { text: appIntentReply(lang) };
   }
 
   // ── Logo / flyer / branding ───────────────────────────────────
   if (/\b(logo[s]?|flyer[s]?|brand(?:ing)?|design graphique|carte[s]? de visite|business card[s]?|identité visuelle|visual identity)\b/i.test(text)) {
-    return { text: lang === 'fr'
-      ? 'Pour le design graphique :\n\n• Logo professionnel : à partir de $40\n• Pack Logo + Flyer : à partir de $75\n• Branding complet (logo, couleurs, templates) : à partir de $130\n\nPour quel type d\'activité ?'
-      : 'For graphic design:\n\n• Professional logo: from $40\n• Logo + Flyer pack: from $75\n• Full branding (logo, colors, templates): from $130\n\nWhat type of business is this for?'
-    };
+    return { text: designOptions(lang) };
   }
 
   // ── Social media ──────────────────────────────────────────────
   if (/\b(social media|réseaux sociaux|instagram|facebook|tiktok|manage.*social|gestion.*réseaux)\b/i.test(text)) {
-    return { text: lang === 'fr'
-      ? 'Nous gérons vos réseaux sociaux (Facebook, Instagram, TikTok) — création de contenu, publications régulières et rapport mensuel. C\'est inclus dans le forfait Growth ($600/an) ou disponible en option.\n\nCombien de plateformes souhaitez-vous gérer ?'
-      : 'We manage your social media (Facebook, Instagram, TikTok) — content creation, regular posts, monthly reports. It\'s included in the Growth package ($600/year) or available as an add-on.\n\nHow many platforms do you have in mind?'
-    };
+    return { text: socialReply(lang) };
   }
 
   // ── Follow-up on last topic ───────────────────────────────────
@@ -738,19 +1226,32 @@ function getBotResponse(rawText, lang = currentLang) {
     };
   }
 
+  // ── Knowledge-base FAQ ────────────────────────────────────────
+  // Deliberately the last thing tried. Every hand-tuned branch above keeps
+  // priority, so this can only catch what would otherwise have reached the
+  // generic "we didn't follow that" — meaning questions can be added to the KB
+  // without any risk of regressing an answer that already worked.
+  //
+  // A hit is authoritative and blocks the LLM (see the gate in sendMessage):
+  // these are policy and product facts — who owns the site, whether the training
+  // is free, whether we sell your data — and those are precisely the answers a
+  // model invents when it doesn't know.
+  const faqHit = matchFAQ(rawText, lang);
+  if (faqHit) return faqHit;
+
   // ── Fallback — contextual and helpful ─────────────────────────
   const summary = generateConversationSummary(lang);
   if (currentStage === 'discovery' || !selectedPackage) {
     return {
       text: lang === 'fr'
-        ? `Nous ne sommes pas sûrs de bien comprendre, mais nous sommes là pour vous aider ! Nous créons des sites web, applications, logos, flyers et gérons le marketing digital pour les entreprises au Cameroun.\n\nPour mieux vous orienter, pouvez-vous nous dire ce que vous faites et ce que vous cherchez en priorité (site web, logo, appli, plus de clients...) ?`
-        : `We're not sure we fully understood that, but we're here to help! We build websites, apps, logos, flyers, and handle digital marketing for businesses in Cameroon.\n\nTo point you in the right direction, can you tell us what you do and what you're looking for most (website, logo, app, more customers...)?`
+        ? `On n'a pas bien saisi celle-là.\n\nDites-nous ce que fait votre activité et ce qui ne tourne pas rond en ce moment — on prend le relais à partir de là.`
+        : `We didn't quite follow that one.\n\nTell us what the business does and what's going wrong at the moment — we can take it from there.`
     };
   }
   return {
     text: lang === 'fr'
-      ? `Nous sommes là ! ${summary} Dites-nous ce dont vous avez besoin — nous pouvons vous aider avec les détails, les versements, ou préparer le message pour l'équipe WhatsApp.`
-      : `We're here! ${summary} Tell us what you need — we can help with details, payment options, or get the WhatsApp message ready for the team.`
+      ? `${summary} Où voulez-vous aller à partir de là — le détail du forfait, les versements, ou on prépare le message pour l'équipe ?`
+      : `${summary} Where do you want to take it from here — the package detail, instalments, or shall we get the message ready for the team?`
   };
 }
 
@@ -822,6 +1323,78 @@ function formatEnterpriseService(key, lang) {
   return html;
 }
 
+// Enterprise cards render from the live catalog, so a key the knowledge base
+// doesn't carry (a renamed row, a partial hydration) must never produce an empty
+// bubble — sendMessage would otherwise call .replace() on an undefined reply.text
+// and take the whole conversation down. Fall back to a plain answer that still
+// moves things forward.
+function enterpriseReply(key, lang) {
+  const html = formatEnterpriseService(key, lang);
+  if (html) return { packageHTML: html };
+  return {
+    text: lang === 'fr'
+      ? 'C\'est du sur-mesure, chiffré au cas par cas. Dites-nous en une ou deux phrases ce que le système doit faire et l\'équipe revient avec une vraie fourchette.'
+      : 'That\'s custom-scoped work, quoted per project. Tell us in a sentence or two what it needs to do and the team comes back with a real range.'
+  };
+}
+
+// Website tiers priced from the live catalog instead of hardcoded strings, so a
+// price edit in Supabase reaches the chat without a code change. These numbers
+// used to be typed inline in two places and would silently go stale.
+function websiteOptions(lang) {
+  const line = (key) => {
+    const pkg = PACKAGES[key];
+    if (!pkg) return null;
+    const name = pkg.name[lang] || pkg.name.en;
+    const setup = pkg.setup[lang] || pkg.setup.en;
+    if (key === 'build_only') return '• ' + name + ' — ' + setup;
+    const price = pkg.price[lang] || pkg.price.en;
+    return '• ' + name + ' — ' + setup + ' + ' + price;
+  };
+  const lines = ['starter', 'growth', 'build_only'].map(line).filter(Boolean).join('\n');
+  return lang === 'fr'
+    ? 'Trois façons d\'aborder ça, selon ce que le site doit vraiment faire :\n\n' + lines +
+      '\n\nCe qui tranche en général : le site doit surtout vous rendre trouvable, ou il doit vendre et prendre des commandes ?'
+    : 'Three ways to approach it, depending on what the site actually has to do:\n\n' + lines +
+      '\n\nThe thing that usually decides it: does the site mainly need to make you findable, or does it need to sell and take orders?';
+}
+
+// "I need an app" almost always means a website, a web app, or a WhatsApp bot in
+// disguise. We don't build native app-store apps, so say that plainly and find
+// out what they actually need instead of quoting a number for work we don't do.
+function appIntentReply(lang) {
+  return lang === 'fr'
+    ? 'Soyons clairs d\'entrée : nous ne construisons pas d\'applications natives pour les stores. Dans la plupart des cas ce n\'est d\'ailleurs pas ce qu\'il faut — demander à ses clients d\'installer quelque chose est un vrai obstacle.\n\nCe que nous construisons, c\'est ce qui rend le même service sans installation : un site, une application web, ou un bot WhatsApp.\n\nVos clients y feraient quoi, concrètement ?'
+    : 'Straight away: we don\'t build native app-store apps. In most cases that isn\'t what\'s needed anyway — asking customers to install something is a real barrier.\n\nWhat we do build is whatever delivers the same thing without an install: a website, a web app, or a WhatsApp bot.\n\nWhat would customers actually be doing in it?';
+}
+
+// Social management, with the Growth price read from the catalog rather than
+// typed inline (it was hardcoded as "$600/year" in two places).
+function socialReply(lang) {
+  const growth = PACKAGES.growth;
+  const named = growth
+    ? (growth.name[lang] || growth.name.en) + ' (' + (growth.price[lang] || growth.price.en) + ')'
+    : (lang === 'fr' ? 'le forfait Croissance' : 'the Growth package');
+  return lang === 'fr'
+    ? 'Nous gérons Facebook, Instagram et TikTok — contenu, publications régulières, rapport mensuel. C\'est compris dans ' + named + ', ou disponible en option sur un autre forfait.\n\nVous publiez déjà quelque part, ou on part de zéro ?'
+    : 'We run Facebook, Instagram and TikTok — content, regular posting, a monthly report. It\'s included in ' + named + ', or available as an add-on to another package.\n\nAre you posting anywhere already, or starting from nothing?';
+}
+
+// Same idea for design work — the add-on catalog is the source of truth. The old
+// copy advertised a "$75 Logo + Flyer pack" that exists in no catalog anywhere.
+function designOptions(lang) {
+  const rows = Object.keys(ADDONS).map(function (key) {
+    const a = ADDONS[key];
+    const label = (a.label && (a.label[lang] || a.label.en)) || key;
+    return '• ' + label + ' — ' + usd(a.price);
+  }).join('\n');
+  return lang === 'fr'
+    ? 'Voici ce qu\'on fait côté identité visuelle :\n\n' + rows +
+      '\n\nC\'est pour une activité qui démarre, ou pour remettre à plat quelque chose qui existe déjà ?'
+    : 'Here\'s what we do on the visual identity side:\n\n' + rows +
+      '\n\nIs this for something just starting up, or a rework of a brand that already exists?';
+}
+
 // ── Conversational Lead Collection ────────────────────────────
 function handleLeadCollection(rawText, lang) {
   const trimmed = rawText.trim();
@@ -847,8 +1420,8 @@ function handleLeadCollection(rawText, lang) {
     }[field] || '';
     return {
       text: lang === 'fr'
-        ? `Pas de problème ! Donnez-moi ${fieldLabel} et on continue.`
-        : `No problem! Just give me ${fieldLabel} and we'll continue.`
+        ? `Aucun souci — reprenons : ${fieldLabel} ?`
+        : `No problem — let's redo that one: ${fieldLabel}?`
     };
   }
 
@@ -879,8 +1452,8 @@ function handleLeadCollection(rawText, lang) {
     const firstName = trimmed.split(/\s+/)[0];
     return {
       text: lang === 'fr'
-        ? `Merci ${firstName} ! Et le nom de votre entreprise ou activité ?`
-        : `Thanks ${firstName}! What's the name of your business or activity?`
+        ? `Merci ${firstName}. Et l'activité, elle s'appelle comment ?`
+        : `Thanks ${firstName}. And what's the business called?`
     };
   }
 
@@ -908,8 +1481,8 @@ function handleLeadCollection(rawText, lang) {
     awaitingLeadField = 'city';
     return {
       text: lang === 'fr'
-        ? 'Noté ! Dans quelle ville êtes-vous (Yaoundé, Douala, Buea...) ?'
-        : 'Got it! Which city are you based in (Yaoundé, Douala, Buea...)?'
+        ? 'Et vous êtes dans quelle ville ?'
+        : 'And which city are you in?'
     };
   }
 
@@ -931,7 +1504,7 @@ function handleLeadCollection(rawText, lang) {
     return doHandoff(lang, true);
   }
 
-  return { text: lang === 'fr' ? 'Pouvez-vous me donner cette information ?' : 'Could you give me that information?' };
+  return { text: lang === 'fr' ? 'Pouvez-vous nous communiquer cette information ?' : 'Could you share that with us?' };
 }
 
 // Format an XAF amount with the right thousands separator per language.
@@ -1178,27 +1751,45 @@ function saveLeadToStorage(lead) {
     localStorage.setItem('harts_leads', JSON.stringify(leads));
   } catch (e) { /* ignore */ }
 
-  // 2) Persist to the database (fire-and-forget; UI never blocks on this)
+  // 2) Persist to the database. The UI never blocks on this, but a failure must
+  //    not be swallowed — an undelivered lead goes into the same retry queue the
+  //    website form uses, which hub.js flushes on the next page load.
+  const payload = {
+    name: lead.name || null,
+    business: lead.business || null,
+    phone: lead.phone || null,
+    city: lead.city || null,
+    package: pkg,
+    payment_pref: payment,
+    summary: generateConversationSummary(currentLang),
+    lang: currentLang,
+    source: 'chat'
+  };
+
   try {
     fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: lead.name || null,
-        business: lead.business || null,
-        phone: lead.phone || null,
-        city: lead.city || null,
-        package: pkg,
-        payment_pref: payment,
-        summary: generateConversationSummary(currentLang),
-        lang: currentLang,
-        source: 'chat'
-      })
+      body: JSON.stringify(payload)
     })
-      .then(r => r.ok ? r.json() : null)
+      .then(r => {
+        if (!r.ok) { queuePendingLead(payload); return null; }
+        return r.json();
+      })
       .then(d => { if (d && d.id) currentLeadId = d.id; })
-      .catch(() => { /* offline / not deployed yet — localStorage still has it */ });
-  } catch (e) { /* ignore */ }
+      .catch(() => { queuePendingLead(payload); });
+  } catch (e) { queuePendingLead(payload); }
+}
+
+// Holds an undelivered lead for retry. Shares the `harts_pending_leads` key with
+// hub.js, which owns the flush (it loads on every page, app.js only on the home
+// page). Separate from `harts_leads`, which archives every lead the chat took.
+function queuePendingLead(payload) {
+  try {
+    const list = JSON.parse(localStorage.getItem('harts_pending_leads') || '[]');
+    list.push({ payload, queued_at: new Date().toISOString() });
+    localStorage.setItem('harts_pending_leads', JSON.stringify(list.slice(-20)));
+  } catch (e) { /* private mode / quota */ }
 }
 
 function saveReview(rating, comment) {
@@ -1422,14 +2013,21 @@ function doHandoff(lang, withDetails = false) {
   awaitingMomoNumber = false;
   selectedAddons = [];
 
+  // `action` is what stops sendMessage's LLM gate from discarding this. Without
+  // it, the confirmation at the end of a completed lead flow was replaced by a
+  // generic LLM reply — the visitor got a WhatsApp popup, no explanation of it,
+  // and then a "Message sent" follow-up 1.4s later referring to a message they
+  // were never told about. Note that currentStage is 'handoff' by this point, so
+  // the gate's currentStage !== 'payment' check does not cover it.
   return {
+    action: 'handoff',
     text: withDetails
       ? (lang === 'fr'
-          ? 'Parfait ! Nous avons ouvert WhatsApp avec le récapitulatif de votre commande. Notre équipe confirmera le montant et finalisera le paiement avec vous (généralement sous 2 heures ouvrées).'
-          : 'Perfect! We\'ve opened WhatsApp with your order summary. Our team will confirm the amount and complete the payment with you (usually within 2 business hours).')
+          ? 'C\'est parti — WhatsApp s\'est ouvert avec le récapitulatif de votre commande. L\'équipe confirme le montant et finalise le paiement avec vous, généralement sous 2 heures ouvrées.'
+          : 'That\'s away — WhatsApp is open with your order summary. The team confirms the amount and completes the payment with you, usually within 2 business hours.')
       : (lang === 'fr'
-          ? 'Parfait ! Nous avons ouvert WhatsApp avec le contexte de notre échange. L\'équipe vous répondra très rapidement (généralement sous 2 heures ouvrées).'
-          : 'Perfect! We\'ve opened WhatsApp with the context of our chat. Our team usually replies within 2 business hours.')
+          ? 'WhatsApp s\'est ouvert avec le contexte de notre échange. L\'équipe vous répond généralement sous 2 heures ouvrées.'
+          : 'WhatsApp is open with the context of our chat. The team usually replies within 2 business hours.')
   };
 }
 
@@ -1572,9 +2170,9 @@ function sendMessage() {
   input.value = '';
 
   showTyping();
+  const startedAt = Date.now();
 
-  // Natural delay + LLM for dynamic responses where appropriate
-  setTimeout(async () => {
+  (async () => {
     let reply = getBotResponse(val, currentLang);
 
     // For general/open responses, use the LLM for dynamism (greetings, FAQ-style
@@ -1582,9 +2180,9 @@ function sendMessage() {
     // from input keywords — guarantees anything structured (a formatted package
     // card, the multi-package listing, or a state-changing action like a WhatsApp
     // handoff) can never be silently discarded by an LLM reply arriving after it.
-    const useLLM = !reply.packageHTML && !reply.multiPackage && !reply.action && !reply.isHTML &&
+    const useLLM = !reply.packageHTML && !reply.multiPackage && !reply.action && !reply.isHTML && !reply.faq &&
                    !awaitingLeadField && !awaitingAddons && !awaitingMomoNumber &&
-                   currentStage !== 'review' && currentStage !== 'payment';
+                   currentStage !== 'review' && currentStage !== 'payment' && currentStage !== 'handoff';
 
     if (useLLM) {
       try {
@@ -1615,16 +2213,26 @@ function sendMessage() {
       }
     }
 
-    // Reply is ready (rule-based or LLM) — now remove the typing indicator
+    // Reply is ready (rule-based or LLM). Hold the typing indicator until the
+    // message has plausibly been typed — time the LLM already spent on the wire
+    // counts toward that rather than being added on top of it, so a slow model
+    // doesn't read as a stalled conversation and a fast one doesn't fire back a
+    // paragraph in 200ms.
+    const remaining = Math.max(0, typingDelayFor(reply) - (Date.now() - startedAt));
+    await new Promise(resolve => setTimeout(resolve, remaining));
+
     hideTyping();
 
-    // Show the recurring packages side by side
+    // The packages arrive one after another instead of in a single tick — four
+    // price cards landing simultaneously reads as a brochure being dumped on the
+    // table, not someone talking you through the options.
     if (reply.multiPackage) {
       if (reply.text) addMessage('bot', reply.text);
-      setTimeout(() => addMessage('bot', formatPackage('starter', currentLang), true), 100);
-      setTimeout(() => addMessage('bot', formatPackage('essential', currentLang), true), 200);
-      setTimeout(() => addMessage('bot', formatPackage('growth', currentLang), true), 300);
-      setTimeout(() => addMessage('bot', formatPackage('pro', currentLang), true), 400);
+      ['starter', 'essential', 'growth', 'pro'].forEach(function (key, i) {
+        setTimeout(function () {
+          addMessage('bot', formatPackage(key, currentLang), true);
+        }, 430 * (i + 1));
+      });
     } else if (reply.packageHTML) {
       if (reply.text) addMessage('bot', reply.text);
       addMessage('bot', reply.packageHTML, true);
@@ -1635,7 +2243,20 @@ function sendMessage() {
     if (reply.action === 'handoff' || reply.action === 'handoff-offer') {
       // The doHandoff already opened the window in some paths.
     }
-  }, 650 + Math.random() * 450);
+  })();
+}
+
+// How long the assistant should appear to be typing. A person's reply time
+// scales with what they're writing — a one-line answer comes back almost at
+// once, a package breakdown takes a beat. Capped so nobody sits watching dots,
+// and jittered so the rhythm never feels metronomic. Previously every reply,
+// long or short, waited the same fixed 650-1100ms, which is one of the clearest
+// tells that you're talking to a script.
+function typingDelayFor(reply) {
+  const chars = ((reply && reply.text) || '').length +
+    (reply && reply.packageHTML ? 220 : 0) +
+    (reply && reply.multiPackage ? 320 : 0);
+  return Math.min(2400, 420 + chars * 7) + Math.random() * 260;
 }
 
 // useQuickReply removed (no suggestions in simplified interface)
@@ -1654,11 +2275,13 @@ function initChat() {
   // resolves. Never awaited — the chat below is already usable on FALLBACK_* data.
   hydrateCatalogFromKB();
 
-  // Auto-greeting after a short delay
+  // Auto-greeting after a short delay. NB: `currentLang`, not `lang` — initChat
+  // takes no lang parameter, and the bare reference used to throw a ReferenceError
+  // inside this timer, so the opening message never actually appeared.
   setTimeout(() => {
-    addMessage('bot', lang === 'fr'
-      ? 'Bonjour ! Ici H@rts, votre assistant IA Harts. Nous pouvons vous aider avec un site web, une application, un logo, des flyers, ou la gestion de vos réseaux sociaux. Qu\'est-ce que vous cherchez ?'
-      : 'Hi! This is H@rts, your Harts AI assistant. We can help you get a website, mobile app, logo, flyers, social media management, or digital marketing for your business in Cameroon. What are you looking for today?');
+    addMessage('bot', currentLang === 'fr'
+      ? 'Bonjour — ici H@rts.\n\nLa plupart des visiteurs arrivent avec un problème précis : des messages clients sans réponse, un système qui tient avec des tableurs, ou une activité difficile à trouver en ligne.\n\nQu\'est-ce qui vous amène aujourd\'hui ?'
+      : 'Hi — H@rts here.\n\nMost people land here with something specific in mind: customer messages going unanswered, a system held together by spreadsheets, or a business that\'s just hard to find online.\n\nWhat brings you in today?');
   }, 600);
 
   form.addEventListener('submit', (e) => {
@@ -1713,9 +2336,20 @@ function useChip(text) {
   if (wasEmpty && chatContainer) chatContainer.classList.add('chatting');
 }
 
+// Chips carry their full sentence in data-chip while the label stays short, so the
+// bot receives a real, specific message instead of a two-word product name.
+function initChips() {
+  document.querySelectorAll('.chat-chip[data-chip]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      useChip(btn.getAttribute('data-chip'));
+    });
+  });
+}
+
 // ── Boot ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   initChat();
+  initChips();
 
   // Optional: expose for debugging
   window.HartsChat = { getBotResponse, messages };

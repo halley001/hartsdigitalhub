@@ -1,0 +1,59 @@
+<!--
+  H@rts — Supabase Auth → Email Templates → "Magic Link"
+  Sent to a RETURNING trainee who asks for a sign-in link on login.html.
+  Variables: {{ .ConfirmationURL }}  {{ .Token }}  {{ .Email }}  {{ .SiteURL }}
+  Subject:   Your H@rts sign-in link
+-->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your sign-in link for the H@rts Training Hub. Valid for one hour.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f4;margin:0;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e4e4e4;">
+
+      <tr><td style="padding:28px 32px 0 32px;">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.02em;color:#0a0a0a;">H@rts</span>
+        <div style="height:1px;line-height:1px;font-size:0;background:#0a0a0a;margin-top:18px;">&nbsp;</div>
+      </td></tr>
+
+      <tr><td style="padding:28px 32px 0 32px;color:#0a0a0a;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px;font-size:18px;font-weight:600;">Sign in to the Training Hub</p>
+        <p style="margin:0 0 20px;">Here's the link you asked for. It signs you in on this device and expires in one hour.</p>
+      </td></tr>
+
+      <tr><td style="padding:8px 32px 0 32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#0a0a0a;">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">Open the Training Hub</a>
+          </td>
+        </tr></table>
+      </td></tr>
+
+      <tr><td style="padding:22px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 6px;">Or enter this code if you're asked for one:</p>
+        <p style="margin:0 0 18px;font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;font-size:20px;letter-spacing:.14em;color:#0a0a0a;">{{ .Token }}</p>
+        <p style="margin:0 0 18px;">If you didn't ask to sign in, you can ignore this email — nothing happens until the link is opened.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px;">
+        <div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;">&nbsp;</div>
+      </td></tr>
+
+      <!-- French — the site and the assistant are bilingual, so the email is too. -->
+      <tr><td style="padding:20px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 8px;color:#0a0a0a;font-weight:600;">Connexion à l'espace de formation</p>
+        <p style="margin:0 0 6px;">Voici votre lien de connexion. Il expire dans une heure. Code de secours&nbsp;: <span style="font-family:'SFMono-Regular',Consolas,monospace;color:#0a0a0a;">{{ .Token }}</span></p>
+        <p style="margin:0 0 20px;">Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px 28px 32px;">
+        <div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;margin-bottom:16px;">&nbsp;</div>
+        <p style="margin:0;color:#8a8a8a;font-size:12px;line-height:1.7;">
+          Harts Digital Hub &middot; Douala, Cameroon &middot; Mon–Sat, 8am–6pm WAT<br>
+          <a href="mailto:support@hartsdigitalhub.com" style="color:#8a8a8a;">support@hartsdigitalhub.com</a> &middot;
+          <a href="https://wa.me/237622341343" style="color:#8a8a8a;">WhatsApp +237 622 341 343</a><br>
+          Sent to {{ .Email }} because a sign-in link was requested for this address.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>

@@ -1012,7 +1012,8 @@ body {
   text-align: center;
 }
 
-.welcome-inner h1 {
+.welcome-inner h1,
+.welcome-inner h2 {
   font-family: 'Syne', sans-serif;
   font-size: 1.8rem;
   font-weight: 600;
@@ -1102,7 +1103,8 @@ body {
   text-align: center;
   padding-bottom: 6vh;
 }
-.welcome-inner h1 {
+.welcome-inner h1,
+.welcome-inner h2 {
   font-family: 'Syne', sans-serif;
   font-size: clamp(1.4rem, 5vw, 2rem);
   font-weight: 700;

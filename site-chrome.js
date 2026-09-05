@@ -12,6 +12,8 @@
   'use strict';
 
   var PHONE = '+237 622 341 343';
+  var PHONE_E164 = '+237622341343';   // tel: / wa.me form (no spaces)
+  var EMAIL = 'support@hartsdigitalhub.com';
   var FOUNDED = 2024;   // company start year — footer shows FOUNDED–present
 
   // Primary navigation. `key` matches <body data-page="…"> for active state.
@@ -32,7 +34,8 @@
     { label: 'About',               href: 'about.html' },
     { label: 'SME Packages',        href: 'services.html' },
     { label: 'AI Training',         href: 'training.html' },
-    { label: 'Privacy Policy',      href: 'privacy-policy.html' }
+    { label: 'Privacy Policy',      href: 'privacy-policy.html' },
+    { label: 'Terms of Service',    href: 'terms.html' }
   ];
 
   function navHTML(page) {
@@ -64,7 +67,14 @@
         '<p style="margin-top:.6rem;max-width:34ch">Intelligent software &amp; next-gen digital hubs. Bilingual EN / FR. Cameroon &amp; beyond.</p>' +
       '</div>' +
       '<nav class="hub-footer-links" aria-label="Footer">' + links + '</nav>' +
-      '<div>&copy; ' + years + ' H@rts &middot; ' + PHONE + '</div>';
+      // Contact block — real, clickable ways to reach a human, not just the form.
+      '<address class="hub-footer-contact" style="font-style:normal">' +
+        '<a href="mailto:' + EMAIL + '">' + EMAIL + '</a>' +
+        '<a href="tel:' + PHONE_E164 + '">' + PHONE + '</a>' +
+        '<a href="https://wa.me/' + PHONE_E164.replace('+', '') + '" target="_blank" rel="noopener">WhatsApp us</a>' +
+        '<span>Douala, Cameroon &middot; Mon–Sat, 8am–6pm WAT</span>' +
+      '</address>' +
+      '<div>&copy; ' + years + ' H@rts &middot; All rights reserved.</div>';
   }
 
   function mount() {

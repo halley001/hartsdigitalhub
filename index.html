@@ -42,8 +42,26 @@
     "name": "H@rts (Harts Digital Hub)",
     "url": "https://hartsdigitalhub.com/",
     "description": "Custom enterprise software, AI chatbots integrated into WhatsApp, websites and existing business systems, cloud architecture and managed IT services.",
-    "address": { "@type": "PostalAddress", "addressCountry": "CM" },
-    "contactPoint": { "@type": "ContactPoint", "telephone": "+237622341343", "contactType": "sales" }
+    "address": { "@type": "PostalAddress", "addressLocality": "Douala", "addressCountry": "CM" },
+    "email": "support@hartsdigitalhub.com",
+    "logo": "https://hartsdigitalhub.com/android-chrome-512x512.png",
+    "contactPoint": [
+      {
+        "@type": "ContactPoint",
+        "telephone": "+237622341343",
+        "email": "support@hartsdigitalhub.com",
+        "contactType": "sales",
+        "areaServed": "CM",
+        "availableLanguage": ["en", "fr"]
+      },
+      {
+        "@type": "ContactPoint",
+        "telephone": "+237622341343",
+        "email": "support@hartsdigitalhub.com",
+        "contactType": "customer support",
+        "availableLanguage": ["en", "fr"]
+      }
+    ]
   }
   </script>
 </head>
@@ -384,12 +402,16 @@
   <div class="gemini-chat" id="chat-main">
     <div class="chat-welcome" id="chat-welcome">
       <div class="welcome-inner">
-        <h1>How can we help grow your business?</h1>
+        <h2>What are you trying to fix?</h2>
+        <p class="chat-welcome-sub">Tell us in your own words, or start from one of these.</p>
+        <!-- Chips are phrased as the visitor's *problem*, not our product names —
+             most people arrive knowing what hurts, not which service to ask for.
+             data-chip is read by app.js (no inline handler, keeps CSP clean). -->
         <div class="chat-suggestions">
-          <button class="chat-chip" onclick="useChip('I need a WhatsApp chatbot')">WhatsApp bot</button>
-          <button class="chat-chip" onclick="useChip('I need a chatbot for my website')">Website chatbot</button>
-          <button class="chat-chip" onclick="useChip('I need custom software')">Custom software</button>
-          <button class="chat-chip" onclick="useChip('How much does it cost?')">Pricing</button>
+          <button class="chat-chip" type="button" data-chip="We're losing customers because nobody answers WhatsApp fast enough">Leads go cold on WhatsApp</button>
+          <button class="chat-chip" type="button" data-chip="Can a chatbot connect to the system we already use?">Connect to our existing system</button>
+          <button class="chat-chip" type="button" data-chip="We're running our operations on spreadsheets and it's breaking. We need custom software.">Outgrown our spreadsheets</button>
+          <button class="chat-chip" type="button" data-chip="What does a project like this usually cost?">What does this cost?</button>
         </div>
       </div>
     </div>
@@ -410,8 +432,11 @@
 </div>
 
 <!-- Scripts: shared header/footer + chat engine + hub interactions -->
-<script src="site-chrome.js"></script>
-<script src="app.js"></script>
-<script src="hub.js"></script>
+<script defer src="site-chrome.js"></script>
+<script defer src="app.js"></script>
+<script defer src="hub.js"></script>
+<!-- Vercel Web Analytics (cookieless, no consent banner required) -->
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

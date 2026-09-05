@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "generate:services": "node scripts/generate-services.js"
+    "generate:services": "node scripts/generate-services.js",
+    "generate:faq": "node scripts/generate-faq-sql.js"
   }
 }

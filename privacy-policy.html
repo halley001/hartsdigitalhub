@@ -74,7 +74,8 @@
     <div class="lead-shell reveal" style="grid-template-columns:1fr;margin-bottom:1.5rem">
       <div class="lead-aside" style="max-width:none">
         <h3>Cookies &amp; local storage</h3>
-        <p>If you sign in to the Training Hub, we set two strictly-necessary session cookies (<code>sb_at</code> and <code>sb_rt</code>) to keep you logged in. They're marked <code>Secure</code> and <code>HttpOnly</code> and aren't used for tracking or advertising. We don't currently run any analytics or advertising cookies.</p>
+        <p>If you sign in to the Training Hub, we set two strictly-necessary session cookies (<code>sb_at</code> and <code>sb_rt</code>) to keep you logged in. They're marked <code>Secure</code> and <code>HttpOnly</code> and aren't used for tracking or advertising. We don't run any advertising cookies.</p>
+        <p>We measure traffic with Vercel Web Analytics, which is <b>cookieless</b>: it records page views and general information such as country, browser and referring site, but it sets no cookie, builds no profile of you, and doesn't follow you across other websites. That's why you don't see a cookie banner here.</p>
         <p>Your browser also stores a few things locally on your own device (not on our servers) to make the site work smoothly: your chosen language, a cache of chatbot answers, and a local backup of anything you submit through the lead or review forms in case the request to our server fails.</p>
       </div>
     </div>
@@ -86,6 +87,9 @@
         <ul>
           <li>Supabase — hosts our database and handles Training Hub sign-in</li>
           <li>xAI — processes chatbot messages to generate replies</li>
+          <li>Vercel — hosts this website, and provides cookieless traffic analytics (see below)</li>
+          <li>Campay — processes Mobile Money payments when you choose to pay</li>
+          <li>Telegram and/or Resend — used to alert our team that a new enquiry has arrived, so it doesn't sit unanswered. The alert contains the contact details you submitted.</li>
         </ul>
         <p style="margin-top:1rem">These providers only receive what's needed to perform their function and don't use your data for their own purposes.</p>
       </div>
@@ -121,7 +125,10 @@
   </a>
 </div>
 
-<script src="site-chrome.js"></script>
-<script src="hub.js"></script>
+<script defer src="site-chrome.js"></script>
+<script defer src="hub.js"></script>
+<!-- Vercel Web Analytics (cookieless, no consent banner required) -->
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

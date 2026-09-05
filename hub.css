@@ -658,6 +658,10 @@
 .hub-footer a { color: #cfd4d8; text-decoration: none; }
 .hub-footer a:hover { color: var(--hub-accent); }
 .hub-footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.hub-footer-contact { display: flex; flex-direction: column; gap: .4rem; }
+.hub-footer-contact a { text-decoration: none; }
+.hub-footer-contact a:hover { text-decoration: underline; }
+.hub-footer-contact span { color: var(--muted); }
 
 /* ── Floating action buttons ──────────────────────────────── */
 .fab-stack {
@@ -774,7 +778,8 @@
   flex-direction: column;
 }
 #harts-chat-widget .chat-welcome { padding: 1.2rem 1rem 0; min-height: 0; flex: 0 0 auto; }
-#harts-chat-widget .welcome-inner h1 { font-size: 1.15rem; line-height: 1.3; }
+#harts-chat-widget .welcome-inner h1,
+#harts-chat-widget .welcome-inner h2 { font-size: 1.15rem; line-height: 1.3; }
 #harts-chat-widget .chat-messages {
   flex: 1;
   min-height: 0;
@@ -832,3 +837,29 @@
   .tilt-card, .phone-3d { transition: none; }
   * { scroll-behavior: auto; }
 }
+
+/* ── Screen-reader-only utility ───────────────────────────── */
+/* Visible to assistive tech, removed from the visual layout. Used where a page
+   needs a real <h1> for its document outline but the design has no visible
+   title (e.g. the Training Hub dashboard). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Sub-line under the chat welcome heading — invites free-text input so the
+   suggestion chips read as examples, not as the only available options. */
+.chat-welcome-sub {
+  margin: .5rem 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+#harts-chat-widget .chat-welcome-sub { font-size: 0.8rem; margin-top: .35rem; }

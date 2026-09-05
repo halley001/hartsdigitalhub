@@ -25,10 +25,20 @@ export default async function handler(req, res) {
     supabase_service_key: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     campay_base_url: CAMPAY_BASE,                 // not secret — helps confirm demo vs live
     campay_auth: hasCampayAuth,
-    campay_webhook_key: Boolean(process.env.CAMPAY_WEBHOOK_KEY)
+    campay_webhook_key: Boolean(process.env.CAMPAY_WEBHOOK_KEY),
+    lead_notify_telegram: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID),
+    lead_notify_email: Boolean(
+      process.env.RESEND_API_KEY && process.env.LEAD_NOTIFY_TO && process.env.LEAD_NOTIFY_FROM
+    )
   };
 
-  const checks = { supabase: 'skipped', campay: 'skipped' };
+  const checks = { supabase: 'skipped', campay: 'skipped', lead_notify: 'skipped' };
+
+  // A lead can still be captured with no notification channel, but nobody is told
+  // about it until someone opens the database — worth flagging loudly.
+  checks.lead_notify = (env.lead_notify_telegram || env.lead_notify_email)
+    ? 'ok'
+    : 'warn (no channel configured — leads are stored silently)';
 
   // Live check 1: Supabase reachable + authorized + tables exist
   if (env.supabase_url && env.supabase_service_key) {

@@ -67,6 +67,11 @@
     <!-- Dashboard -->
     <section id="tr-dashboard" style="display:none;">
 
+      <!-- Page-level heading: every page needs exactly one h1 for screen readers
+           and document outline. Visually hidden — the progress bar is the visual
+           anchor here, but the page still needs a real title in the a11y tree. -->
+      <h1 class="sr-only">Training Hub dashboard</h1>
+
       <section class="tr-progress-section" id="tr-progress-section">
         <div class="tr-progress-header">
           <span id="tr-welcome-name" class="tr-welcome"></span>
@@ -305,7 +310,10 @@
 
   <footer id="site-footer"></footer>
 
-  <script src="dashboard.js"></script>
-  <script src="site-chrome.js"></script>
+  <script defer src="dashboard.js"></script>
+  <script defer src="site-chrome.js"></script>
+<!-- Vercel Web Analytics (cookieless, no consent banner required) -->
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

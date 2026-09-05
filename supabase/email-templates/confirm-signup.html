@@ -1,0 +1,60 @@
+<!--
+  H@rts — Supabase Auth → Email Templates → "Confirm signup"
+  Sent on a trainee's FIRST sign-in: login.html calls /auth/v1/otp with
+  create_user:true, so a brand-new address gets this template instead of
+  "Magic Link". It is therefore a welcome email as much as a confirmation.
+  Variables: {{ .ConfirmationURL }}  {{ .Token }}  {{ .Email }}
+  Subject:   Confirm your email and start the H@rts AI course
+-->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Confirm your address to open the H@rts Training Hub — ten modules, at your own pace.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f4;margin:0;padding:32px 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <tr><td align="center">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e4e4e4;">
+
+      <tr><td style="padding:28px 32px 0 32px;">
+        <span style="font-size:20px;font-weight:700;letter-spacing:-.02em;color:#0a0a0a;">H@rts</span>
+        <div style="height:1px;line-height:1px;font-size:0;background:#0a0a0a;margin-top:18px;">&nbsp;</div>
+      </td></tr>
+
+      <tr><td style="padding:28px 32px 0 32px;color:#0a0a0a;font-size:15px;line-height:1.6;">
+        <p style="margin:0 0 16px;font-size:18px;font-weight:600;">One click and you are in</p>
+        <p style="margin:0 0 12px;">Confirm this address and the Training Hub opens: ten modules on using AI in a real business, taken at your own pace, with a certificate at the end.</p>
+        <p style="margin:0 0 20px;">There is no password to remember — every sign-in from here works the same way, by link.</p>
+      </td></tr>
+
+      <tr><td style="padding:8px 32px 0 32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="background:#0a0a0a;">
+            <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;">Confirm and start module 1</a>
+          </td>
+        </tr></table>
+      </td></tr>
+
+      <tr><td style="padding:22px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 6px;">Backup code, if you are asked for one:</p>
+        <p style="margin:0 0 18px;font-family:'SFMono-Regular',Consolas,'Liberation Mono',monospace;font-size:20px;letter-spacing:.14em;color:#0a0a0a;">{{ .Token }}</p>
+        <p style="margin:0 0 18px;">Did not sign up? Ignore this email and no account is created.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px;"><div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;">&nbsp;</div></td></tr>
+
+      <!-- French — the site and the assistant are bilingual, so the email is too. -->
+      <tr><td style="padding:20px 32px 0 32px;color:#525252;font-size:13px;line-height:1.6;">
+        <p style="margin:0 0 8px;color:#0a0a0a;font-weight:600;">Confirmez votre adresse</p>
+        <p style="margin:0 0 6px;">Confirmez cette adresse et l&rsquo;espace de formation s&rsquo;ouvre&nbsp;: dix modules sur l&rsquo;usage de l&rsquo;IA en entreprise, à votre rythme, avec un certificat à la clé. Code de secours&nbsp;: <span style="font-family:'SFMono-Regular',Consolas,monospace;color:#0a0a0a;">{{ .Token }}</span></p>
+        <p style="margin:0 0 20px;">Si vous n&rsquo;êtes pas à l&rsquo;origine de cette inscription, ignorez cet e-mail.</p>
+      </td></tr>
+
+      <tr><td style="padding:0 32px 28px 32px;">
+        <div style="height:1px;line-height:1px;font-size:0;background:#e4e4e4;margin-bottom:16px;">&nbsp;</div>
+        <p style="margin:0;color:#8a8a8a;font-size:12px;line-height:1.7;">
+          Harts Digital Hub &middot; Douala, Cameroon &middot; Mon&ndash;Sat, 8am&ndash;6pm WAT<br>
+          <a href="mailto:support@hartsdigitalhub.com" style="color:#8a8a8a;">support@hartsdigitalhub.com</a> &middot;
+          <a href="https://wa.me/237622341343" style="color:#8a8a8a;">WhatsApp +237 622 341 343</a><br>
+          Sent to {{ .Email }} because this address was used to sign up.
+        </p>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>

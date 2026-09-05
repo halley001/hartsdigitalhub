@@ -296,25 +296,84 @@
     };
   }
 
-  function saveLead(data, cb) {
-    // Fire-and-forget POST to the existing /api/lead endpoint.
-    // Email + budget are folded into `summary` (no dedicated columns).
-    var payload = {
+  // ── Pending-lead queue ──────────────────────────────────
+  // A lead that fails to reach the server is held here and retried on the next
+  // page load, so a momentary outage doesn't silently cost a customer. Kept
+  // separate from app.js's `harts_leads` archive, which records every lead the
+  // chat collected whether or not it was sent.
+  var PENDING_KEY = 'harts_pending_leads';
+  var PENDING_MAX = 20;
+
+  function readPending() {
+    try { return JSON.parse(localStorage.getItem(PENDING_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+
+  function writePending(list) {
+    try { localStorage.setItem(PENDING_KEY, JSON.stringify(list.slice(-PENDING_MAX))); }
+    catch (e) { /* private mode / quota — nothing more we can do */ }
+  }
+
+  // Returns true only if the lead was genuinely stored for a later retry, so the
+  // caller never claims "saved" when nothing was saved.
+  function queueLead(payload) {
+    try {
+      var list = readPending();
+      list.push({ payload: payload, queued_at: new Date().toISOString() });
+      writePending(list);
+      return readPending().length > 0;
+    } catch (e) { return false; }
+  }
+
+  function postLead(payload) {
+    return fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) { return res.ok; });
+  }
+
+  // Retry anything queued by an earlier visit. Sequential and best-effort —
+  // a still-failing lead simply stays queued.
+  function flushPendingLeads() {
+    if (!('fetch' in window) || !('localStorage' in window)) return;
+    var list = readPending();
+    if (!list.length) return;
+
+    var remaining = [];
+    var i = 0;
+    (function next() {
+      if (i >= list.length) { writePending(remaining); return; }
+      var item = list[i++];
+      postLead(item.payload)
+        .then(function (ok) { if (!ok) remaining.push(item); })
+        .catch(function () { remaining.push(item); })
+        .then(next);
+    })();
+  }
+
+  function buildLeadPayload(data) {
+    // Email + budget are folded into `summary` (no dedicated columns on `leads`);
+    // `email` is passed separately so the notifier can use it as a reply-to.
+    return {
       name: data.name,
       phone: data.phone,
+      email: data.email,
       package: data.service,
       summary: 'Service: ' + data.service + ' | Budget: ' + data.budget +
                ' | Email: ' + data.email + ' | ' + data.description,
       lang: (document.documentElement.lang || 'en'),
       source: 'website-lead'
     };
-    if (!('fetch' in window)) { cb && cb(); return; }
-    fetch('/api/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(function (res) { cb && cb(res.ok); })
-      .catch(function () { cb && cb(false); });
+  }
+
+  // cb(true) sent · cb('queued') held for retry · cb(false) lost entirely
+  function saveLead(data, cb) {
+    var payload = buildLeadPayload(data);
+    if (!('fetch' in window)) { cb && cb(queueLead(payload) ? 'queued' : false); return; }
+    postLead(payload)
+      .then(function (ok) { cb && cb(ok ? true : (queueLead(payload) ? 'queued' : false)); })
+      .catch(function () { cb && cb(queueLead(payload) ? 'queued' : false); });
   }
 
   function initLeadForm() {
@@ -347,13 +406,23 @@
       var err = validate(data);
       if (err) { if (status) status.textContent = err; return; }
       if (status) status.textContent = 'Sending…';
-      saveLead(data, function (ok) {
-        if (status) {
-          status.textContent = ok === false
-            ? 'Saved locally — tap "Send via WhatsApp" to reach us directly.'
-            : 'Thanks! Your request is in — we\'ll reply within one business day.';
+      saveLead(data, function (result) {
+        if (result === true) {
+          if (status) status.textContent = 'Thanks! Your request is in — we\'ll reply within one business day.';
+          form.reset();
+        } else if (result === 'queued') {
+          // Genuinely held on this device and retried on the next visit — but the
+          // visitor should not be left believing we already have it.
+          if (status) {
+            status.textContent = 'We couldn\'t reach our server just now. Your details are saved on this device and ' +
+                                 'we\'ll retry — but the fastest route is "Send via WhatsApp" below.';
+          }
+        } else {
+          if (status) {
+            status.textContent = 'Sorry — we couldn\'t save that, and it hasn\'t reached us. ' +
+                                 'Please tap "Send via WhatsApp" below so your message isn\'t lost.';
+          }
         }
-        if (ok !== false) form.reset();
       });
     });
   }
@@ -383,5 +452,8 @@
     initChatWidget();
     initLeadForm();
     initReveal();
+    // Retry any lead a previous visit couldn't deliver. Runs on every page since
+    // hub.js is site-wide, so the visitor doesn't have to return to the form.
+    flushPendingLeads();
   });
 })();
