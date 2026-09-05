@@ -409,6 +409,200 @@ const KNOWLEDGE = {
   }
 };
 
+// ── Memory ────────────────────────────────────────────────────
+// Until now the assistant forgot everything the moment the tab closed: a visitor
+// who came back the next day re-introduced themselves, re-explained their
+// business, and got the opening greeting as though they were a stranger. That is
+// the single biggest thing standing between "a chat box" and "a conversation".
+//
+// The layering follows the standard split for conversational agents:
+//   working memory  — `messages`, this page view, already existed
+//   episodic memory — `mem.episodes`, a bounded transcript with timestamps
+//   semantic memory — `mem.profile`, extracted durable facts
+// plus recursive summarisation (turns that fall out of the episodic window are
+// folded into a rolling summary rather than dropped) and deliberate forgetting
+// (memory expires, so we never greet someone with a half-year-old conversation).
+//
+// Everything lives in this visitor's own browser. Nothing here is sent anywhere
+// except, in compressed form, to our own /api/chat to give the model continuity.
+//
+// PRIVACY, deliberately: name, business, city and interests are remembered;
+// PHONE NUMBER AND EMAIL ARE NOT, even though we collect them in the lead flow
+// and it would be convenient. A shared or café computer is a normal way to get
+// online here, and a stranger recovering someone's name is a very different
+// problem from recovering their phone number. Anyone can wipe all of it by
+// typing "forget me".
+const MEM_KEY = 'harts_memory_v1';
+const MEM_TTL_MS = 45 * 24 * 60 * 60 * 1000;  // forget entirely after 45 quiet days
+const MEM_RESUME_MS = 36 * 60 * 60 * 1000;    // replay the transcript only if recent
+const MEM_MAX_EPISODES = 24;                  // bounded context growth
+const MEM_SUMMARY_MAX = 700;                  // chars, hard cap on the rolling summary
+const MEM_TURN_MAX = 400;                     // chars kept per remembered turn
+const MEM_PENDING_MS = 7 * 24 * 60 * 60 * 1000;  // an unfinished order stays offerable a week
+
+function blankMemory() {
+  return {
+    v: 1,
+    firstSeen: Date.now(),
+    lastSeen: Date.now(),
+    visits: 0,
+    profile: { name: null, business: null, city: null, businessType: null, mainGoal: null, packageInterest: null, lang: null },
+    episodes: [],
+    summary: '',
+    // An order that was started and never finished. Someone who dropped at the
+    // phone question and comes back should be offered the thread, not made to
+    // walk the whole flow again — abandoning a form is usually an interruption,
+    // not a decision.
+    pending: null
+  };
+}
+
+let mem = blankMemory();
+let memIsReturning = false;   // had usable memory when this page view started
+let memSaveTimer = null;
+let memRestoring = false;   // true while replaying stored turns into the UI
+let awaitingResume = false; // we offered to finish an abandoned order, awaiting a yes/no
+
+function loadMemory() {
+  try {
+    const raw = localStorage.getItem(MEM_KEY);
+    if (!raw) return blankMemory();
+    const parsed = JSON.parse(raw);
+    // A version bump means the shape changed — start clean rather than trying to
+    // migrate a structure we no longer understand.
+    if (!parsed || parsed.v !== 1) return blankMemory();
+    // Forgetting: a conversation from two months ago is not context, it is a
+    // stranger quoting you back at yourself.
+    if (!parsed.lastSeen || (Date.now() - parsed.lastSeen) > MEM_TTL_MS) return blankMemory();
+    const fresh = blankMemory();
+    return {
+      v: 1,
+      firstSeen: parsed.firstSeen || fresh.firstSeen,
+      lastSeen: parsed.lastSeen,
+      visits: Number(parsed.visits) || 0,
+      profile: Object.assign(fresh.profile, parsed.profile || {}),
+      episodes: Array.isArray(parsed.episodes) ? parsed.episodes.slice(-MEM_MAX_EPISODES) : [],
+      summary: typeof parsed.summary === 'string' ? parsed.summary.slice(0, MEM_SUMMARY_MAX) : '',
+      pending: (parsed.pending && typeof parsed.pending === 'object') ? parsed.pending : null
+    };
+  } catch (e) {
+    return blankMemory();   // corrupt or storage blocked — behave like a new visitor
+  }
+}
+
+// Coalesced: a burst of turns writes once, and a browser with storage disabled
+// (private mode, blocked cookies) degrades to a session with no memory rather
+// than throwing on every message.
+function saveMemory() {
+  if (memSaveTimer) return;
+  memSaveTimer = setTimeout(function () {
+    memSaveTimer = null;
+    try {
+      mem.lastSeen = Date.now();
+      localStorage.setItem(MEM_KEY, JSON.stringify(mem));
+    } catch (e) { /* storage unavailable — memory stays in-page only */ }
+  }, 400);
+}
+
+function forgetMemory() {
+  mem = blankMemory();
+  memIsReturning = false;
+  try { localStorage.removeItem(MEM_KEY); } catch (e) { /* nothing to remove */ }
+}
+
+function memStrip(text) {
+  return String(text == null ? '' : text)
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Recursive summarisation, done locally and deterministically — no extra LLM
+// call, so it also works offline and costs nothing. Only the visitor's own words
+// are carried forward: our replies are reconstructable from the catalogue, but
+// what they told us about their business is not.
+function foldIntoSummary(dropped) {
+  const salient = dropped
+    .filter(e => e.role === 'user' && e.text && e.text.length > 12)
+    .map(e => e.text.slice(0, 90));
+  if (!salient.length) return;
+  const merged = (mem.summary ? mem.summary + ' · ' : '') + salient.join(' · ');
+  // Keep the most RECENT end when trimming: older context matters less, and a
+  // summary that never lets go would grow without bound.
+  mem.summary = merged.length > MEM_SUMMARY_MAX ? merged.slice(merged.length - MEM_SUMMARY_MAX) : merged;
+}
+
+function rememberTurn(role, text) {
+  const clean = memStrip(text);
+  if (!clean) return;
+  mem.episodes.push({ t: Date.now(), role: role === 'user' ? 'user' : 'bot', text: clean.slice(0, MEM_TURN_MAX) });
+  if (mem.episodes.length > MEM_MAX_EPISODES) {
+    foldIntoSummary(mem.episodes.splice(0, mem.episodes.length - MEM_MAX_EPISODES));
+  }
+  saveMemory();
+}
+
+// Merge-only: a later empty value never erases something we already learned.
+function rememberProfile(patch) {
+  if (!patch) return;
+  let changed = false;
+  Object.keys(patch).forEach(function (k) {
+    const v = patch[k];
+    if (v == null || v === '') return;
+    if (!(k in mem.profile)) return;         // phone/email are not fields here, by design
+    if (mem.profile[k] === v) return;
+    mem.profile[k] = typeof v === 'string' ? v.slice(0, 120) : v;
+    changed = true;
+  });
+  if (changed) saveMemory();
+}
+
+// Compact context handed to the LLM. Deliberately small — a few lines of fact
+// beats replaying a transcript, and it keeps per-message token cost flat however
+// long the relationship gets.
+function memoryContext(lang) {
+  if (!mem.visits && !mem.episodes.length) return '';
+  const p = mem.profile;
+  const bits = [];
+  if (p.name) bits.push('Name: ' + p.name);
+  if (p.business) bits.push('Business: ' + p.business);
+  if (p.businessType) bits.push('Type: ' + p.businessType);
+  if (p.city) bits.push('City: ' + p.city);
+  if (p.mainGoal) bits.push('Goal: ' + p.mainGoal);
+  if (p.packageInterest) bits.push('Interested in: ' + p.packageInterest);
+
+  const days = Math.floor((Date.now() - mem.lastSeen) / (24 * 60 * 60 * 1000));
+  if (mem.visits > 1) {
+    bits.push('Returning visitor (' + mem.visits + ' visits' + (days > 0 ? ', last one ' + days + ' day' + (days === 1 ? '' : 's') + ' ago' : '') + ')');
+  }
+  if (mem.summary) bits.push('Earlier they mentioned: ' + mem.summary);
+
+  return bits.length ? bits.join('\n') : '';
+}
+
+function rememberPending(pkg) {
+  mem.pending = { pkg: pkg || null, at: Date.now() };
+  saveMemory();
+}
+
+function clearPending() {
+  if (!mem.pending) return;
+  mem.pending = null;
+  saveMemory();
+}
+
+// An unfinished order is only worth raising while it is still plausibly live.
+function pendingIsFresh() {
+  return Boolean(mem.pending && mem.pending.at && (Date.now() - mem.pending.at) < MEM_PENDING_MS);
+}
+
+// How long since the last visit, in whole days. -1 when this is a first visit.
+function memDaysSinceLastVisit() {
+  if (!mem.visits || !mem.lastSeen) return -1;
+  return Math.floor((Date.now() - mem.lastSeen) / (24 * 60 * 60 * 1000));
+}
+
 // ── FAQ knowledge base ────────────────────────────────────────
 // The bundled tier of the same three-tier pattern the service catalog uses:
 // live KB (/api/services → the `faq` table) → localStorage cache → this array.
@@ -724,13 +918,100 @@ function mergeFAQFromKB(rows) {
   return true;
 }
 
+// ── Language detection ────────────────────────────────────────
+// The chat widget has no language toggle, and currentLang stayed 'en' unless
+// something had already written 'lang' to localStorage. So a French speaker
+// typing French got every rule-based reply — package cards, the lead questions,
+// FAQ answers, the handoff — in English, while the LLM path answered in French
+// because its system prompt tells it to. The assistant appeared to switch
+// language at random, in a market where French is the majority.
+//
+// Deliberately conservative: it moves only on a clear margin, so a name, a phone
+// number, a business name or "ok" can never flip the conversation. Ambiguous
+// input leaves things exactly where they are.
+const FR_MARKERS = /\b(je|tu|vous|nous|votre|notre|mon|ma|mes|est|sont|etre|avoir|pour|avec|que|qui|quoi|dans|sur|pas|plus|une|des|les|aux|comment|combien|pourquoi|quel|quelle|bonjour|bonsoir|salut|merci|oui|non|besoin|veux|voulez|faire|entreprise|clients|prix|devis|coute|aide|aider|jai|cest|sil)\b/gi;
+const EN_MARKERS = /\b(the|is|are|was|you|your|we|our|for|with|that|this|what|how|much|many|need|want|hello|thanks|thank|yes|can|does|did|please|business|website|customers|price|cost|help|would|should|about|from|have|has|there)\b/gi;
+const FR_ACCENTS = /[àâçéèêëîïôûùüÿœæ]/i;
+
+function detectLang(text) {
+  const s = String(text || '');
+  if (s.trim().length < 3) return null;
+  // Apostrophes are stripped so "j'ai" and "c'est" register as single markers.
+  const flat = s.replace(/['’]/g, '');
+  const fr = (flat.match(FR_MARKERS) || []).length + (FR_ACCENTS.test(s) ? 2 : 0);
+  const en = (flat.match(EN_MARKERS) || []).length;
+  // A margin of two, not one: "no" is English, "non" is French, and a single
+  // shared-looking word should never be enough to switch languages mid-order.
+  if (fr >= en + 2) return 'fr';
+  if (en >= fr + 2) return 'en';
+  return null;
+}
+
 // ── Intent / Question Router ──────────────────────────────────
 function getBotResponse(rawText, lang = currentLang) {
   const text = rawText.toLowerCase().trim();
+
+  // Follow the visitor into whichever language they are actually writing in,
+  // and keep it: this is what makes every canned reply below bilingual in
+  // practice rather than just in principle.
+  const detected = detectLang(rawText);
+  if (detected) {
+    if (detected !== currentLang) {
+      currentLang = detected;
+      try { localStorage.setItem('lang', detected); } catch (e) { /* storage blocked */ }
+    }
+    rememberProfile({ lang: detected });
+    lang = detected;
+  }
+
   const k = KNOWLEDGE[lang] || KNOWLEDGE.en;
   const p = PACKAGES;
 
   updateUserProfileFromText(rawText, lang);
+
+  // ── Forget me ────────────────────────────────────────────────
+  // Checked before the active flows: someone asking to be forgotten mid-form
+  // means it, and should not be answered with "and your city?". Anything stored
+  // about them is on their own device, so this genuinely erases it.
+  if (/^(forget me|forget everything|forget about me|clear (my )?(memory|history|data|details)|delete my data|start over|oubli(e|ez)[- ]moi|efface[rz]?[\s\S]{0,20}(données|historique|mémoire)|recommencer à zéro)\b/i.test(text)) {
+    forgetMemory();
+    messages = [];
+    leadContext = {};
+    awaitingLeadField = null;
+    awaitingAddons = false;
+    awaitingMomoNumber = false;
+    awaitingReviewField = null;
+    selectedPackage = null;
+    packageInferred = false;
+    selectedPayment = null;
+    lastTopic = null;
+    currentStage = 'discovery';
+    userProfile = { businessType: null, location: null, mainGoal: null, mentionedBudget: null };
+    return {
+      action: 'forget',
+      text: lang === 'fr'
+        ? 'C\'est fait — tout ce que nous avions retenu de vous sur cet appareil est effacé : votre nom, votre activité, notre historique. On repart de zéro.\n\nQu\'est-ce qui vous amène ?'
+        : 'Done — everything we had remembered about you on this device is gone: your name, your business, our history. Clean slate.\n\nWhat brings you in?'
+    };
+  }
+
+  // ── Resuming an abandoned order ──────────────────────────────
+  if (awaitingResume) {
+    awaitingResume = false;
+    if (/^(yes|yep|yeah|yup|sure|ok|okay|please|finish|continue|carry on|let'?s|oui|d'accord|on continue|terminons|volontiers)\b/i.test(text)) {
+      const pkgKey = mem.pending && mem.pending.pkg;
+      if (pkgKey && PACKAGES[pkgKey]) {
+        selectedPackage = pkgKey;
+        packageInferred = false;
+        leadContext.package = pkgKey;
+      }
+      return beginLeadCollection(lang, lang === 'fr' ? 'Très bien — on reprend.' : 'Good — picking it back up.');
+    }
+    // Not a yes. Drop the stale order and fall through, so "actually I need a
+    // chatbot" is answered properly instead of being swallowed by a dead-end
+    // acknowledgement.
+    clearPending();
+  }
 
   // ── Active flows ─────────────────────────────────────────────
   if (currentStage === 'review' || awaitingReviewField) {
@@ -797,13 +1078,9 @@ function getBotResponse(rawText, lang = currentLang) {
         };
       }
 
-      awaitingLeadField = 'name';
-      currentStage = 'details';
-      return {
-        text: lang === 'fr'
-          ? `On part sur le ${pkgName}, donc.\n\nPour préparer le dossier correctement — quel est votre nom complet ?`
-          : `${pkgName} it is.\n\nSo we can set this up properly — what's your full name?`
-      };
+      return beginLeadCollection(lang, lang === 'fr'
+        ? `On part sur le ${pkgName}, donc.`
+        : `${pkgName} it is.`);
     }
     if (currentStage === 'discovery') {
       return {
@@ -816,7 +1093,14 @@ function getBotResponse(rawText, lang = currentLang) {
   }
 
   // ── Negative / cancel ────────────────────────────────────────
-  if (/^(no+|nope|nah|non|pas intéressé|cancel|annuler|never ?mind|pas maintenant|not now|stop|leave me|laisse[z]?[\s-]moi)\b/i.test(text)) {
+  // A leading "no" is only a refusal when that is all it is. "No thanks" ends the
+  // conversation; "no, I need a chatbot for my website" REDIRECTS it, and
+  // cancelling on that threw away a live request and replied with a goodbye — the
+  // most expensive possible misread. If real content follows the negation, fall
+  // through and let the rest of the router answer what they actually asked for.
+  if (/^(no+|nope|nah|non|pas intéressé|cancel|annuler|never ?mind|pas maintenant|not now|stop|leave me|laisse[z]?[\s-]moi)\b/i.test(text) &&
+      text.replace(/^(no+|nope|nah|non|pas intéressé|cancel|annuler|never ?mind|pas maintenant|not now|stop|leave me|laisse[z]?[\s-]moi)\b[\s,.:;!-]*/i, '')
+          .trim().split(/\s+/).filter(Boolean).length < 3) {
     selectedPackage = null;
     packageInferred = false;
     awaitingLeadField = null;
@@ -933,14 +1217,15 @@ function getBotResponse(rawText, lang = currentLang) {
       leadContext = { package: suggested };
       selectedPackage = suggested;
       packageInferred = false;   // they named it
-      awaitingLeadField = 'name';
-      currentStage = 'details';
+      // Naming a package outright is the strongest interest signal there is, and
+      // this path was the one place it wasn't being written to memory — so a
+      // returning visitor who had asked for Growth by name was welcomed back with
+      // nothing more specific than their business type.
+      rememberProfile({ packageInterest: (PACKAGES[suggested] && PACKAGES[suggested].name.en) || suggested });
       const pkgName = p[suggested].name[lang] || p[suggested].name.en;
-      return {
-        text: lang === 'fr'
-          ? `Le ${pkgName}, entendu. On pourra toujours vous déplacer si, en discutant, ce n'est pas le bon niveau.\n\nQuel est votre nom complet ?`
-          : `${pkgName}, noted. We can still move you if it turns out that's not the right level once we talk.\n\nWhat's your full name?`
-      };
+      return beginLeadCollection(lang, lang === 'fr'
+        ? `Le ${pkgName}, entendu. On pourra toujours vous déplacer si, en discutant, ce n'est pas le bon niveau.`
+        : `${pkgName}, noted. We can still move you if it turns out that's not the right level once we talk.`);
     }
     if (/\b(web\s*sit[e]?|site\s*web?|online|en ligne)\b/i.test(text)) {
       lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection';
@@ -980,13 +1265,7 @@ function getBotResponse(rawText, lang = currentLang) {
         };
       }
 
-      awaitingLeadField = 'name';
-      currentStage = 'details';
-      return {
-        text: lang === 'fr'
-          ? `Entendu — ${pkgName}.\n\nQuel est votre nom complet ?`
-          : `Right — ${pkgName}.\n\nWhat's your full name?`
-      };
+      return beginLeadCollection(lang, lang === 'fr' ? `Entendu — ${pkgName}.` : `Right — ${pkgName}.`);
     }
     return {
       text: lang === 'fr'
@@ -998,6 +1277,7 @@ function getBotResponse(rawText, lang = currentLang) {
   // ── Package details ──────────────────────────────────────────
   if (/\b(starter|démarrage)\b/i.test(text)) {
     lastTopic = 'starter'; selectedPackage = 'starter'; currentStage = 'selection'; packageInferred = false;
+    rememberProfile({ packageInterest: 'Starter' });
     return { packageHTML: formatPackage('starter', lang) };
   }
   if (/\b(essential|essentiel)\b/i.test(text)) {
@@ -1006,10 +1286,12 @@ function getBotResponse(rawText, lang = currentLang) {
   }
   if (/\b(growth|croissance)\b/i.test(text)) {
     lastTopic = 'growth'; selectedPackage = 'growth'; currentStage = 'selection'; packageInferred = false;
+    rememberProfile({ packageInterest: 'Growth' });
     return { packageHTML: formatPackage('growth', lang) };
   }
   if (/\b(pro)\b/i.test(text) && /(package|forfait|price|prix|details?|info|tell me|montrez|donnez)/i.test(text)) {
     lastTopic = 'pro'; selectedPackage = 'pro'; currentStage = 'selection'; packageInferred = false;
+    rememberProfile({ packageInterest: 'Pro' });
     return { packageHTML: formatPackage('pro', lang) };
   }
 
@@ -1210,8 +1492,8 @@ function getBotResponse(rawText, lang = currentLang) {
     // We don't auto-confirm — a human verifies the payment. Point them to the team.
     return {
       text: lang === 'fr'
-        ? 'Merci ! Notre équipe va vérifier votre paiement et vous confirmer sur WhatsApp (+237 622 341 343), puis démarrer votre projet. Si vous ne l\'avez pas encore fait, envoyez-leur votre référence de paiement.'
-        : 'Thank you! Our team will verify your payment and confirm on WhatsApp (+237 622 341 343), then start your project. If you haven\'t already, send them your payment reference.',
+        ? 'Noté. L\'équipe vérifie le paiement de son côté et vous confirme sur WhatsApp (+237 622 341 343) avant de démarrer — nous ne confirmons jamais un paiement ici. Si vous ne l\'avez pas déjà fait, envoyez-leur votre référence de paiement.'
+        : 'Noted. The team verifies the payment on their side and confirms on WhatsApp (+237 622 341 343) before starting — we never confirm a payment here. If you haven\'t already, send them your payment reference.',
       action: 'handoff'
     };
   }
@@ -1395,6 +1677,87 @@ function designOptions(lang) {
       '\n\nIs this for something just starting up, or a rework of a brand that already exists?';
 }
 
+// Entering the details step. Someone who gave us their name last week must not be
+// asked for it again — a bot that says "welcome back, Ngassa" and then asks
+// "what's your full name?" is worse than one that never claimed to remember,
+// because it advertises the memory and then visibly fails to use it.
+//
+// The phone number is asked for every single time, by design: memory never
+// stores it (see the privacy note in the memory block above), so we genuinely
+// don't have it.
+function beginLeadCollection(lang, leadIn) {
+  currentStage = 'details';
+  const p = mem.profile;
+  const held = [];
+  if (p.name) { leadContext.name = p.name; held.push(p.name); }
+  if (p.business) { leadContext.business = p.business; held.push(p.business); }
+  if (p.city) { leadContext.city = p.city; held.push(p.city); }
+
+  const prefix = leadIn ? leadIn + '\n\n' : '';
+
+  // Mark the order as started. Cleared the moment it completes, so only a
+  // genuinely abandoned one survives to the next visit.
+  rememberPending(selectedPackage || leadContext.package || null);
+
+  // Confirm rather than assume — the same rule the inferred-package path follows.
+  // Details can go stale: people change business, move city, get married.
+  if (leadContext.name) {
+    awaitingLeadField = 'confirm_known';
+    return {
+      text: prefix + (lang === 'fr'
+        ? `On a encore vos infos : ${held.join(' · ')}. Toujours bon ?`
+        : `We still have you as: ${held.join(' · ')}. Still right?`)
+    };
+  }
+
+  awaitingLeadField = 'name';
+  return {
+    text: prefix + (lang === 'fr' ? 'Quel est votre nom complet ?' : 'What\'s your full name?')
+  };
+}
+
+// Ask for whatever is still missing, in order, and hand off once the set is
+// complete. This replaces a hardcoded name→business→phone→city chain, where each
+// step named its own successor — which meant a prefilled field was asked for
+// anyway, because nothing ever checked whether it was already answered.
+function advanceLeadField(lang) {
+  if (!leadContext.name) {
+    awaitingLeadField = 'name';
+    return { text: lang === 'fr' ? 'Quel est votre nom complet ?' : 'What\'s your full name?' };
+  }
+
+  if (!leadContext.business) {
+    awaitingLeadField = 'business';
+    const firstName = String(leadContext.name).split(/\s+/)[0];
+    return {
+      text: lang === 'fr'
+        ? `Merci ${firstName}. Et l'activité, elle s'appelle comment ?`
+        : `Thanks ${firstName}. And what's the business called?`
+    };
+  }
+
+  if (!leadContext.phone) {
+    awaitingLeadField = 'phone';
+    return {
+      text: lang === 'fr'
+        ? 'Votre numéro WhatsApp (avec l\'indicatif, ex : +237 6XX XXX XXX) pour qu\'on puisse vous joindre ?'
+        : 'Your WhatsApp number (with country code, e.g. +237 6XX XXX XXX) so we can reach you?'
+    };
+  }
+
+  if (!leadContext.city) {
+    awaitingLeadField = 'city';
+    return { text: lang === 'fr' ? 'Et vous êtes dans quelle ville ?' : 'And which city are you in?' };
+  }
+
+  // Complete → hand the whole payment to a human on WhatsApp. (Campay is in
+  // sandbox; a real person verifies + confirms payment.)
+  awaitingLeadField = null;
+  currentStage = 'payment';
+  clearPending();
+  return doHandoff(lang, true);
+}
+
 // ── Conversational Lead Collection ────────────────────────────
 function handleLeadCollection(rawText, lang) {
   const trimmed = rawText.trim();
@@ -1408,8 +1771,12 @@ function handleLeadCollection(rawText, lang) {
     return doHandoff(lang);
   }
 
-  // Correction mid-flow ("actually", "wait", "no", "I meant")
-  if (/^(actually|wait|no|correction|oops|i meant|je voulais dire|en fait|pardon)\b/i.test(lower)) {
+  // Correction mid-flow ("actually", "wait", "no", "I meant").
+  // Skipped while confirming remembered details: "no, it's Chez Marie now" is a
+  // correction the confirm_known handler answers properly, whereas this one would
+  // reply "let's redo that one: ?" with an empty field label.
+  if (awaitingLeadField !== 'confirm_known' &&
+      /^(actually|wait|no|correction|oops|i meant|je voulais dire|en fait|pardon)\b/i.test(lower)) {
     const field = awaitingLeadField;
     const fieldLabel = {
       name: lang === 'fr' ? 'votre nom' : 'your name',
@@ -1437,9 +1804,39 @@ function handleLeadCollection(rawText, lang) {
       business: lang === 'fr' ? '\n\nEt pour continuer, quel est le nom de votre activité ?' : '\n\nAnd to continue — what\'s the name of your business?',
       phone: lang === 'fr' ? '\n\nEt votre numéro WhatsApp ?' : '\n\nAnd your WhatsApp number?',
       city: lang === 'fr' ? '\n\nEt quelle est votre ville ?' : '\n\nAnd which city are you in?',
+      confirm_known: lang === 'fr' ? '\n\nCela dit — les infos qu\'on a de vous sont toujours bonnes ?' : '\n\nThat said — are the details we have for you still right?',
       payment_pref: lang === 'fr' ? '\n\nEt pour le paiement du forfait annuel, vous préférez en une fois ou en 2-3 versements sans intérêts ?' : '\n\nAnd for the yearly fee — pay in full or in 2-3 interest-free installments?'
     }[field] || '';
     return { text: (response.text || '') + resumePrompt };
+  }
+
+  // Confirming details we already held from a previous conversation.
+  if (awaitingLeadField === 'confirm_known') {
+    if (/^(yes|yep|yeah|yup|correct|right|still|same|sure|ok|okay|oui|exact|toujours|c'est (ça|bien)|pareil)\b/i.test(lower)) {
+      return advanceLeadField(lang);
+    }
+    // Anything that isn't a yes is a correction. Rather than guess which field
+    // changed, drop what we prefilled and walk the questions again — keeping what
+    // they typed ONLY when it is plausibly just a name. "no, it is Marie Ateba
+    // now" is a sentence, not a name, and storing it verbatim produced the lead
+    // "it is Marie Ateba now" and the greeting "Thanks it."
+    const corrected = trimmed.replace(/^(no|nope|non|actually|en fait|pas tout à fait|not quite)[,.\s-]*/i, '').trim();
+    leadContext = {};
+    const words = corrected.split(/\s+/).filter(Boolean);
+    const FILLER = /^(it|its|it's|is|was|now|my|the|a|an|name|called|changed|c'est|est|mon|ma|nom|maintenant|plutôt)$/i;
+    const looksLikeName = words.length >= 1 && words.length <= 4 &&
+      corrected.length < 60 && !/\d/.test(corrected) && !words.some(w => FILLER.test(w));
+    if (looksLikeName) {
+      leadContext.name = corrected;
+      rememberProfile({ name: corrected });
+      return advanceLeadField(lang);
+    }
+    awaitingLeadField = 'name';
+    return {
+      text: lang === 'fr'
+        ? 'Pas de souci — reprenons. Quel est votre nom complet ?'
+        : 'No problem — let\'s redo it. What\'s your full name?'
+    };
   }
 
   if (awaitingLeadField === 'name') {
@@ -1448,23 +1845,14 @@ function handleLeadCollection(rawText, lang) {
       return { text: lang === 'fr' ? 'Nous n\'avons pas bien compris. Pouvez-vous donner votre nom complet ?' : 'We didn\'t catch that. Could you give your full name?' };
     }
     leadContext.name = trimmed;
-    awaitingLeadField = 'business';
-    const firstName = trimmed.split(/\s+/)[0];
-    return {
-      text: lang === 'fr'
-        ? `Merci ${firstName}. Et l'activité, elle s'appelle comment ?`
-        : `Thanks ${firstName}. And what's the business called?`
-    };
+    rememberProfile({ name: trimmed });
+    return advanceLeadField(lang);
   }
 
   if (awaitingLeadField === 'business') {
     leadContext.business = trimmed;
-    awaitingLeadField = 'phone';
-    return {
-      text: lang === 'fr'
-        ? 'Parfait. Votre numéro WhatsApp (avec l\'indicatif, ex : +237 6XX XXX XXX) pour qu\'on puisse vous joindre facilement ?'
-        : 'Got it. Your WhatsApp number (with country code, e.g. +237 6XX XXX XXX) so we can reach you easily?'
-    };
+    rememberProfile({ business: trimmed });
+    return advanceLeadField(lang);
   }
 
   if (awaitingLeadField === 'phone') {
@@ -1478,21 +1866,13 @@ function handleLeadCollection(rawText, lang) {
       };
     }
     leadContext.phone = trimmed;
-    awaitingLeadField = 'city';
-    return {
-      text: lang === 'fr'
-        ? 'Et vous êtes dans quelle ville ?'
-        : 'And which city are you in?'
-    };
+    return advanceLeadField(lang);
   }
 
   if (awaitingLeadField === 'city') {
     leadContext.city = trimmed;
-    // Order details complete → hand the whole payment to a human on WhatsApp.
-    // (Campay is in sandbox; a real person verifies + confirms payment.)
-    awaitingLeadField = null;
-    currentStage = 'payment';
-    return doHandoff(lang, true);
+    rememberProfile({ city: trimmed });
+    return advanceLeadField(lang);
   }
 
   // Legacy step — no longer reached (we finish the order at 'city' and hand off).
@@ -1845,6 +2225,10 @@ function handleReviewCollection(rawText, lang) {
 function updateUserProfileFromText(text, lang) {
   const lower = text.toLowerCase();
 
+  // Anything learned here is durable — it describes the visitor, not this page
+  // view — so it goes straight into semantic memory as well as the live profile.
+  const beforeProfile = JSON.stringify(userProfile);
+
   // Business type
   if (!userProfile.businessType) {
     if (lower.includes('restaurant') || lower.includes('restaurant')) userProfile.businessType = 'restaurant';
@@ -1870,6 +2254,14 @@ function updateUserProfileFromText(text, lang) {
     else if (lower.includes('vendre') || lower.includes('sell') || lower.includes('e-commerce') || lower.includes('online sales')) userProfile.mainGoal = 'online sales';
     else if (lower.includes('logo') || lower.includes('flyer') || lower.includes('branding') || lower.includes('marque')) userProfile.mainGoal = 'professional branding';
     else if (lower.includes('app') || lower.includes('application') || lower.includes('mobile')) userProfile.mainGoal = 'mobile app';
+  }
+
+  if (JSON.stringify(userProfile) !== beforeProfile) {
+    rememberProfile({
+      businessType: userProfile.businessType,
+      city: userProfile.location,
+      mainGoal: userProfile.mainGoal
+    });
   }
 }
 
@@ -2133,10 +2525,18 @@ function addMessage(role, text, isHTML = false) {
   chat.scrollTop = chat.scrollHeight;
 
   messages.push({ role, text });
+  // Replaying stored turns must not re-store them, or every reload would
+  // duplicate the transcript and push real history out of the window.
+  if (!memRestoring) rememberTurn(role, text);
 }
 
 function showTyping() {
   const chat = document.getElementById('chat-messages');
+  if (!chat) return;
+  // Idempotent. The indicator is addressed by a single element id, so a second
+  // one would leave an orphan that hideTyping() can never find — a set of dots
+  // spinning forever under a finished conversation.
+  if (document.getElementById('typing-indicator')) return;
   const typing = document.createElement('div');
   typing.id = 'typing-indicator';
   typing.className = 'chat-msg bot';
@@ -2160,15 +2560,32 @@ function hideTyping() {
   if (t) t.remove();
 }
 
+// Locks the composer while a reply is in flight. Two messages sent before the
+// first lands used to interleave: two typing indicators sharing one element id,
+// two concurrent LLM calls, and — mid lead-flow — the second answer consumed as
+// the reply to a question the visitor had not been asked yet.
+let isReplying = false;
+
+function setComposing(on) {
+  isReplying = on;
+  const input = document.getElementById('chat-input');
+  const send = document.getElementById('chat-send');
+  if (input) input.disabled = on;
+  if (send) send.disabled = on;
+  if (!on && input) { try { input.focus(); } catch (e) { /* not focusable yet */ } }
+}
+
 function sendMessage() {
   const input = document.getElementById('chat-input');
   if (!input) return;
+  if (isReplying) return;
   const val = input.value.trim();
   if (!val) return;
 
   addMessage('user', val);
   input.value = '';
 
+  setComposing(true);
   showTyping();
   const startedAt = Date.now();
 
@@ -2198,7 +2615,10 @@ function sendMessage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             messages: history,
-            lang: currentLang
+            lang: currentLang,
+            // A few lines of durable fact rather than a replayed transcript, so
+            // per-message cost stays flat however long the relationship runs.
+            memory: memoryContext(currentLang)
           })
         });
 
@@ -2243,7 +2663,17 @@ function sendMessage() {
     if (reply.action === 'handoff' || reply.action === 'handoff-offer') {
       // The doHandoff already opened the window in some paths.
     }
-  })();
+  })().catch(function (err) {
+    // Nothing above is expected to throw, but if it does the composer must not
+    // stay locked — a visitor unable to type is a worse failure than a bad reply.
+    console.warn('Reply failed:', err);
+    addMessage('bot', currentLang === 'fr'
+      ? 'Désolé — quelque chose a coincé de notre côté. Reformulez, ou écrivez-nous directement sur WhatsApp au +237 622 341 343.'
+      : 'Sorry — something went wrong on our end. Try that again, or message us directly on WhatsApp at +237 622 341 343.');
+  }).then(function () {
+    hideTyping();
+    setComposing(false);
+  });
 }
 
 // How long the assistant should appear to be typing. A person's reply time
@@ -2275,14 +2705,19 @@ function initChat() {
   // resolves. Never awaited — the chat below is already usable on FALLBACK_* data.
   hydrateCatalogFromKB();
 
-  // Auto-greeting after a short delay. NB: `currentLang`, not `lang` — initChat
-  // takes no lang parameter, and the bare reference used to throw a ReferenceError
-  // inside this timer, so the opening message never actually appeared.
-  setTimeout(() => {
-    addMessage('bot', currentLang === 'fr'
-      ? 'Bonjour — ici H@rts.\n\nLa plupart des visiteurs arrivent avec un problème précis : des messages clients sans réponse, un système qui tient avec des tableurs, ou une activité difficile à trouver en ligne.\n\nQu\'est-ce qui vous amène aujourd\'hui ?'
-      : 'Hi — H@rts here.\n\nMost people land here with something specific in mind: customer messages going unanswered, a system held together by spreadsheets, or a business that\'s just hard to find online.\n\nWhat brings you in today?');
-  }, 600);
+  // Memory is read before anything is painted, so the opening line already knows
+  // whether it is talking to a stranger or to someone it has met.
+  mem = loadMemory();
+  memIsReturning = mem.visits > 0 && Boolean(mem.episodes.length || mem.profile.name || mem.profile.business);
+  // Greet a returning visitor in the language they used last time, before they
+  // have typed anything for detection to work on.
+  if (mem.profile.lang === 'fr' || mem.profile.lang === 'en') currentLang = mem.profile.lang;
+  const quietMs = mem.visits ? (Date.now() - mem.lastSeen) : Infinity;
+  mem.visits += 1;
+  saveMemory();
+
+  openingMove(chatContainer, quietMs);
+
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -2307,6 +2742,85 @@ function initChat() {
 
   // No top bar / human button in this ultra-minimal version.
   // The bot will offer WhatsApp handoff naturally during the conversation when appropriate.
+}
+
+// What the assistant says first. Three cases, because greeting a returning
+// customer with "Hi, what brings you in today?" is precisely the thing that makes
+// a bot feel like a form: they already told us, and being asked again reads as
+// not having listened.
+// Offer to finish an order that was started and abandoned. Sets awaitingResume so
+// the next message is read as an answer to THIS question rather than routed
+// normally — otherwise "yes" would be interpreted as agreeing to whatever package
+// happened to be selected.
+function resumeOffer(lang) {
+  awaitingResume = true;
+  const pkgKey = mem.pending && mem.pending.pkg;
+  const pkg = pkgKey && PACKAGES[pkgKey];
+  const name = pkg ? (pkg.name[lang] || pkg.name.en) : null;
+  return lang === 'fr'
+    ? (name
+        ? `On était en train de mettre en place le ${name} et ça n'a pas été jusqu'au bout.`
+        : 'On avait commencé une demande sans la terminer.') +
+      '\n\nOn la termine — il ne manque presque rien — ou vous venez pour autre chose aujourd\'hui ?'
+    : (name
+        ? `We were partway through setting up ${name} and never finished.`
+        : 'We\'d started a request together and never finished it.') +
+      '\n\nWant to finish it off — there\'s barely anything left — or is today something else?';
+}
+
+function openingMove(chatContainer, quietMs) {
+  const lang = currentLang;
+  const p = mem.profile;
+  const firstName = p.name ? String(p.name).split(/\s+/)[0] : null;
+  const resumable = pendingIsFresh();
+
+  // 1. Same conversation, interrupted — a reload, a closed tab, coming back after
+  //    lunch. Replay it instead of making them remember where they got to.
+  if (memIsReturning && quietMs < MEM_RESUME_MS && mem.episodes.length) {
+    memRestoring = true;
+    mem.episodes.slice(-8).forEach(function (e) { addMessage(e.role, e.text); });
+    memRestoring = false;
+    if (chatContainer) chatContainer.classList.add('chatting');
+    setTimeout(function () {
+      // A reload mid-flow loses awaitingLeadField, which lives only in the page.
+      // Without this the replayed transcript would end on "what's your WhatsApp
+      // number?" and the bot would no longer be listening for the answer.
+      addMessage('bot', resumable
+        ? resumeOffer(lang)
+        : (lang === 'fr'
+            ? 'On reprend où on s\'était arrêtés. Vous vouliez continuer là-dessus, ou autre chose ?'
+            : 'Picking up where we left off. Carry on with that, or something else today?'));
+    }, 550);
+    return;
+  }
+
+  // 2. A real return visit. Name the thing they cared about last time — that is
+  //    the whole payoff of remembering — but ask, never assume it still applies.
+  if (memIsReturning) {
+    const topic = p.packageInterest
+      || (p.mainGoal ? (lang === 'fr' ? 'votre objectif : ' + p.mainGoal : p.mainGoal) : null)
+      || p.businessType
+      || null;
+    const hello = firstName
+      ? (lang === 'fr' ? 'Re-bonjour ' + firstName + '.' : 'Welcome back, ' + firstName + '.')
+      : (lang === 'fr' ? 'Re-bonjour.' : 'Welcome back.');
+    const line = resumable ? resumeOffer(lang) : topic
+      ? (lang === 'fr'
+          ? hello + ' La dernière fois, il était question de ' + topic + '.\n\nOn continue là-dessus, ou vous venez pour autre chose aujourd\'hui ?'
+          : hello + ' Last time we were talking about ' + topic + '.\n\nPick that back up, or is today about something else?')
+      : (lang === 'fr'
+          ? hello + '\n\nQu\'est-ce qu\'on peut faire pour vous aujourd\'hui ?'
+          : hello + '\n\nWhat can we do for you today?');
+    setTimeout(function () { addMessage('bot', line); }, 600);
+    return;
+  }
+
+  // 3. Genuinely new.
+  setTimeout(function () {
+    addMessage('bot', lang === 'fr'
+      ? 'Bonjour — ici H@rts.\n\nLa plupart des visiteurs arrivent avec un problème précis : des messages clients sans réponse, un système qui tient avec des tableurs, ou une activité difficile à trouver en ligne.\n\nQu\'est-ce qui vous amène aujourd\'hui ?'
+      : 'Hi — H@rts here.\n\nMost people land here with something specific in mind: customer messages going unanswered, a system held together by spreadsheets, or a business that\'s just hard to find online.\n\nWhat brings you in today?');
+  }, 600);
 }
 
 function initChatLang() {
