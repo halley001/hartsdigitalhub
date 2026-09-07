@@ -470,6 +470,12 @@
   gap: 1.25rem;
   perspective: 1200px;
 }
+/* Two-tier pricing: one care plan plus a custom option. Capped so the pair sits
+   as a considered choice rather than stretching across the full 1180px. */
+.sla-grid.duo {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 760px;
+}
 .sla-card {
   position: relative;
   border: 1px solid var(--border);
@@ -801,9 +807,13 @@
    the same way and a new one is a copy-paste, not a design job.
    Cards carrying invented content wear .is-placeholder + .case-flag;
    deleting those two is what turns a sample into a real case study. */
+/* auto-fill, not a fixed 3: the homepage currently carries one case study and
+   gains more as clients approve publication. Cards keep a readable width at any
+   count instead of a lone card stretching the full row (auto-fit) or two cards
+   sitting in a 3-column skeleton. */
 .case-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.25rem;
   perspective: 1200px;
 }
@@ -993,7 +1003,7 @@
   .case-grid { grid-template-columns: 1fr; }
   .testi-strip { grid-template-columns: 1fr; }
   .post-grid { grid-template-columns: 1fr; }
-  .sla-grid { grid-template-columns: 1fr; }
+  .sla-grid, .sla-grid.duo { grid-template-columns: 1fr; }
   .lead-shell { grid-template-columns: 1fr; padding: 1.6rem; }
   .lead-form { grid-template-columns: 1fr; }
 }

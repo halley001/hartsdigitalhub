@@ -6,6 +6,10 @@ const MAIN_ONLY_PATHS = new Set([
   '/services.html',
   '/training.html',
   '/whatsapp-automation.html',
+  '/insights.html',
+  '/insights-response-time.html',
+  '/insights-connect-existing-systems.html',
+  '/insights-what-automation-costs.html',
 ]);
 
 const APP_ONLY_PATHS = new Set(['/training-hub.html', '/verify.html', '/login.html', '/dashboard.html']);

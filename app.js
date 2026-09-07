@@ -1533,16 +1533,23 @@ function getBotResponse(rawText, lang = currentLang) {
   const faqHit = matchFAQ(rawText, lang);
   if (faqHit) return faqHit;
 
-  // ── Fallback — contextual and helpful ─────────────────────────
+  // ── Fallback — nothing above matched ──────────────────────────
+  // `fallback: true` marks these two exits as "the rules had nothing". It is
+  // the ONLY signal sendMessage uses to decide whether the AI layer may answer,
+  // so every branch above this point keeps its reply verbatim — a matched rule
+  // is never overwritten by a model. The text below is still what a visitor
+  // sees whenever the AI layer is switched off or unreachable.
   const summary = generateConversationSummary(lang);
   if (currentStage === 'discovery' || !selectedPackage) {
     return {
+      fallback: true,
       text: lang === 'fr'
         ? `On n'a pas bien saisi celle-là.\n\nDites-nous ce que fait votre activité et ce qui ne tourne pas rond en ce moment — on prend le relais à partir de là.`
         : `We didn't quite follow that one.\n\nTell us what the business does and what's going wrong at the moment — we can take it from there.`
     };
   }
   return {
+    fallback: true,
     text: lang === 'fr'
       ? `${summary} Où voulez-vous aller à partir de là — le détail du forfait, les versements, ou on prépare le message pour l'équipe ?`
       : `${summary} Where do you want to take it from here — the package detail, instalments, or shall we get the message ready for the team?`
@@ -2604,12 +2611,20 @@ function sendMessage() {
   (async () => {
     let reply = getBotResponse(val, currentLang);
 
-    // For general/open responses, use the LLM for dynamism (greetings, FAQ-style
-    // questions, etc). Checking the router's actual return payload — not guessing
-    // from input keywords — guarantees anything structured (a formatted package
-    // card, the multi-package listing, or a state-changing action like a WhatsApp
-    // handoff) can never be silently discarded by an LLM reply arriving after it.
-    const useLLM = !reply.packageHTML && !reply.multiPackage && !reply.action && !reply.isHTML && !reply.faq &&
+    // The AI layer speaks only when the hand-written rules had nothing to say.
+    //
+    // `reply.fallback` is set by exactly two returns at the bottom of
+    // getBotResponse — the "we didn't follow that" exits. Every other branch is
+    // a genuine match and is shown verbatim, so a rule answer can never be
+    // overwritten by a model arriving after it. The remaining conditions guard
+    // the stateful flows (lead capture, add-ons, payment, review), where a free
+    // -text reply landing mid-form would derail the sequence.
+    //
+    // To go back to the older blended behaviour — where the model also rephrased
+    // plain-text rule answers for variety — widen this to the previous test:
+    //   !reply.packageHTML && !reply.multiPackage && !reply.action &&
+    //   !reply.isHTML && !reply.faq && …
+    const useLLM = reply.fallback === true &&
                    !awaitingLeadField && !awaitingAddons && !awaitingMomoNumber &&
                    currentStage !== 'review' && currentStage !== 'payment' && currentStage !== 'handoff';
 
@@ -2634,14 +2649,24 @@ function sendMessage() {
           })
         });
 
+        const data = await res.json().catch(function () { return {}; });
+
         if (res.ok) {
-          const data = await res.json();
-          if (data.reply) {
-            reply = { text: data.reply };
-          }
+          reply = applyAIReply(reply, data, currentLang);
+        } else if (data.reason === 'provider-failed') {
+          // A model was configured and genuinely failed or timed out. The
+          // visitor gets a person rather than the generic "we didn't follow
+          // that" — which, on a question the rules already missed, would be the
+          // second unhelpful answer in a row.
+          reply = aiHandoffReply(currentLang);
         }
+        // res.status 503 ('not-configured') deliberately does nothing: the AI
+        // layer is simply switched off, so the rule-based fallback text above
+        // stands exactly as it did before this layer existed.
       } catch (e) {
-        console.warn('LLM call failed, using rule-based fallback');
+        // Network error, offline, request blocked. Same reasoning as above.
+        console.warn('AI layer unreachable, handing to a human:', e && e.message);
+        reply = aiHandoffReply(currentLang);
       }
     }
 
@@ -2686,6 +2711,61 @@ function sendMessage() {
     hideTyping();
     setComposing(false);
   });
+}
+
+// The existing human handover, reached from the AI layer. Deliberately the
+// same wording and the same `action: 'handoff'` marker as the "talk to a
+// person" rule branch in getBotResponse — this is a route into the handover we
+// already had, not a second one. Note it does NOT call doHandoff(): that opens
+// a WhatsApp window, which is right when someone asked for a human and wrong as
+// the answer to a question the model merely found hard.
+function aiHandoffReply(lang) {
+  const k = KNOWLEDGE[lang] || KNOWLEDGE.en;
+  return { text: k.contact, action: 'handoff' };
+}
+
+// Turns the /api/chat payload into a reply object.
+//
+// The server strips the model's control markers and reports them as
+// `escalate`. Two cases matter:
+//
+//   'human'    The model hit something it must not answer — live data it cannot
+//              see, an account or payment question, a complaint, or simply not
+//              knowing. Its own sentence is shown, then the handover contact
+//              line, so the visitor gets an acknowledgement and a real route
+//              rather than a dead end.
+//
+//   'catalog'  It was asked what a package costs. Rather than let a model type
+//              out prices from memory, we render the real cards from the
+//              catalog app.js already hydrated from /api/services — the same
+//              formatPackage() path the rule router uses. This is the "route to
+//              the existing lookup" case: the model defers, the lookup answers.
+//
+// Anything else is shown as written.
+function applyAIReply(ruleReply, data, lang) {
+  const text = typeof data.reply === 'string' ? data.reply.trim() : '';
+
+  if (data.escalate === 'catalog') {
+    return {
+      text: text || (lang === 'fr'
+        ? 'Voici ce que couvre chaque formule :'
+        : 'Here is what each package covers:'),
+      multiPackage: true
+    };
+  }
+
+  if (data.escalate === 'human') {
+    const k = KNOWLEDGE[lang] || KNOWLEDGE.en;
+    return {
+      text: text ? text + '\n\n' + k.contact : k.contact,
+      action: 'handoff'
+    };
+  }
+
+  // No escalation: the model answered. An empty body would mean it sent nothing
+  // usable, in which case the rule-based fallback we already have is better than
+  // a blank bubble.
+  return text ? { text: text } : ruleReply;
 }
 
 // How long the assistant should appear to be typing. A person's reply time

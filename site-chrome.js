@@ -18,20 +18,18 @@
 
   // Primary navigation. `key` matches <body data-page="…"> for active state.
   var NAV = [
-    { label: 'Services',            href: 'index.html#capabilities',   key: 'services' },
     { label: 'AI Chatbots',         href: 'whatsapp-automation.html',  key: 'whatsapp' },
     { label: 'Case Studies',        href: 'index.html#portfolio',      key: 'portfolio' },
-    { label: 'Pricing & SLAs',      href: 'index.html#pricing',        key: 'pricing' },
+    { label: 'Pricing',             href: 'index.html#pricing',        key: 'pricing' },
     { label: 'Build Log',           href: 'insights.html',             key: 'insights' },
     { label: 'About Us',            href: 'about.html',                key: 'about' }
   ];
 
   // Footer link columns (carries both tracks: enterprise + SME/training).
   var FOOT_LINKS = [
-    { label: 'Services',            href: 'index.html#capabilities' },
     { label: 'AI Chatbots',         href: 'whatsapp-automation.html' },
     { label: 'Case Studies',        href: 'index.html#portfolio' },
-    { label: 'Pricing & SLAs',      href: 'index.html#pricing' },
+    { label: 'Pricing',             href: 'index.html#pricing' },
     { label: 'Build Log',           href: 'insights.html' },
     { label: 'About',               href: 'about.html' },
     { label: 'SME Packages',        href: 'services.html' },
