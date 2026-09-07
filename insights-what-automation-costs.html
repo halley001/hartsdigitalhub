@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What an Automation Build Actually Costs to Run | H@rts Build Log</title>
+  <meta name="description" content="The build price is the part everyone asks about. What decides whether an automation still works next year is what happens after launch — monitoring, retraining and the systems underneath.">
+  <meta property="og:title" content="What an automation build actually costs to run">
+  <meta property="og:description" content="Build price, running cost, and the drift nobody budgets for.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://hartsdigitalhub.com/insights-what-automation-costs.html">
+  <meta property="og:site_name" content="H@rts">
+  <meta property="og:image" content="https://hartsdigitalhub.com/android-chrome-512x512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:image:alt" content="H@rts Build Log">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://hartsdigitalhub.com/android-chrome-512x512.png">
+  <link rel="canonical" href="https://hartsdigitalhub.com/insights-what-automation-costs.html">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <meta name="theme-color" content="#000000">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="hub.css">
+</head>
+<body class="hub-body" data-page="insights">
+<a href="#post" class="skip-link">Skip to content</a>
+<div class="hub-wrap">
+
+  <header id="site-header"></header>
+
+  <section class="hub-section" id="post" style="padding-top:140px">
+    <a class="post-back" href="insights.html">← Build Log</a>
+    <article class="post-article" style="margin-top:1.4rem">
+      <div class="post-meta"><span class="post-tag">Pricing</span><time datetime="2026-08-18">18 Aug 2026</time><span>3 min read</span></div>
+      <h1 class="hub-section-title">What an automation build actually costs to run</h1>
+      <p class="post-lede">Everyone asks what it costs to build. Far fewer ask what it costs to keep working — which is the question that decides whether the thing is still earning its keep in a year.</p>
+
+      <h2>Why nobody quotes a flat price honestly</h2>
+      <p>A bot that answers five common questions and hands everything else to a person is a small build. A bot that checks live stock across branches, takes an order, writes it into your system and chases payment is a different animal entirely — even though both get described in a first message as "a WhatsApp chatbot."</p>
+      <p>So anyone who gives you a firm number before asking what it has to do is either guessing or padding. Our builds start at $300 and are quoted per project, in milestones you approve and pay against. What moves the number is not the chat part; it is how many systems it has to talk to and how clean those systems are.</p>
+
+      <h2>The four things that actually drive the price</h2>
+      <ul>
+        <li><strong>How many channels.</strong> One is straightforward. WhatsApp plus a website widget plus social is more surface to build and test.</li>
+        <li><strong>What it must read.</strong> Answering from a fixed set of questions is cheap. Reading live stock, orders or a calendar means integration work, and that depends entirely on what your existing system exposes.</li>
+        <li><strong>Whether the data exists.</strong> If prices and stock are not written down anywhere a machine can read, that has to be built first. It is often the largest single line, and it is worth knowing before you start rather than three weeks in.</li>
+        <li><strong>What happens on handover.</strong> Passing a thread to a person is simple. Routing to the right person, with context, inside your existing tools, is a piece of work of its own.</li>
+      </ul>
+
+      <h2>The part people forget: drift</h2>
+      <p>An automation is not a website. A website left alone still says the same true things next year. A bot left alone slowly starts lying.</p>
+      <p>Prices change and the bot quotes the old ones. You add a product line nobody told it about. A supplier changes and a flow that used to end in a sale now ends in a dead end. Customers start asking a question that did not exist when it was built. None of this announces itself — it shows up as a slow decline in the number of conversations that end well.</p>
+      <p>That is what a retainer is actually for. Ours start at $125/month for monitoring, maintenance and updates, and $400/month where there is active development alongside the care. The useful way to think about it is not "support insurance" but the cost of the automation continuing to be true.</p>
+
+      <h2>How to size it against what it saves</h2>
+      <p>The comparison worth making is not build cost against zero. It is running cost against the hours currently going into answering the same questions by hand, plus the enquiries arriving when nobody is awake.</p>
+      <p>Two numbers make this concrete, and both take an evening to find: how many messages a week are one of your five standard questions, and how many arrive outside working hours. If those numbers are large, the arithmetic tends to be obvious. If they are small, automation is probably not your bottleneck yet, and we will say so.</p>
+
+      <h2>Where we will not give you a number</h2>
+      <p>There are things we do not price in a first conversation, on purpose: whether a specific third-party system can be integrated before we have seen it, and what Meta charges per conversation on the WhatsApp Business API for your particular volume. Both depend on specifics, and a confident guess there is worth less than a straight "we will find out and tell you."</p>
+
+      <div class="post-footer-cta">
+        <p>Start here: <a href="insights-response-time.html">Why leads go cold on WhatsApp →</a></p>
+        <div class="hub-hero-actions" style="margin-top:1.2rem">
+          <a class="hub-cta" href="index.html#quote">Get a Project Quote</a>
+          <a class="hub-cta ghost" href="index.html#pricing">See pricing &amp; SLAs</a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <footer id="site-footer"></footer>
+
+</div><!-- /hub-wrap -->
+
+<div class="fab-stack">
+  <a class="fab fab-wa" href="https://wa.me/237622341343?text=Hello%20H%40rts!" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <span class="fab-ping" aria-hidden="true"></span>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11-.42-.11-.96-.29-1.65-.59-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.82 2.01.89 2.16.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.29.36-.24.6-.14.24.09 1.53.72 1.8.85.27.14.44.21.5.32.07.11.07.64-.17 1.32Z"/></svg>
+    <span class="fab-label">WhatsApp us</span>
+  </a>
+</div>
+
+<script defer src="site-chrome.js"></script>
+<script defer src="hub.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

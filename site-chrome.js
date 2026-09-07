@@ -20,8 +20,9 @@
   var NAV = [
     { label: 'Services',            href: 'index.html#capabilities',   key: 'services' },
     { label: 'AI Chatbots',         href: 'whatsapp-automation.html',  key: 'whatsapp' },
-    { label: 'Portfolio',           href: 'index.html#portfolio',      key: 'portfolio' },
+    { label: 'Case Studies',        href: 'index.html#portfolio',      key: 'portfolio' },
     { label: 'Pricing & SLAs',      href: 'index.html#pricing',        key: 'pricing' },
+    { label: 'Build Log',           href: 'insights.html',             key: 'insights' },
     { label: 'About Us',            href: 'about.html',                key: 'about' }
   ];
 
@@ -29,8 +30,9 @@
   var FOOT_LINKS = [
     { label: 'Services',            href: 'index.html#capabilities' },
     { label: 'AI Chatbots',         href: 'whatsapp-automation.html' },
-    { label: 'Portfolio',           href: 'index.html#portfolio' },
+    { label: 'Case Studies',        href: 'index.html#portfolio' },
     { label: 'Pricing & SLAs',      href: 'index.html#pricing' },
+    { label: 'Build Log',           href: 'insights.html' },
     { label: 'About',               href: 'about.html' },
     { label: 'SME Packages',        href: 'services.html' },
     { label: 'AI Training',         href: 'training.html' },
@@ -64,7 +66,7 @@
     return '' +
       '<div>' +
         '<a href="index.html" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>' +
-        '<p style="margin-top:.6rem;max-width:34ch">Intelligent software &amp; next-gen digital hubs. Bilingual EN / FR. Cameroon &amp; beyond.</p>' +
+        '<p style="margin-top:.6rem;max-width:34ch">AI automation — chatbots and workflows that answer your customers in seconds, plus the engineering that keeps them running. Bilingual EN / FR. Cameroon &amp; beyond.</p>' +
       '</div>' +
       '<nav class="hub-footer-links" aria-label="Footer">' + links + '</nav>' +
       // Contact block — real, clickable ways to reach a human, not just the form.

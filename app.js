@@ -1159,8 +1159,8 @@ function getBotResponse(rawText, lang = currentLang) {
     return {
       isHTML: true,
       text: lang === 'fr'
-        ? `Oui — et c'est justement là que la plupart des chatbots échouent.<br><br>Un bot qui ne fait que répondre à des questions est vite inutile. L'intérêt vient quand il <strong>lit vos vraies données</strong> : stock disponible, statut d'une commande, créneaux libres. C'est ce que nous construisons — connecté à ce que vous utilisez déjà (CRM, ERP, POS, base de données), sans le remplacer.<br><br>Avec quel système devrait-il se connecter ? Si vous nous donnez le nom, nous vous dirons franchement si c'est simple ou compliqué.`
-        : `Yes — and that's exactly where most chatbots fall down.<br><br>A bot that only answers scripted questions gets useless fast. It earns its keep when it can <strong>read your actual data</strong>: what's in stock, where an order is, which slots are free. That's what we build — wired into what you already run (CRM, ERP, POS, database), not replacing it.<br><br>What system would it need to talk to? Give us the name and we'll tell you honestly whether that's straightforward or messy.`
+        ? `Oui — et c'est justement là que la plupart des chatbots échouent.<br><br>Un bot qui ne fait que répondre à des questions est vite inutile. L'intérêt vient quand il <strong>lit vos vraies données</strong> : stock disponible, statut d'une commande, créneaux libres. C'est ce que nous construisons — connecté à ce que vous utilisez déjà (CRM, ERP, POS, base de données), sans le remplacer.<br><br>Le détail est ici si vous voulez creuser : <a href="insights-connect-existing-systems.html">Un chatbot ne vaut que les données derrière lui</a>.<br><br>Avec quel système devrait-il se connecter ? Si vous nous donnez le nom, nous vous dirons franchement si c'est simple ou compliqué.`
+        : `Yes — and that's exactly where most chatbots fall down.<br><br>A bot that only answers scripted questions gets useless fast. It earns its keep when it can <strong>read your actual data</strong>: what's in stock, where an order is, which slots are free. That's what we build — wired into what you already run (CRM, ERP, POS, database), not replacing it.<br><br>There's a fuller write-up here if you want the detail: <a href="insights-connect-existing-systems.html">A chatbot is only as good as the data behind it</a>.<br><br>What system would it need to talk to? Give us the name and we'll tell you honestly whether that's straightforward or messy.`
     };
   }
 
@@ -1170,8 +1170,8 @@ function getBotResponse(rawText, lang = currentLang) {
     return {
       isHTML: true,
       text: lang === 'fr'
-        ? `C'est le problème le plus courant qu'on nous apporte — et il coûte plus cher qu'il n'y paraît. Un client qui n'a pas de réponse en 10 minutes écrit souvent au concurrent suivant.<br><br>Un chatbot IA répond instantanément, 24h/24, à un nombre illimité de conversations en même temps — puis transfère à un humain dès qu'il faut un vrai jugement. Vos soirées et vos week-ends redeviennent les vôtres.<br><br>Pour bien cadrer : sur quel canal vos clients vous écrivent-ils le plus — WhatsApp, votre site, ou les réseaux sociaux ?`
-        : `That's the single most common thing people bring us — and it costs more than it looks. A customer who doesn't hear back within about ten minutes usually just messages the next business on the list.<br><br>An AI chatbot answers instantly, around the clock, across unlimited conversations at once — then hands off to a human the moment something needs real judgement. Your evenings and weekends go back to being yours.<br><br>So we point you at the right thing: where do most of your customers message you — WhatsApp, your website, or social?`
+        ? `C'est le problème le plus courant qu'on nous apporte — et il coûte plus cher qu'il n'y paraît. Un client qui n'a pas de réponse en 10 minutes écrit souvent au concurrent suivant.<br><br>Un chatbot IA répond instantanément, 24h/24, à un nombre illimité de conversations en même temps — puis transfère à un humain dès qu'il faut un vrai jugement. Vos soirées et vos week-ends redeviennent les vôtres.<br><br>On a écrit là-dessus en détail, si vous préférez lire avant de parler : <a href="insights-response-time.html">Pourquoi les leads refroidissent sur WhatsApp</a>.<br><br>Pour bien cadrer : sur quel canal vos clients vous écrivent-ils le plus — WhatsApp, votre site, ou les réseaux sociaux ?`
+        : `That's the single most common thing people bring us — and it costs more than it looks. A customer who doesn't hear back within about ten minutes usually just messages the next business on the list.<br><br>An AI chatbot answers instantly, around the clock, across unlimited conversations at once — then hands off to a human the moment something needs real judgement. Your evenings and weekends go back to being yours.<br><br>We wrote the long version if you'd rather read before you talk to anyone: <a href="insights-response-time.html">Why leads go cold on WhatsApp</a>.<br><br>So we point you at the right thing: where do most of your customers message you — WhatsApp, your website, or social?`
     };
   }
 
@@ -1190,13 +1190,25 @@ function getBotResponse(rawText, lang = currentLang) {
     };
   }
 
+  // ── Build Log / reading before contact ───────────────────────
+  // Some visitors want to read, not talk. Sending them away to an article is a
+  // better outcome than a hard CTA they bounce off — they come back warmer.
+  if (/\b(build ?log|blog(ue)?|article[s]?|insight[s]?|newsletter|something to read|anything to read|do you (write|publish)|case stud(y|ies)|à lire|actualités)\b/i.test(text)) {
+    return {
+      isHTML: true,
+      text: lang === 'fr'
+        ? 'Oui — notre <a href="insights.html">Build Log</a> : des notes sur ce que l\'automatisation règle vraiment, ce qu\'elle ne règle pas, et ce que ça coûte à faire tourner.<br><br>Les trois plus utiles pour commencer :<br>· <a href="insights-response-time.html">Pourquoi les leads refroidissent sur WhatsApp</a><br>· <a href="insights-connect-existing-systems.html">Un chatbot ne vaut que les données derrière lui</a><br>· <a href="insights-what-automation-costs.html">Ce que coûte vraiment une automatisation</a><br><br>Lisez tranquillement — on est là quand vous voulez en parler.'
+        : 'Yes — our <a href="insights.html">Build Log</a>: notes on what automation actually fixes, what it doesn\'t, and what it costs to keep running.<br><br>The three worth starting with:<br>· <a href="insights-response-time.html">Why leads go cold on WhatsApp</a><br>· <a href="insights-connect-existing-systems.html">A chatbot is only as good as the data behind it</a><br>· <a href="insights-what-automation-costs.html">What an automation build actually costs to run</a><br><br>Read at your own pace — we\'re here whenever you want to talk.'
+    };
+  }
+
   // ── Portfolio / examples ─────────────────────────────────────
   if (/\b(portfolio|example[s]?|past work|show me.*work|previous client|sample[s]?|réalisation[s]?|travaux?|exemple[s]?|référence[s]?|vos travaux)\b/i.test(text)) {
     return {
       isHTML: true,
       text: lang === 'fr'
-        ? 'Il y a une section <a href="index.html#portfolio">Portfolio</a> sur la page d\'accueil, avec des systèmes actuellement en production — c\'est ce qui parle le mieux.<br><br>Si vous avez quelque chose de précis en tête, dites-nous quel type de build et on vous dira franchement si on a déjà livré l\'équivalent.'
-        : 'There\'s a <a href="index.html#portfolio">Portfolio</a> section on the homepage with systems currently running in production — that\'s the most useful look.<br><br>If you have something specific in mind, tell us the kind of build and we\'ll say plainly whether we\'ve shipped something close to it.'
+        ? 'Il y a une section <a href="index.html#portfolio">études de cas</a> sur la page d\'accueil. On est en train d\'y publier les vraies, à mesure que les clients autorisent la publication — en attendant, le <a href="insights.html">Build Log</a> montre bien mieux comment on travaille.<br><br>Si vous avez quelque chose de précis en tête, dites-nous quel type de build et on vous dira franchement si on a déjà livré l\'équivalent.'
+        : 'There\'s a <a href="index.html#portfolio">case studies</a> section on the homepage. We\'re publishing the real ones as clients approve them — in the meantime the <a href="insights.html">Build Log</a> is a better look at how we actually work.<br><br>If you have something specific in mind, tell us the kind of build and we\'ll say plainly whether we\'ve shipped something close to it.'
     };
   }
 
