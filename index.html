@@ -1,366 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>H@rts — AI Chatbots for WhatsApp &amp; Your Website</title>
-  <meta name="description" content="H@rts builds AI chatbots that answer every WhatsApp and website message in seconds, check your live data, qualify the lead and hand your team the conversations that need a person. Backed by real engineering.">
-  <meta property="og:title" content="H@rts — AI Chatbots &amp; Automation">
-  <meta property="og:description" content="Every WhatsApp message answered in seconds, day or night. Chatbots wired into the systems you already run.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://hartsdigitalhub.com/">
-  <meta property="og:site_name" content="H@rts">
-  <meta property="og:image" content="https://hartsdigitalhub.com/android-chrome-512x512.png">
-  <meta property="og:image:width" content="512">
-  <meta property="og:image:height" content="512">
-  <meta property="og:image:alt" content="H@rts — AI Chatbots &amp; Automation">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://hartsdigitalhub.com/android-chrome-512x512.png">
-  <link rel="canonical" href="https://hartsdigitalhub.com/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>H@rts · We build the reply that arrives first</title>
+<meta name="description" content="H@rts builds AI chatbots for WhatsApp, your website and any channel your customers use, wired into the systems you already run. A bilingual studio in Douala, Cameroon.">
+<meta name="theme-color" content="#0A0B0D">
+<meta name="color-scheme" content="dark">
 
-  <!-- Favicons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/site.webmanifest">
-  <meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="H@rts">
+<meta property="og:title" content="H@rts · We build the reply that arrives first">
+<meta property="og:description" content="AI chatbots for WhatsApp, your website and any channel your customers use, wired into the systems you already run.">
+<meta property="og:url" content="https://hartsdigitalhub.com/">
+<meta property="og:image" content="https://hartsdigitalhub.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Points of light converging into a single line.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="H@rts · We build the reply that arrives first">
+<meta name="twitter:description" content="AI chatbots for WhatsApp, your website and any channel your customers use.">
+<meta name="twitter:image" content="https://hartsdigitalhub.com/assets/og-image.jpg">
+<link rel="canonical" href="https://hartsdigitalhub.com/">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 
-  <!-- Styles: existing tokens/chat + enterprise hub layer -->
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="hub.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="assets/cinematic.css">
+<!-- The AI assistant bubble and the WhatsApp fast lane, styled on the same palette -->
+<link rel="stylesheet" href="chat-widget.css">
+<noscript><style>
+  /* no JavaScript means no scrub, so ship the designed still hero */
+  .hero{height:100vh;height:100svh}
+  .bands,.loader,.cue{display:none}
+  .static-hero{display:flex}
+  .reveal .kicker,.reveal .sec-title,.reveal .lede,.reveal .stagger,
+  .gap-row,.engine-item,.ledger-row,.transcript,.case,
+  .hold-status,.hold-cta{opacity:1;transform:none}
+  .wave,.conv-path{stroke-dashoffset:0}
+  .conv-node,.conv-halo{opacity:1}
+  .hold-queue .q-2,.hold-queue .q-3{opacity:1;transform:none}
+  .hold-btn{display:none}
+  .band{visibility:visible}
+</style></noscript>
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "H@rts (Harts Digital Hub)",
-    "url": "https://hartsdigitalhub.com/",
-    "description": "We build AI chatbots for WhatsApp, websites and other channels, integrated into the systems businesses already run — backed by custom software engineering, cloud architecture and managed IT.",
-    "address": { "@type": "PostalAddress", "addressLocality": "Douala", "addressCountry": "CM" },
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "H@rts (Harts Digital Hub)",
+  "url": "https://hartsdigitalhub.com/",
+  "logo": "https://hartsdigitalhub.com/android-chrome-512x512.png",
+  "description": "We build AI chatbots for WhatsApp, websites and other channels, integrated into the systems businesses already run, backed by custom software engineering, cloud architecture and managed IT.",
+  "address": { "@type": "PostalAddress", "addressLocality": "Douala", "addressCountry": "CM" },
+  "email": "support@hartsdigitalhub.com",
+  "contactPoint": [{
+    "@type": "ContactPoint",
+    "telephone": "+237622341343",
     "email": "support@hartsdigitalhub.com",
-    "logo": "https://hartsdigitalhub.com/android-chrome-512x512.png",
-    "contactPoint": [
-      {
-        "@type": "ContactPoint",
-        "telephone": "+237622341343",
-        "email": "support@hartsdigitalhub.com",
-        "contactType": "sales",
-        "areaServed": "CM",
-        "availableLanguage": ["en", "fr"]
-      },
-      {
-        "@type": "ContactPoint",
-        "telephone": "+237622341343",
-        "email": "support@hartsdigitalhub.com",
-        "contactType": "customer support",
-        "availableLanguage": ["en", "fr"]
-      }
-    ]
-  }
-  </script>
+    "contactType": "sales",
+    "areaServed": "CM",
+    "availableLanguage": ["en", "fr"]
+  }]
+}
+</script>
 </head>
-<body class="hub-body" data-page="home">
-<a href="#whatsapp" class="skip-link">Skip to content</a>
-<div class="hub-wrap">
+<body>
 
-  <!-- ===== Navigation (injected by site-chrome.js) ===== -->
-  <header id="site-header"></header>
+<a class="skip" href="#main">Skip to content</a>
 
-  <!-- ===== Hero ===== -->
-  <section class="hub-hero">
-    <canvas class="hub-hero-canvas" id="hub-hero-canvas" aria-hidden="true"></canvas>
-    <div class="hub-hero-fallback" aria-hidden="true"></div>
-    <div class="hub-hero-inner">
-      <span class="hub-kicker">AI Chatbots &amp; Automation</span>
-      <h1 class="hub-hero-title">Every WhatsApp message answered in <span class="accent">seconds, not hours</span></h1>
-      <p class="hub-hero-sub">A customer who waits an hour has usually already messaged someone else. We build the chatbot that replies the moment they write — answers the question, checks your live stock or calendar, qualifies the enquiry, and passes your team only the conversations that need a person. No more evenings spent chasing follow-ups by hand.</p>
-      <div class="hub-hero-actions">
-        <a class="hub-cta" href="#quote">Get a chatbot built</a>
-        <a class="hub-cta ghost" href="#whatsapp">See how the engine works</a>
-      </div>
-      <div class="hub-hero-badges">
-        <div><b>Seconds</b> To first reply, day or night</div>
-        <div><b>24/7</b> Unlimited conversations at once</div>
-        <div><b>EN·FR</b> Bilingual out of the box</div>
-      </div>
+<canvas id="dust" class="dust" aria-hidden="true"></canvas>
+
+<nav class="nav" aria-label="Primary">
+  <a class="nav-mark" href="#top" aria-label="H@rts, back to top">
+    <img class="nav-logo" src="assets/logo.png" alt="" width="74" height="20" decoding="async">
+  </a>
+  <div class="nav-links">
+    <a href="#engine">Engine</a>
+    <a href="#handover">Handover</a>
+    <a href="#pricing">Pricing</a>
+    <a href="training.html">Training</a>
+  </div>
+  <a class="btn btn-sm" href="#quote">Get a quote</a>
+</nav>
+
+<main id="main" tabindex="-1">
+
+<h1 class="sr">We build the reply that arrives first. AI chatbots for WhatsApp, your website and any channel, from H@rts in Douala.</h1>
+
+<!-- ============================================================ -->
+<!-- HERO: the scroll-scrubbed descent                             -->
+<!-- ============================================================ -->
+<section class="hero" id="top" aria-label="Introduction">
+  <div class="stage" id="stage">
+
+    <div class="poster" id="poster" aria-hidden="true"></div>
+    <video id="hero-video" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+    <div class="scrim" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <!-- The mark, extruded and turning in the action lane. Layers are built by
+         cinematic.js from assets/logo.png; it tilts toward the pointer and steps
+         across to the other lane when the copy changes sides. -->
+    <!-- The light lane: the mind, a field of points that gathers into the @ mark
+         behind the wordmark, and the specular flash timed to the wordmark's turn.
+         The lane is screen-blended into the footage so the flare's black plate vanishes. -->
+    <div class="lane lane-blend" aria-hidden="true">
+      <canvas class="mind" id="mind"></canvas>
+      <div class="mark3d-flare"></div>
     </div>
-  </section>
-
-  <!-- ===== WhatsApp automation section ===== -->
-  <section class="hub-section" id="whatsapp">
-    <div class="hub-wa">
-      <div class="reveal">
-        <span class="hub-kicker">AI Chatbot Engine</span>
-        <h2 class="hub-section-title">One chatbot engine, wired into every channel you use</h2>
-        <p class="cap-text" style="max-width:52ch">WhatsApp is where we started — but the same engine deploys as a website widget or on other messaging platforms, and integrates directly into the systems you already run.</p>
-        <div class="cap-tags" style="margin-top:1.1rem"><span class="cap-tag">WhatsApp</span><span class="cap-tag">Website Chat</span><span class="cap-tag">Lead Qualifying</span><span class="cap-tag">CRM / ERP Sync</span></div>
-        <div class="wa-features">
-          <div class="wa-feature">
-            <div><h4>Automated Customer Service</h4><p>Instant FAQ answers, ticket creation and account checks — no waiting, no missed messages.</p></div>
-          </div>
-          <div class="wa-feature">
-            <div><h4>Database &amp; Inventory Query</h4><p>Real-time stock and price lookups straight from a chat message, wired to your live database or CRM.</p></div>
-          </div>
-          <div class="wa-feature">
-            <div><h4>Broadcast &amp; Lead Engagement</h4><p>Automated notifications, reminders and follow-ups that keep customers moving down the funnel.</p></div>
-          </div>
-          <div class="wa-feature">
-            <div><h4>Human Handover</h4><p>Seamless fallback to a live agent the moment a conversation needs a person.</p></div>
-          </div>
-        </div>
-        <!-- The broader engineering capability, stated once as a line rather
-             than as its own headed section with cards. It is reassurance for
-             the buyer who asks "can they actually build this?", not a second
-             offer competing with the chatbot for attention. -->
-        <p class="cap-text" style="max-width:52ch;margin-top:1.6rem">Every chatbot we build is backed by real engineering — custom integrations, secure infrastructure, and ongoing support if you need it.</p>
-        <div class="hub-hero-actions" style="margin-top:1.6rem">
-          <a class="hub-cta" href="whatsapp-automation.html">See the full engine →</a>
-        </div>
-      </div>
-
-      <!-- 3D phone + live chat simulator -->
-      <div class="phone-stage reveal">
-        <div class="phone-3d" aria-hidden="true">
-          <div class="phone-screen">
-            <div class="phone-topbar">
-              <div class="ava">H</div>
-              <div class="who"><b>H@rts Bot</b><span>online · typically instant</span></div>
-            </div>
-            <div class="sim-feed" id="sim-feed"></div>
-          </div>
-        </div>
+    <div class="lane mark3d" id="mark3d" aria-hidden="true">
+      <div class="mark3d-rig">
+        <div class="mark3d-obj" id="mark3d-obj"></div>
+        <div class="mark3d-shadow"></div>
       </div>
     </div>
-  </section>
 
-  <!-- ===== Portfolio / case studies ===== -->
-  <section class="hub-section" id="portfolio">
-    <div class="hub-section-head reveal">
-      <span class="hub-kicker">Case study</span>
-      <h2 class="hub-section-title">A chatbot in production, and what it changed</h2>
-      <p class="hub-section-sub">Every case study answers the same four questions: who, what hurt, what we built, what changed. The one below is a <b>placeholder showing the format</b> — real client case studies replace it as clients approve publication.</p>
+    <div class="loader" id="loader" aria-hidden="true">
+      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true">
+        <circle class="ring-track" cx="24" cy="24" r="20" fill="none" stroke-width="2"/>
+        <circle class="ring-fill" cx="24" cy="24" r="20" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-dasharray="126"
+                style="stroke-dashoffset:var(--ld,126)"/>
+      </svg>
     </div>
 
-    <!-- =========================================================
-         CASE STUDY COMPONENT  ·  how to add or replace one
-         ---------------------------------------------------------
-         Copy one <article> block below and fill the five slots:
-           .case-cat      client type / industry · what we built
-           .case-title    the engagement, in plain words
-           dd (Problem)   what was going wrong before us
-           dd (Built)     what we actually shipped
-           .case-result   the number, then what the number is
-         When the content is REAL, delete two things from that card:
-           1. the  is-placeholder  class on the <article>
-           2. the  <span class="case-flag">…</span>  line
-         Nothing else changes. Cards are plain HTML — no JS, no data
-         file — so they can be edited straight in this page.
-         ========================================================= -->
-    <!-- CASE-STUDIES:START -->
-    <div class="case-grid">
-      <article class="tilt-card case-card is-placeholder reveal">
-        <div class="case-head">
-          <span class="case-cat">Retail · WhatsApp chatbot</span>
-          <span class="case-flag">Placeholder</span>
+    <!-- The scroll journey. Text lives on the right, the light falls on the left. -->
+    <div class="bands" id="bands">
+
+      <div class="band" data-a="0" data-b="0.19" data-entrance="scatter" data-spread="0.5">
+        <p class="band-kicker mono">Scattered</p>
+        <h2 class="band-title" data-split="char">Three businesses got that message.</h2>
+        <p class="band-sub">The one who answers first usually wins.</p>
+      </div>
+
+      <div class="band" data-a="0.21" data-b="0.40" data-entrance="grid" data-spread="0.6">
+        <p class="band-kicker mono">Always on</p>
+        <h2 class="band-title" data-split="char">At 3am. On a Sunday. In French.</h2>
+        <p class="band-sub">The reply still goes out.</p>
+      </div>
+
+      <div class="band" data-a="0.42" data-b="0.61" data-entrance="blur">
+        <p class="band-kicker mono">Live data</p>
+        <h2 class="band-title" data-split="word">It checks the real stock before it speaks.</h2>
+        <p class="band-sub">Your database, your calendar, your prices. Live, not guessed.</p>
+      </div>
+
+      <div class="band" data-a="0.63" data-b="0.79" data-entrance="weave" data-spread="0.55">
+        <p class="band-kicker mono">One engine</p>
+        <h2 class="band-title" data-split="char">One engine. Every channel.</h2>
+        <p class="band-sub">WhatsApp, your website, wherever they find you.</p>
+      </div>
+
+      <div class="band band-settle" data-a="0.82" data-b="1" data-entrance="rise" data-ramp="0.05">
+        <p class="band-kicker mono">H@rts · Douala · EN / FR</p>
+        <h2 class="band-title" data-split="word">We build the reply that arrives first.</h2>
+        <p class="band-sub">AI chatbots wired into the systems you already run. Built in Douala, in English and French.</p>
+        <div class="band-cta">
+          <a class="btn" href="#quote">Get a build quote</a>
+          <a class="btn btn-ghost" href="https://wa.me/237622341343?text=Hello%20H%40rts%2C%20I%27d%20like%20to%20talk%20about%20a%20chatbot." target="_blank" rel="noopener">Talk on WhatsApp</a>
         </div>
-        <h3 class="case-title">WhatsApp database query bot</h3>
-        <dl class="case-fields">
-          <div class="case-field">
-            <dt>Problem</dt>
-            <dd>Placeholder — what staff and customers could not get to, and what that cost per week.</dd>
-          </div>
-          <div class="case-field">
-            <dt>What we built</dt>
-            <dd>Placeholder — the bot, which existing systems it reads from (CRM, ERP, POS, database), and how the handover to a person works.</dd>
-          </div>
-        </dl>
-        <div class="case-result">
-          <b>00%</b>
-          <span>Placeholder — the result metric</span>
-        </div>
-      </article>
-    </div>
-    <!-- CASE-STUDIES:END -->
-  </section>
+      </div>
 
-  <!-- ===== Pricing / SLAs ===== -->
-  <section class="hub-section" id="pricing">
-    <div class="hub-section-head reveal">
-      <span class="hub-kicker">Pricing</span>
-      <h2 class="hub-section-title">Build it, then keep it running</h2>
-      <p class="hub-section-sub">Two decisions, not a pricing matrix. First we build the chatbot; then you decide whether we look after it. Most clients take both — the second one is optional and can start at launch.</p>
     </div>
 
-    <!-- 1 · Build -->
-    <p class="pricing-block-label reveal"><span>01</span> Get a chatbot built</p>
-    <article class="build-band reveal">
+    <!-- Shown to phones, portrait tablets, landscape phones and reduced motion. -->
+    <div class="static-hero" id="static-hero">
+      <p class="band-kicker mono">AI chatbots · Douala · EN / FR</p>
+      <p class="static-title">We build the reply that arrives first.</p>
+      <p class="static-sub">Your customers message three businesses at once. We build the chatbot that answers yours in seconds, checks your live data, and passes your team only the conversations that need a person.</p>
+      <div class="band-cta">
+        <a class="btn" href="#quote">Get a build quote</a>
+        <a class="btn btn-ghost" href="https://wa.me/237622341343?text=Hello%20H%40rts%2C%20I%27d%20like%20to%20talk%20about%20a%20chatbot." target="_blank" rel="noopener">Talk on WhatsApp</a>
+      </div>
+    </div>
+
+    <div class="cue" id="cue" aria-hidden="true">
+      <span class="mono">Scroll</span>
+      <span class="cue-line"></span>
+    </div>
+
+  </div>
+</section>
+
+<div class="page">
+
+<!-- The signature element: one hairline that continues the hero's thread down the whole page. -->
+<div class="reply-line" id="reply-line" aria-hidden="true">
+  <svg viewBox="0 0 2 1000" preserveAspectRatio="none">
+    <line class="rl-track" x1="1" y1="0" x2="1" y2="1000"/>
+    <line class="rl-draw" id="rl-draw" x1="1" y1="0" x2="1" y2="1000"/>
+  </svg>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 01 THE GAP                                                    -->
+<!-- ============================================================ -->
+<section class="sec sec-gap reveal" id="gap" aria-labelledby="gap-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">01 · The gap</p>
+  <h2 class="sec-title" id="gap-h">Every hour of silence is a decision made without you.</h2>
+  <p class="lede">This is not a technology problem. It is a timing problem, and it is costing you deals you never hear about.</p>
+
+  <ol class="gap-rows">
+    <li class="gap-row">
+      <span class="gap-read mono">&gt; 1 hour</span>
+      <p class="gap-text">A customer who waits an hour has usually already bought somewhere else.</p>
+    </li>
+    <li class="gap-row">
+      <span class="gap-read mono">After 18:00</span>
+      <p class="gap-text">Messages that land in the evening sit until Monday morning.</p>
+    </li>
+    <li class="gap-row">
+      <span class="gap-read mono">Shared inbox</span>
+      <p class="gap-text">When everyone can answer, everyone assumes someone else did.</p>
+    </li>
+  </ol>
+
+  <p class="gap-close">You can double the ad budget and still grow slowly, because half the enquiries go cold in the chat.</p>
+</section>
+
+<div class="divider reveal" aria-hidden="true">
+  <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+    <path class="wave" d="M0,20 C60,4 90,36 150,20 C210,4 240,36 300,20 C360,7 390,33 450,20 C510,10 540,30 600,20 C660,14 690,26 750,20 C810,17 840,23 900,20 C960,19 990,21 1050,20 L1200,20"/>
+  </svg>
+</div>
+
+<!-- ============================================================ -->
+<!-- 02 THE ENGINE                                                 -->
+<!-- ============================================================ -->
+<section class="sec sec-engine reveal" id="engine" aria-labelledby="engine-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">02 · The engine</p>
+  <h2 class="sec-title" id="engine-h">One engine. Wired into every channel you already use.</h2>
+  <p class="lede">WhatsApp is where we started. The same engine runs as a website widget or on any other channel, and it plugs into the systems your business already runs on.</p>
+
+  <div class="engine-grid">
+    <div class="engine-diagram" aria-hidden="true">
+      <svg viewBox="0 0 400 300" class="conv">
+        <path class="conv-path" d="M152,40 C232,40 262,110 330,150"/>
+        <path class="conv-path" d="M152,113 C232,113 272,133 330,150"/>
+        <path class="conv-path" d="M152,187 C232,187 272,167 330,150"/>
+        <path class="conv-path" d="M152,260 C232,260 262,190 330,150"/>
+        <g class="conv-in">
+          <circle cx="152" cy="40" r="3"/><circle cx="152" cy="113" r="3"/>
+          <circle cx="152" cy="187" r="3"/><circle cx="152" cy="260" r="3"/>
+        </g>
+        <circle class="conv-node" cx="330" cy="150" r="7"/>
+        <circle class="conv-halo" cx="330" cy="150" r="18"/>
+      </svg>
+      <!-- the engine itself, a rendered mark sitting on the convergence node -->
+      <img class="conv-mark" src="assets/3D@.jpg" alt="" width="615" height="615" loading="lazy" decoding="async">
+      <ul class="conv-labels mono">
+        <li>WhatsApp</li><li>Website</li><li>Other channels</li><li>Your systems</li>
+      </ul>
+      <p class="conv-out mono">One engine</p>
+    </div>
+
+    <dl class="engine-list">
+      <div class="engine-item">
+        <dt>Answer</dt>
+        <dd>Instant answers to the questions you get fifty times a week, in English or French, without anyone typing them again.</dd>
+      </div>
+      <div class="engine-item">
+        <dt>Look up</dt>
+        <dd>Real stock, real prices, real availability, read live from your database, CRM, ERP or POS.</dd>
+      </div>
+      <div class="engine-item">
+        <dt>Follow up</dt>
+        <dd>Reminders, notifications and nudges that keep a conversation moving instead of letting it die.</dd>
+      </div>
+      <div class="engine-item">
+        <dt>Hand over</dt>
+        <dd>The moment a conversation needs a person, it goes to a person. With everything already said attached.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 03 THE HANDOVER                                               -->
+<!-- ============================================================ -->
+<section class="sec sec-handover reveal" id="handover" aria-labelledby="handover-h">
+  <span class="node" aria-hidden="true"></span>
+  <div class="handover-grid">
+
+    <div class="handover-copy">
+      <p class="kicker mono">03 · The handover</p>
+      <h2 class="sec-title" id="handover-h">The part most chatbots get wrong.</h2>
+      <p class="body">Three quarters of people say a bot cannot handle their real question. They are usually right, and the reason is almost never the bot. It is what happens next. The conversation gets thrown to a human with none of the context, and the customer has to start again from the beginning.</p>
+      <p class="body">We build the handover first and the answers second. Your team opens a conversation already knowing who it is, what they asked, what the bot checked, and what it could not settle. The customer repeats nothing.</p>
+      <blockquote class="pull">A bot that knows when to stop is worth more than a bot that never stops.</blockquote>
+    </div>
+
+    <div class="transcript" aria-label="Example conversation">
+      <div class="tr-head mono"><span class="dot" aria-hidden="true"></span>Live conversation</div>
+      <div class="tr-body">
+        <p class="msg msg-in"><span class="mono t">09:41</span>Do you still have the black one in 42?</p>
+        <p class="msg msg-bot"><span class="mono t">09:41</span>Yes, two left in Akwa. Want me to hold one for you?</p>
+        <p class="msg msg-in"><span class="mono t">09:42</span>Can I pay in instalments?</p>
+        <p class="msg msg-note mono">Bot stops. Passes to a person, with the whole conversation attached.</p>
+        <p class="msg msg-human"><span class="mono t">09:42</span>Hi, this is Marie. I can see you want the black 42 held. Yes, we do instalments.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 04 THE INTERACTIVE MOMENT                                     -->
+<!-- ============================================================ -->
+<section class="sec sec-hold reveal" id="try" aria-labelledby="try-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">04 · Try it</p>
+  <h2 class="sec-title center" id="try-h">Answer this one by hand.</h2>
+  <p class="lede center">Press and hold the button. Do not let go until the reply sends.</p>
+
+  <div class="hold-rig" id="hold-rig">
+    <div class="hold-queue" id="hold-queue">
+      <p class="msg msg-in q q-1"><span class="mono t">03:14</span>Bonjour, vous avez encore le modèle noir en 42 ?</p>
+      <p class="msg msg-in q q-2"><span class="mono t">03:19</span>Allo ?</p>
+      <p class="msg msg-in q q-3"><span class="mono t">04:02</span>Ok merci quand même.</p>
+    </div>
+
+    <div class="hold-control">
+      <button class="hold-btn" id="hold-btn" type="button" aria-describedby="hold-status">
+        <svg class="hold-ring" viewBox="0 0 96 96" aria-hidden="true">
+          <circle class="hr-track" cx="48" cy="48" r="42" fill="none" stroke-width="2"/>
+          <circle class="hr-fill" cx="48" cy="48" r="42" fill="none" stroke-width="2"
+                  stroke-linecap="round" stroke-dasharray="264"
+                  style="stroke-dashoffset:calc(264 - 264 * var(--h,0))"/>
+        </svg>
+        <span class="hold-label">Hold to reply</span>
+      </button>
+      <p class="hold-timer mono" id="hold-timer" aria-hidden="true">0.0s</p>
+    </div>
+
+    <p class="hold-status" id="hold-status" role="status">You held for <span id="hold-final">0.0</span> seconds. Your customer waited nine hours. The engine replies in about one.</p>
+    <div class="hold-cta">
+      <a class="btn" href="#quote">Get a build quote</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider reveal" aria-hidden="true">
+  <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+    <path class="wave" d="M0,20 C50,2 80,38 130,20 C190,3 220,37 280,20 C340,8 370,32 430,20 C490,12 520,28 580,20 C640,15 670,25 730,20 C790,18 820,22 880,20 C940,19 970,21 1030,20 L1200,20"/>
+  </svg>
+</div>
+
+<!-- ============================================================ -->
+<!-- 05 UNDERNEATH                                                 -->
+<!-- ============================================================ -->
+<section class="sec sec-under reveal" id="underneath" aria-labelledby="under-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">05 · Underneath</p>
+  <h2 class="sec-title" id="under-h">We were engineers before we were an automation shop.</h2>
+  <p class="lede">Most agencies stop at a script. When a bot needs a database that does not exist yet, or an integration into the system running your stock, that is our own work rather than someone we have to call.</p>
+
+  <ul class="ledger">
+    <li class="ledger-row">
+      <span class="ledger-n mono">01</span>
+      <h3 class="ledger-t">Custom software</h3>
+      <p class="ledger-d">Web systems, internal tools and the workflows a chatbot has to sit on top of.</p>
+    </li>
+    <li class="ledger-row">
+      <span class="ledger-n mono">02</span>
+      <h3 class="ledger-t">Cloud and databases</h3>
+      <p class="ledger-d">The data layer that makes a live answer possible, designed to hold up on your busiest day.</p>
+    </li>
+    <li class="ledger-row">
+      <span class="ledger-n mono">03</span>
+      <h3 class="ledger-t">Managed IT</h3>
+      <p class="ledger-d">Infrastructure, monitoring and support, so the thing that is now answering your customers stays up.</p>
+    </li>
+    <li class="ledger-row">
+      <span class="ledger-n mono">04</span>
+      <h3 class="ledger-t">Integration</h3>
+      <p class="ledger-d">CRM, ERP, POS or a spreadsheet you have not replaced yet. We meet the system you actually have.</p>
+    </li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- 06 IN PRODUCTION                                              -->
+<!-- ============================================================ -->
+<section class="sec sec-case reveal" id="production" aria-labelledby="case-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">06 · In production</p>
+  <h2 class="sec-title" id="case-h">What changes, measured.</h2>
+  <p class="lede">Every case study we publish answers the same four questions: who, what hurt, what we built, what changed. The card below shows that format. Real client work replaces it as clients approve publication.</p>
+
+  <!-- =========================================================
+       CASE CARD · how to replace this with a real one
+       1. Fill the five slots: category, title, problem, built, result
+       2. Delete the is-placeholder class on the article
+       3. Delete the .case-flag line
+       Nothing else changes. Plain HTML, no JS, no data file.
+       ========================================================= -->
+  <article class="case is-placeholder">
+    <img class="case-img" src="assets/case.jpg" alt="" width="1920" height="1080" loading="lazy" decoding="async">
+    <div class="case-body">
+      <p class="case-cat mono">Retail · WhatsApp chatbot</p>
+      <p class="case-flag mono">Format example</p>
+      <h3 class="case-title">WhatsApp database query bot</h3>
+      <dl class="case-dl">
+        <div><dt>Problem</dt><dd>What staff and customers could not get to, and what that cost per week.</dd></div>
+        <div><dt>Built</dt><dd>The bot, the systems it reads from, and how the handover to a person works.</dd></div>
+      </dl>
+      <p class="case-result"><span class="case-num">00%</span> The number, then what the number is.</p>
+    </div>
+  </article>
+</section>
+
+<!-- ============================================================ -->
+<!-- 07 PRICING                                                    -->
+<!-- ============================================================ -->
+<section class="sec sec-pricing reveal" id="pricing" aria-labelledby="pricing-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">07 · Pricing</p>
+  <h2 class="sec-title" id="pricing-h">Two decisions, not a pricing matrix.</h2>
+  <p class="lede">First we build it. Then you decide whether we look after it. Most clients take both, and the second one can start at launch.</p>
+
+  <div class="price-block">
+    <p class="price-label mono">01 · Build</p>
+    <div class="price-build">
       <div>
-        <h3 class="sla-name">Chatbot build</h3>
-        <p class="sla-tagline">WhatsApp, website widget or both — integrated into the systems you already run.</p>
-        <p class="cap-text" style="margin-top:0.8rem;max-width:52ch">Scoped and quoted per project, delivered in milestones you approve and pay against, so cost and progress stay predictable from kickoff to launch. What moves the number is how many channels it covers, what live data it has to read, and whether that data exists yet.</p>
+        <h3 class="price-t">Chatbot build</h3>
+        <p class="price-d">WhatsApp, website widget or both, integrated into the systems you already run. Scoped and quoted per project and delivered in milestones you approve and pay against, so cost and progress stay predictable from kickoff to launch. What moves the number is how many channels it covers, what live data it has to read, and whether that data exists yet.</p>
       </div>
-      <div class="build-band-price">
-        <span class="build-from">from</span>
-        <b>$300</b>
-        <span class="build-unit">one-time · milestone-based</span>
-        <a class="sla-cta" href="#quote">Get a build quote</a>
+      <div class="price-fig">
+        <span class="mono price-from">from</span>
+        <span class="price-num">$300</span>
+        <span class="mono price-unit">one time · milestone based</span>
+        <a class="btn" href="#quote">Get a build quote</a>
       </div>
-    </article>
-    <!-- SME track folded in as a note rather than its own banded section: it is
-         a smaller starting price for the same buyer, not a competing offer. -->
-    <p class="sla-note" style="text-align:left;margin-top:1rem">Just need a website, logo or a WhatsApp Business presence first? Fixed-price starter packages begin at $80 — <a href="services.html" style="color:#fff">see the SME packages</a>.</p>
+    </div>
+    <p class="sme-band">Just need a website, a logo or a WhatsApp Business presence first? Fixed price starter packages begin at <strong>$80</strong>. <button class="link-btn js-open-chat" type="button">Ask our assistant about the packages</button></p>
+  </div>
 
-    <!-- 2 · Keep it running -->
-    <p class="pricing-block-label reveal"><span>02</span> Keep it running</p>
-    <div class="sla-grid duo">
-      <article class="sla-card featured reveal">
-        <h3 class="sla-name">Standard care</h3>
-        <p class="sla-tagline">For a live chatbot that has to stay right</p>
-        <div class="sla-price">$125<small> / mo</small></div>
-        <ul class="sla-list">
-          <li>Business-hours support</li>
-          <li>Monthly maintenance &amp; updates</li>
-          <li>Uptime monitoring &amp; alerts</li>
+  <div class="price-block">
+    <p class="price-label mono">02 · Keep it running</p>
+    <div class="price-care">
+      <div class="care-card featured">
+        <h3 class="price-t">Standard care</h3>
+        <p class="care-sub">For a live chatbot that has to stay right</p>
+        <p class="price-num">$125 <span class="mono price-unit">/ month</span></p>
+        <ul class="care-list">
+          <li>Business hours support</li>
+          <li>Monthly maintenance and updates</li>
+          <li>Uptime monitoring and alerts</li>
           <li>Retraining as your answers change</li>
-          <li>Next-business-day response</li>
+          <li>Next business day response</li>
         </ul>
-        <a class="sla-cta" href="#quote">Start with Standard</a>
-      </article>
-      <article class="sla-card reveal">
-        <h3 class="sla-name">Need more?</h3>
-        <p class="sla-tagline">Active development, tighter SLAs, dedicated engineering</p>
-        <div class="sla-price">Custom</div>
-        <ul class="sla-list">
-          <li>Everything in Standard</li>
-          <li>Monthly feature engineering hours</li>
-          <li>Custom uptime &amp; response SLAs</li>
-          <li>24/7 on-call for critical systems</li>
-        </ul>
-        <a class="sla-cta" href="#quote">Talk to us</a>
-      </article>
-    </div>
-    <p class="sla-note">Prices shown in USD. Local billing available in XAF via Mobile Money / Orange Money. A retainer is optional and can start at launch.</p>
-  </section>
-
-  <!-- ===== About ===== -->
-  <section class="hub-section" id="about">
-    <div class="hub-section-head reveal">
-      <span class="hub-kicker">About us</span>
-      <h2 class="hub-section-title">Chatbot specialists who can build the thing underneath</h2>
-      <p class="hub-section-sub">H@rts is a bilingual (EN/FR) studio in Douala, and chatbots are what we do. Where most agencies stop at a script, we go further, because we were engineers before we were an automation shop — so when a bot needs a database that does not exist yet, an integration into your CRM, or infrastructure that holds up on your busiest day, that is our own work rather than someone we have to call. Custom software, cloud architecture and managed IT are how we keep a chatbot honest, not a second menu.</p>
-    </div>
-    <div class="hub-hero-badges reveal" style="margin-top:0">
-      <div><b>Automate</b> The offer — chatbots on every channel</div>
-      <div><b>Engineer</b> The data and integrations they read</div>
-      <div><b>Operate</b> The care that keeps them right</div>
-    </div>
-  </section>
-
-  <!-- ===== Lead capture ===== -->
-  <section class="hub-section" id="quote">
-    <div class="lead-shell reveal">
-      <div class="lead-aside">
-        <h3>Get a project quote</h3>
-        <p>Tell us what you need automated — or what is breaking underneath it. We'll reply within one business day with a scoped approach and a clear price.</p>
-        <ul>
-          <li>No obligation, no spam</li>
-          <li>Bilingual EN / FR team</li>
-          <li>Or reach us instantly on WhatsApp</li>
-        </ul>
+        <a class="btn" href="#quote">Start with Standard</a>
       </div>
-      <form class="lead-form" id="lead-form" novalidate>
-        <div class="lead-field">
-          <label for="lf-name">Name</label>
-          <input id="lf-name" name="name" type="text" autocomplete="name" placeholder="Your full name" required>
+      <div class="care-card">
+        <h3 class="price-t">Custom</h3>
+        <p class="care-sub">Active development and tighter targets</p>
+        <p class="price-num">Talk to us</p>
+        <ul class="care-list">
+          <li>Everything in Standard</li>
+          <li>Monthly engineering hours</li>
+          <li>Custom uptime and response targets</li>
+          <li>24/7 on call for critical systems</li>
+        </ul>
+        <a class="btn btn-ghost" href="#quote">Talk to us</a>
+      </div>
+    </div>
+  </div>
+
+  <p class="price-foot">Prices in USD. Local billing available in XAF by Mobile Money or Orange Money. A retainer is optional and can start at launch.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- 08 THE ACADEMY                                                -->
+<!-- ============================================================ -->
+<section class="sec sec-academy reveal" id="academy" aria-labelledby="academy-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">08 · H@rts Academy</p>
+  <h2 class="sec-title center" id="academy-h">We also teach this.</h2>
+  <p class="lede center">A free bilingual training portal for people learning to use AI in their own work, and paid upskilling for teams who would rather run the thing themselves than call us every time.</p>
+  <div class="center">
+    <a class="btn btn-ghost" href="training.html">Open the training portal</a>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 09 QUESTIONS                                                  -->
+<!-- ============================================================ -->
+<section class="sec sec-faq reveal" id="faq" aria-labelledby="faq-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">09 · Questions</p>
+  <h2 class="sec-title" id="faq-h">The four things people ask before they buy.</h2>
+
+  <div class="faq">
+    <details class="faq-item">
+      <summary>Can it handle a real question, or does it just deflect?</summary>
+      <p>It handles what it can genuinely answer and hands over the rest. We tune it against your real message history, so it learns your actual questions rather than a generic script. Anything it cannot settle goes to your team with the full conversation attached.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What happens when it gets stuck?</summary>
+      <p>A person takes over, and the customer repeats nothing. We build that path first, before we build a single answer, because it is where most chatbots fail.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How do I know I need a chatbot and not something else?</summary>
+      <p>Sometimes you do not. We scope before we sell, and if what you actually need is the database underneath or a fix to the workflow, we will tell you and quote that instead.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What does it cost, honestly?</summary>
+      <p>Builds start at $300 and are quoted per project against milestones you approve. Care is $125 a month and optional. You will have the number before any work starts.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 10 WHO WE ARE                                                 -->
+<!-- ============================================================ -->
+<section class="sec sec-who reveal" id="who" aria-labelledby="who-h">
+  <span class="node" aria-hidden="true"></span>
+  <p class="kicker mono">10 · Who we are</p>
+  <h2 class="sec-title big" id="who-h">A bilingual studio in Douala, and chatbots are what we do.</h2>
+  <p class="lede">We build for businesses across Cameroon and beyond, in English and in French, and we stay on the phone after launch. Chatbots are the offer. The engineering under them is how we keep the offer honest.</p>
+  <ul class="facts mono">
+    <li>Douala, Cameroon</li>
+    <li>EN / FR</li>
+    <li>Since 2023</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- 11 THE QUOTE FORM                                             -->
+<!-- ============================================================ -->
+<section class="sec sec-quote reveal" id="quote" aria-labelledby="quote-h">
+  <span class="node" aria-hidden="true"></span>
+  <div class="quote-grid">
+
+    <div class="quote-form-wrap">
+      <p class="kicker mono">11 · Get a quote</p>
+      <h2 class="sec-title" id="quote-h">Tell us what needs answering.</h2>
+      <p class="lede">Describe what you want automated, or what is breaking underneath it. We reply within one business day with a scoped approach and a clear price.</p>
+
+      <form class="qform" id="qform" novalidate>
+        <div class="f-row">
+          <label class="f-field">
+            <span class="f-label mono">Name</span>
+            <input type="text" name="name" autocomplete="name" required>
+          </label>
+          <label class="f-field">
+            <span class="f-label mono">Email</span>
+            <input type="email" name="email" autocomplete="email" required>
+          </label>
         </div>
-        <div class="lead-field">
-          <label for="lf-email">Email</label>
-          <input id="lf-email" name="email" type="email" autocomplete="email" placeholder="you@company.com">
+        <div class="f-row">
+          <label class="f-field">
+            <span class="f-label mono">WhatsApp number</span>
+            <input type="tel" name="phone" autocomplete="tel" inputmode="tel">
+          </label>
+          <label class="f-field">
+            <span class="f-label mono">What do you need?</span>
+            <select name="need">
+              <option>AI chatbot</option>
+              <option>Custom software or web system</option>
+              <option>Cloud and database work</option>
+              <option>Managed IT or a retainer</option>
+              <option>Not sure yet</option>
+            </select>
+          </label>
         </div>
-        <div class="lead-field">
-          <label for="lf-phone">WhatsApp number</label>
-          <input id="lf-phone" name="phone" type="tel" autocomplete="tel" placeholder="+237 …">
-        </div>
-        <div class="lead-field">
-          <label for="lf-service">Service needed</label>
-          <select id="lf-service" name="service">
-            <option value="">Select a service</option>
-            <option>AI Chatbots &amp; Automation</option>
-            <option>Custom Software / Web System</option>
-            <option>Cloud &amp; Database Architecture</option>
-            <option>Managed IT / SLA Retainer</option>
-            <option>Other / Not sure yet</option>
-          </select>
-        </div>
-        <div class="lead-field">
-          <label for="lf-budget">Budget</label>
-          <select id="lf-budget" name="budget">
-            <option value="">Select a range</option>
+        <label class="f-field">
+          <span class="f-label mono">Budget</span>
+          <select name="budget">
             <option>Under $500</option>
-            <option>$500 – $2,000</option>
-            <option>$2,000 – $10,000</option>
+            <option>$500 to $2,000</option>
+            <option>$2,000 to $10,000</option>
             <option>$10,000+</option>
             <option>Monthly retainer</option>
           </select>
-        </div>
-        <div class="lead-field full">
-          <label for="lf-desc">Project description</label>
-          <textarea id="lf-desc" name="description" placeholder="What are you trying to build or automate?"></textarea>
-        </div>
-        <div class="lead-actions">
-          <button type="submit" class="lead-btn primary">Submit request</button>
-          <button type="button" class="lead-btn wa" id="lead-wa-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11-.42-.11-.96-.29-1.65-.59-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.82 2.01.89 2.16.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.29.36-.24.6-.14.24.09 1.53.72 1.8.85.27.14.44.21.5.32.07.11.07.64-.17 1.32Z"/></svg>
-            Send via WhatsApp
-          </button>
-          <p class="lead-status" id="lead-status" role="status" aria-live="polite"></p>
-        </div>
+        </label>
+        <label class="f-field">
+          <span class="f-label mono">Tell us about it</span>
+          <textarea name="message" rows="4" placeholder="What happens now when a customer messages you?"></textarea>
+        </label>
+        <button class="btn btn-lg" type="submit" id="qsubmit">Send it</button>
+        <p class="f-note" id="qnote" role="status">No obligation, no spam, and a real person reads it.</p>
       </form>
+
+      <div class="qsuccess" id="qsuccess" hidden role="status">
+        <h3>Got it. We will reply within one business day.</h3>
+        <p>If it is urgent, message us on WhatsApp and we will pick it up now.</p>
+        <a class="btn btn-ghost" href="https://wa.me/237622341343" target="_blank" rel="noopener">Open WhatsApp</a>
+      </div>
+
+      <!-- Shown only if the lead could not reach our server. The link carries the
+           whole form into WhatsApp so nothing the visitor typed is lost. -->
+      <div class="qsuccess qfail" id="qfail" hidden role="alert">
+        <h3>That did not reach us.</h3>
+        <p>Your details are saved on this device and we will retry, but the fastest route is WhatsApp. Everything you wrote is already in the message.</p>
+        <a class="btn btn-wa" id="qfail-wa" href="https://wa.me/237622341343" target="_blank" rel="noopener">Send it on WhatsApp</a>
+      </div>
     </div>
-  </section>
 
-  <!-- ===== Footer (injected by site-chrome.js) ===== -->
-  <footer id="site-footer"></footer>
+    <aside class="quote-side">
+      <p class="kicker mono">In a hurry?</p>
+      <h3 class="side-t">Message us and a person picks it up.</h3>
+      <a class="btn btn-wa" href="https://wa.me/237622341343?text=Hello%20H%40rts%2C%20I%27d%20like%20a%20quote." target="_blank" rel="noopener">Talk on WhatsApp</a>
+      <dl class="side-dl mono">
+        <div><dt>Phone</dt><dd>+237 622 341 343</dd></div>
+        <div><dt>Email</dt><dd>support@hartsdigitalhub.com</dd></div>
+        <div><dt>Studio</dt><dd>Douala, Cameroon</dd></div>
+      </dl>
+    </aside>
 
-</div><!-- /hub-wrap -->
+  </div>
+</section>
 
-<!-- ===== Floating action buttons ===== -->
+</div><!-- /.page -->
+</main>
+
+<footer class="foot">
+  <div class="foot-top">
+    <img class="foot-logo" src="assets/logo.png" alt="H@rts" width="112" height="30" decoding="async" loading="lazy">
+    <nav class="foot-nav" aria-label="Footer">
+      <a href="#engine">The engine</a>
+      <a href="#handover">The handover</a>
+      <a href="#pricing">Pricing</a>
+      <a href="training.html">Training</a>
+      <a href="insights.html">Build log</a>
+      <a href="#quote">Get a quote</a>
+      <a href="privacy-policy.html">Privacy policy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </div>
+  <div class="foot-bottom mono">
+    <p>© <span id="year">2026</span> H@rts (Harts Digital Hub) · Douala, Cameroon · <a href="mailto:support@hartsdigitalhub.com">support@hartsdigitalhub.com</a></p>
+    <p class="foot-note">Imagery on this page is AI generated.</p>
+  </div>
+</footer>
+
+<!-- ============================================================ -->
+<!-- THE WHATSAPP FAST LANE AND THE AI ASSISTANT                   -->
+<!-- The two things kept from the previous site. app.js drives the -->
+<!-- assistant and expects these exact ids.                        -->
+<!-- ============================================================ -->
 <div class="fab-stack">
-  <a class="fab fab-wa" href="https://wa.me/237622341343?text=Hello%20H%40rts!%20I%27d%20like%20to%20talk%20about%20a%20project."
+  <a class="fab fab-wa" href="https://wa.me/237622341343?text=Hello%20H%40rts%2C%20I%27d%20like%20to%20talk%20about%20a%20project."
      target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
     <span class="fab-ping" aria-hidden="true"></span>
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11-.42-.11-.96-.29-1.65-.59-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.82 2.01.89 2.16.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.29.36-.24.6-.14.24.09 1.53.72 1.8.85.27.14.44.21.5.32.07.11.07.64-.17 1.32Z"/></svg>
-    <span class="fab-label">WhatsApp us</span>
+    <span class="fab-label mono">WhatsApp us</span>
   </a>
-  <button class="fab fab-chat" id="fab-chat" aria-label="Open chat assistant" aria-expanded="false" aria-controls="harts-chat-widget">
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span class="fab-label">Ask our AI assistant</span>
+  <button class="fab fab-chat" id="fab-chat" type="button" aria-label="Open the AI assistant" aria-expanded="false" aria-controls="harts-chat-widget">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="fab-label mono">Ask our assistant</span>
   </button>
 </div>
 
-<!-- ===== Chat bubble (hosts the existing app.js chat) ===== -->
-<div id="harts-chat-widget" role="dialog" aria-label="H@rts AI assistant">
+<div id="harts-chat-widget" role="dialog" aria-label="H@rts AI assistant" aria-hidden="true">
   <div class="chat-widget-head">
-    <div class="ava">H</div>
-    <div class="who"><b>H@rts AI Assistant</b><span>● online</span></div>
-    <button class="chat-widget-close" id="chat-widget-close" aria-label="Close chat">×</button>
+    <div class="ava" aria-hidden="true">H</div>
+    <div class="who"><b>H@rts assistant</b><span class="mono"><i class="dot" aria-hidden="true"></i>Online · EN / FR</span></div>
+    <button class="chat-widget-close" id="chat-widget-close" type="button" aria-label="Close chat">×</button>
   </div>
 
-  <!-- Chat interface (IDs preserved so app.js works unchanged) -->
   <div class="gemini-chat" id="chat-main">
     <div class="chat-welcome" id="chat-welcome">
       <div class="welcome-inner">
         <h2>What are you trying to fix?</h2>
         <p class="chat-welcome-sub">Tell us in your own words, or start from one of these.</p>
-        <!-- Chips are phrased as the visitor's *problem*, not our product names —
-             most people arrive knowing what hurts, not which service to ask for.
-             data-chip is read by app.js (no inline handler, keeps CSP clean). -->
         <div class="chat-suggestions">
           <button class="chat-chip" type="button" data-chip="We're losing customers because nobody answers WhatsApp fast enough">Leads go cold on WhatsApp</button>
           <button class="chat-chip" type="button" data-chip="Can a chatbot connect to the system we already use?">Connect to our existing system</button>
@@ -374,10 +687,10 @@
 
     <div class="input-container">
       <form id="chat-form" class="gemini-input" autocomplete="off">
-        <input id="chat-input" type="text" placeholder="Ask about software, chatbots, pricing…" aria-label="Type your message" maxlength="600" />
+        <input id="chat-input" type="text" placeholder="Ask about chatbots, software, pricing…" aria-label="Type your message" maxlength="600">
         <button id="chat-send" type="submit" class="send-btn" aria-label="Send">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
       </form>
@@ -385,10 +698,9 @@
   </div>
 </div>
 
-<!-- Scripts: shared header/footer + chat engine + hub interactions -->
-<script defer src="site-chrome.js"></script>
+<script src="assets/cinematic.js"></script>
 <script defer src="app.js"></script>
-<script defer src="hub.js"></script>
+<script defer src="chat-widget.js"></script>
 <!-- Vercel Web Analytics (cookieless, no consent banner required) -->
 <script defer src="/_vercel/insights/script.js"></script>
 <script defer src="/_vercel/speed-insights/script.js"></script>

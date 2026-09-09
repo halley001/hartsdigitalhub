@@ -1,7 +1,10 @@
 /* ============================================================
    H@rts — site-chrome.js
-   Single source of truth for the site-wide HEADER and FOOTER.
-   Every page includes this script and provides two placeholders:
+   Single source of truth for the HEADER and FOOTER on the pages
+   that still use the hub layout (training, build log, legal, and
+   the app pages). The homepage is the cinematic one-page site and
+   carries its own nav and footer.
+   Every hub page provides two placeholders:
      <header id="site-header"></header>
      <footer id="site-footer"></footer>
    The active nav item is chosen from <body data-page="…">.
@@ -17,25 +20,26 @@
   var FOUNDED = 2024;   // company start year — footer shows FOUNDED–present
 
   // Primary navigation. `key` matches <body data-page="…"> for active state.
+  // Section links point at the one-page homepage (canonical root, no index.html,
+  // so Vercel's clean-URL redirect never strips a hash or query).
   var NAV = [
-    { label: 'AI Chatbots',         href: 'whatsapp-automation.html',  key: 'whatsapp' },
-    { label: 'Case Studies',        href: 'index.html#portfolio',      key: 'portfolio' },
-    { label: 'Pricing',             href: 'index.html#pricing',        key: 'pricing' },
-    { label: 'Build Log',           href: 'insights.html',             key: 'insights' },
-    { label: 'About Us',            href: 'about.html',                key: 'about' }
+    { label: 'Home',           href: '/',                key: 'home' },
+    { label: 'The engine',     href: '/#engine',         key: 'engine' },
+    { label: 'Pricing',        href: '/#pricing',        key: 'pricing' },
+    { label: 'Build Log',      href: 'insights.html',    key: 'insights' },
+    { label: 'Training',       href: 'training.html',    key: 'training' }
   ];
 
-  // Footer link columns (carries both tracks: enterprise + SME/training).
   var FOOT_LINKS = [
-    { label: 'AI Chatbots',         href: 'whatsapp-automation.html' },
-    { label: 'Case Studies',        href: 'index.html#portfolio' },
-    { label: 'Pricing',             href: 'index.html#pricing' },
-    { label: 'Build Log',           href: 'insights.html' },
-    { label: 'About',               href: 'about.html' },
-    { label: 'SME Packages',        href: 'services.html' },
-    { label: 'AI Training',         href: 'training.html' },
-    { label: 'Privacy Policy',      href: 'privacy-policy.html' },
-    { label: 'Terms of Service',    href: 'terms.html' }
+    { label: 'Home',               href: '/' },
+    { label: 'The engine',         href: '/#engine' },
+    { label: 'The handover',       href: '/#handover' },
+    { label: 'Pricing',            href: '/#pricing' },
+    { label: 'Build Log',          href: 'insights.html' },
+    { label: 'Training',           href: 'training.html' },
+    { label: 'Get a quote',        href: '/#quote' },
+    { label: 'Privacy Policy',     href: 'privacy-policy.html' },
+    { label: 'Terms of Service',   href: 'terms.html' }
   ];
 
   function navHTML(page) {
@@ -47,10 +51,10 @@
     }).join('');
     return '' +
       '<div class="hub-nav-inner">' +
-        '<a href="index.html" class="hub-brand" aria-label="H@rts home">H<b>@</b>rts</a>' +
+        '<a href="/" class="hub-brand" aria-label="H@rts home">H<b>@</b>rts</a>' +
         '<button class="hub-nav-toggle" id="hub-nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>' +
         '<ul class="hub-nav-links">' + items +
-          '<li><a class="hub-cta" href="index.html#quote">Get a Project Quote</a></li>' +
+          '<li><a class="hub-cta" href="/#quote">Get a build quote</a></li>' +
         '</ul>' +
       '</div>';
   }
@@ -63,8 +67,8 @@
     }).join('');
     return '' +
       '<div>' +
-        '<a href="index.html" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>' +
-        '<p style="margin-top:.6rem;max-width:34ch">AI automation — chatbots and workflows that answer your customers in seconds, plus the engineering that keeps them running. Bilingual EN / FR. Cameroon &amp; beyond.</p>' +
+        '<a href="/" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>' +
+        '<p style="margin-top:.6rem;max-width:34ch">We build the reply that arrives first. AI chatbots for WhatsApp, your website and any channel, wired into the systems you already run. Bilingual EN / FR. Douala, Cameroon.</p>' +
       '</div>' +
       '<nav class="hub-footer-links" aria-label="Footer">' + links + '</nav>' +
       // Contact block — real, clickable ways to reach a human, not just the form.

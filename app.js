@@ -1207,8 +1207,8 @@ function getBotResponse(rawText, lang = currentLang) {
     return {
       isHTML: true,
       text: lang === 'fr'
-        ? 'Il y a une section <a href="index.html#portfolio">études de cas</a> sur la page d\'accueil. On est en train d\'y publier les vraies, à mesure que les clients autorisent la publication — en attendant, le <a href="insights.html">Build Log</a> montre bien mieux comment on travaille.<br><br>Si vous avez quelque chose de précis en tête, dites-nous quel type de build et on vous dira franchement si on a déjà livré l\'équivalent.'
-        : 'There\'s a <a href="index.html#portfolio">case studies</a> section on the homepage. We\'re publishing the real ones as clients approve them — in the meantime the <a href="insights.html">Build Log</a> is a better look at how we actually work.<br><br>If you have something specific in mind, tell us the kind of build and we\'ll say plainly whether we\'ve shipped something close to it.'
+        ? 'Il y a une section <a href="/#production">études de cas</a> sur la page d\'accueil. On est en train d\'y publier les vraies, à mesure que les clients autorisent la publication — en attendant, le <a href="insights.html">Build Log</a> montre bien mieux comment on travaille.<br><br>Si vous avez quelque chose de précis en tête, dites-nous quel type de build et on vous dira franchement si on a déjà livré l\'équivalent.'
+        : 'There\'s a <a href="/#production">case studies</a> section on the homepage. We\'re publishing the real ones as clients approve them — in the meantime the <a href="insights.html">Build Log</a> is a better look at how we actually work.<br><br>If you have something specific in mind, tell us the kind of build and we\'ll say plainly whether we\'ve shipped something close to it.'
     };
   }
 
@@ -2542,6 +2542,14 @@ function addMessage(role, text, isHTML = false) {
 
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
+
+  // The opening greeting lands here before the visitor types, so the "was the
+  // list empty?" check in the submit handlers never fires. The first thing the
+  // visitor sends is what flips the panel from the welcome screen to the log.
+  if (role === 'user') {
+    const main = document.getElementById('chat-main');
+    if (main) main.classList.add('chatting');
+  }
 
   messages.push({ role, text });
   // Replaying stored turns must not re-store them, or every reload would

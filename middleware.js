@@ -2,10 +2,7 @@ const APP_HOST = 'app.hartsdigitalhub.com';
 
 const MAIN_ONLY_PATHS = new Set([
   '/index.html',
-  '/about.html',
-  '/services.html',
   '/training.html',
-  '/whatsapp-automation.html',
   '/insights.html',
   '/insights-response-time.html',
   '/insights-connect-existing-systems.html',
