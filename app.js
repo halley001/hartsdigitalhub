@@ -734,8 +734,8 @@ const FALLBACK_FAQ = [
   { id: 'training_free', cat: 'training', kw: ['training', 'course', 'free', 'cost', 'learn', 'formation', 'cours', 'gratuit', 'apprendre'],
     q: { en: 'Is the AI training course really free?',
          fr: 'La formation IA est-elle vraiment gratuite ?' },
-    a: { en: 'Completely free. All ten modules, the starter guide and your certificate cost nothing — no card, no hidden fee. It is called Foundations and it lives in the Training Hub at app.hartsdigitalhub.com.',
-         fr: 'Entièrement gratuite. Les dix modules, le guide de démarrage et le certificat ne coûtent rien — pas de carte bancaire, pas de frais cachés. Elle s\'appelle Foundations et se trouve dans l\'espace de formation, sur app.hartsdigitalhub.com.' } },
+    a: { en: 'Completely free. All ten modules, the starter guide and your certificate cost nothing — no card, no hidden fee. It is called Foundations and it lives in the Training Hub at app.hartsdigitalhub.com/login.html.',
+         fr: 'Entièrement gratuite. Les dix modules, le guide de démarrage et le certificat ne coûtent rien — pas de carte bancaire, pas de frais cachés. Elle s\'appelle Foundations et se trouve dans l\'espace de formation, sur app.hartsdigitalhub.com/login.html.' } },
 
   { id: 'training_length', cat: 'training', kw: ['modules', 'lessons', 'long', 'pace', 'schedule', 'modules', 'leçons', 'rythme', 'durée'],
     q: { en: 'How long is the course and how is it structured?',
@@ -764,8 +764,8 @@ const FALLBACK_FAQ = [
   { id: 'training_signin', cat: 'training', kw: ['login', 'signin', 'password', 'account', 'register', 'enrol', 'enroll', 'connexion', 'compte', 'inscrire', 'mot'],
     q: { en: 'How do I sign in to the Training Hub?',
          fr: 'Comment se connecter à l\'espace de formation ?' },
-    a: { en: 'With your email address — there is no password to create or forget. You enter your email at app.hartsdigitalhub.com, we send a sign-in link, and opening it puts you straight into the course.',
-         fr: 'Avec votre adresse e-mail — aucun mot de passe à créer ni à oublier. Vous saisissez votre e-mail sur app.hartsdigitalhub.com, nous envoyons un lien de connexion, et l\'ouvrir vous amène directement dans le cours.' } },
+    a: { en: 'With your email address — there is no password to create or forget. You enter your email at app.hartsdigitalhub.com/login.html, we send a sign-in link, and opening it puts you straight into the course.',
+         fr: 'Avec votre adresse e-mail — aucun mot de passe à créer ni à oublier. Vous saisissez votre e-mail sur app.hartsdigitalhub.com/login.html, nous envoyons un lien de connexion, et l\'ouvrir vous amène directement dans le cours.' } },
 
   { id: 'training_network', cat: 'training', kw: ['talent', 'network', 'job', 'hire', 'work', 'career', 'talents', 'réseau', 'emploi', 'recrut'],
     q: { en: 'What is the talent network?',

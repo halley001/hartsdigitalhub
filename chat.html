@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>H@rts assistant</title>
+<meta name="description" content="Ask the H@rts assistant about AI chatbots, custom software, pricing and what to build first. English or French, and a person on WhatsApp whenever you want one.">
+<meta name="theme-color" content="#0A0B0D">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="index,follow">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="H@rts">
+<meta property="og:title" content="H@rts assistant">
+<meta property="og:description" content="Ask about AI chatbots, custom software and pricing. English or French. A person on WhatsApp whenever you want one.">
+<meta property="og:url" content="https://app.hartsdigitalhub.com/">
+<meta property="og:image" content="https://hartsdigitalhub.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="H@rts assistant">
+<meta name="twitter:image" content="https://hartsdigitalhub.com/assets/og-image.jpg">
+<link rel="canonical" href="https://app.hartsdigitalhub.com/">
+
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap">
+<!-- the conversation surface shares its styles with the homepage bubble; the page shell is its own -->
+<link rel="stylesheet" href="/chat-widget.css">
+<link rel="stylesheet" href="/chat-page.css">
+</head>
+<body class="chat-body">
+
+<a class="skip" href="#chat-input">Skip to the message box</a>
+
+<canvas id="dust" class="dust" aria-hidden="true"></canvas>
+
+<header class="chat-top">
+  <a class="chat-brand" href="https://hartsdigitalhub.com/" aria-label="H@rts, back to the main site">
+    <img src="/assets/logo.png" alt="" width="74" height="20" decoding="async">
+  </a>
+  <div class="chat-top-who">
+    <b>H@rts assistant</b>
+    <span class="mono"><i class="dot" aria-hidden="true"></i>Online · EN / FR</span>
+  </div>
+  <a class="chat-top-wa" href="https://wa.me/237622341343?text=Hello%20H%40rts%2C%20I%27d%20like%20to%20talk%20to%20a%20person." target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11-.42-.11-.96-.29-1.65-.59-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.82 2.01.89 2.16.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.29.36-.24.6-.14.24.09 1.53.72 1.8.85.27.14.44.21.5.32.07.11.07.64-.17 1.32Z"/></svg>
+    <span>Talk to a person</span>
+  </a>
+</header>
+
+<main class="chat-shell" id="main">
+  <h1 class="sr">The H@rts assistant. Ask about AI chatbots, custom software and pricing.</h1>
+
+  <!-- ids are owned by app.js and must stay exactly as they are -->
+  <div class="gemini-chat" id="chat-main">
+    <div class="chat-welcome" id="chat-welcome">
+      <div class="welcome-inner">
+        <h2>What are you trying to fix?</h2>
+        <p class="chat-welcome-sub">Tell us in your own words, in English or French, or start from one of these.</p>
+        <div class="chat-suggestions">
+          <button class="chat-chip" type="button" data-chip="We're losing customers because nobody answers WhatsApp fast enough">Leads go cold on WhatsApp</button>
+          <button class="chat-chip" type="button" data-chip="Can a chatbot connect to the system we already use?">Connect to our existing system</button>
+          <button class="chat-chip" type="button" data-chip="We're running our operations on spreadsheets and it's breaking. We need custom software.">Outgrown our spreadsheets</button>
+          <button class="chat-chip" type="button" data-chip="What does a project like this usually cost?">What does this cost?</button>
+          <button class="chat-chip" type="button" data-chip="I just need a website and a WhatsApp Business presence. What are the packages?">Website and WhatsApp packages</button>
+          <button class="chat-chip" type="button" data-chip="Tell me about the free AI training.">The free AI training</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chat-messages" role="log" aria-live="polite"></div>
+
+    <div class="input-container">
+      <form id="chat-form" class="gemini-input" autocomplete="off">
+        <input id="chat-input" type="text" placeholder="Ask about chatbots, software, pricing…" aria-label="Type your message" maxlength="600" autofocus>
+        <button id="chat-send" type="submit" class="send-btn" aria-label="Send">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+      <p class="chat-foot mono">A real person reads every conversation that needs one · <a href="https://hartsdigitalhub.com/privacy-policy.html">Privacy</a></p>
+    </div>
+  </div>
+</main>
+
+<script defer src="/app.js"></script>
+<script defer src="/chat-page.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

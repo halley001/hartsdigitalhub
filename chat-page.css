@@ -1,0 +1,97 @@
+/* ============================================================
+   H@rts · chat-page.css
+   The shell of app.hartsdigitalhub.com: the assistant as a full
+   page. The conversation itself is styled by chat-widget.css,
+   shared with the homepage bubble, so both stay identical.
+   Palette and type are the cinematic tokens.
+   ============================================================ */
+:root{
+  --canvas:#0A0B0D;
+  --canvas-2:#101216;
+  --panel:#14171C;
+  --accent:#FFFFFF;
+  --accent-hover:#DDE3EB;
+  --text-primary:#E8EBF0;
+  --text-secondary:#8C94A1;
+  --line:rgba(255,255,255,.10);
+  --line-strong:rgba(255,255,255,.24);
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,monospace;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --gut:clamp(16px,4vw,40px);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow-x:hidden}
+body.chat-body{
+  background:var(--canvas);color:var(--text-primary);
+  font-family:var(--body);font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;
+  min-height:100vh;min-height:100dvh;
+}
+.mono{font-family:var(--mono);font-weight:400;letter-spacing:.06em;text-transform:uppercase;font-size:.7rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.skip{position:absolute;left:-9999px;top:0;z-index:20;background:var(--accent);color:#000;padding:12px 20px;font-family:var(--mono);font-size:.75rem;text-decoration:none}
+.skip:focus{left:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+/* the same drifting dust as the homepage, behind everything */
+.dust{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.5}
+
+/* ---------- the top bar ---------- */
+.chat-top{
+  position:relative;z-index:2;flex:0 0 auto;
+  display:flex;align-items:center;gap:16px;
+  padding:14px var(--gut);
+  border-bottom:1px solid var(--line);
+  background:rgba(10,11,13,.72);backdrop-filter:blur(14px);
+}
+.chat-brand img{display:block;height:20px;width:auto;filter:drop-shadow(0 1px 3px rgba(5,5,10,.9))}
+.chat-top-who{display:flex;flex-direction:column;gap:3px;min-width:0;margin-left:6px}
+.chat-top-who b{font-family:var(--display);font-weight:700;font-size:1rem;letter-spacing:-.01em}
+.chat-top-who span{color:var(--text-secondary);font-size:.62rem;display:flex;align-items:center;gap:7px}
+.chat-top-who .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+.chat-top-wa{
+  margin-left:auto;display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:#04180C;background:#25D366;border:1px solid #25D366;border-radius:2px;
+  padding:10px 14px;text-decoration:none;white-space:nowrap;
+  transition:background .3s var(--ease);
+}
+.chat-top-wa:hover{background:#1FBE5A}
+.chat-top-wa svg{width:16px;height:16px}
+@media (max-width:480px){
+  .chat-top-wa span{display:none}
+  .chat-top-wa{padding:10px}
+}
+
+/* ---------- the conversation, full height, one column ---------- */
+.chat-shell{
+  position:relative;z-index:1;flex:1;min-height:0;
+  display:flex;flex-direction:column;
+  width:100%;max-width:760px;margin:0 auto;
+}
+.chat-shell .gemini-chat{flex:1;min-height:0}
+.chat-shell .chat-welcome{padding:clamp(28px,6vh,64px) var(--gut) 12px}
+.chat-shell .welcome-inner h2{font-size:clamp(1.5rem,3.6vw,2.2rem);max-width:16ch}
+.chat-shell .chat-welcome-sub{font-size:.96rem;max-width:44ch}
+.chat-shell .chat-suggestions{margin-top:22px}
+.chat-shell .chat-chip{font-size:.86rem;padding:10px 14px}
+.chat-shell .gemini-chat.chatting .chat-messages{padding:22px var(--gut) 12px;gap:14px}
+.chat-shell .chat-msg .chat-content-wrapper{max-width:76%}
+.chat-shell .chat-bubble{font-size:.95rem;line-height:1.58;padding:12px 15px}
+.chat-shell .input-container{padding:12px var(--gut) max(14px,env(safe-area-inset-bottom));background:rgba(10,11,13,.85);backdrop-filter:blur(14px)}
+.chat-shell #chat-input{font-size:1rem;padding:11px 6px}
+.chat-shell .send-btn{width:38px;height:38px}
+.chat-foot{margin:10px 2px 0;color:var(--text-secondary);font-size:.6rem;letter-spacing:.05em;text-transform:none}
+.chat-foot a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+
+@media (pointer:coarse){
+  .chat-shell .chat-chip,.chat-top-wa,.chat-shell .send-btn{min-height:44px}
+}
+@media (prefers-reduced-motion:reduce){
+  .dust{display:none}
+}

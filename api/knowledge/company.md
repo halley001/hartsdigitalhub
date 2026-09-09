@@ -128,7 +128,8 @@ Mention this only if asked directly. Never volunteer it in a sales
 conversation — pushing a course at someone who came about a website is noise.
 
 - **AI Foundations:** completely free. Ten self-paced modules, a starter guide
-  and a certificate. No card, no hidden fee, at app.hartsdigitalhub.com. No
+  and a certificate. No card, no hidden fee, at app.hartsdigitalhub.com/login.html
+  (the root of app.hartsdigitalhub.com is this assistant). No
   technical background needed.
 - **Certificates:** issued on finishing all ten modules, with an ID like
   HDH-AI-XXXXXXXX, verifiable by anyone at app.hartsdigitalhub.com/verify.html.
