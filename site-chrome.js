@@ -23,21 +23,23 @@
   // Section links point at the one-page homepage (canonical root, no index.html,
   // so Vercel's clean-URL redirect never strips a hash or query).
   var NAV = [
-    { label: 'Home',           href: '/',                key: 'home' },
-    { label: 'The engine',     href: '/#engine',         key: 'engine' },
+    { label: 'Web apps',       href: '/#web-apps',       key: 'web-apps' },
+    { label: 'Chatbots',       href: '/#chatbots',       key: 'chatbots' },
+    { label: 'Work',           href: '/#work',           key: 'work' },
     { label: 'Pricing',        href: '/#pricing',        key: 'pricing' },
-    { label: 'Build Log',      href: 'insights.html',    key: 'insights' },
-    { label: 'Training',       href: 'training.html',    key: 'training' }
+    { label: 'Build Log',      href: 'insights.html',    key: 'insights' }
   ];
 
   var FOOT_LINKS = [
     { label: 'Home',               href: '/' },
-    { label: 'The engine',         href: '/#engine' },
-    { label: 'The handover',       href: '/#handover' },
+    { label: 'Web apps',           href: '/#web-apps' },
+    { label: 'Chatbots',           href: '/#chatbots' },
+    { label: 'Work',               href: '/#work' },
     { label: 'Pricing',            href: '/#pricing' },
     { label: 'Build Log',          href: 'insights.html' },
     { label: 'Training',           href: 'training.html' },
     { label: 'Get a quote',        href: '/#quote' },
+    { label: 'Leave a review',     href: 'reviews.html' },
     { label: 'Privacy Policy',     href: 'privacy-policy.html' },
     { label: 'Terms of Service',   href: 'terms.html' }
   ];
@@ -68,7 +70,7 @@
     return '' +
       '<div>' +
         '<a href="/" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>' +
-        '<p style="margin-top:.6rem;max-width:34ch">We build the reply that arrives first. AI chatbots for WhatsApp, your website and any channel, wired into the systems you already run. Bilingual EN / FR. Douala, Cameroon.</p>' +
+        '<p style="margin-top:.6rem;max-width:34ch">Web apps and AI chatbots, built to work together: the system your team runs on, and the bot that answers your customers from it. Bilingual EN / FR. Douala, Cameroon.</p>' +
       '</div>' +
       '<nav class="hub-footer-links" aria-label="Footer">' + links + '</nav>' +
       // Contact block — real, clickable ways to reach a human, not just the form.
@@ -76,7 +78,7 @@
         '<a href="mailto:' + EMAIL + '">' + EMAIL + '</a>' +
         '<a href="tel:' + PHONE_E164 + '">' + PHONE + '</a>' +
         '<a href="https://wa.me/' + PHONE_E164.replace('+', '') + '" target="_blank" rel="noopener">WhatsApp us</a>' +
-        '<span>Douala, Cameroon &middot; Mon–Sat, 8am–6pm WAT</span>' +
+        '<span>Douala, Cameroon &middot; Fully virtual &middot; Meetings by appointment only</span>' +
       '</address>' +
       '<div>&copy; ' + years + ' H@rts &middot; All rights reserved.</div>';
   }

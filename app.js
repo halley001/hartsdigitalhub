@@ -37,7 +37,7 @@ const I18N = {
     'wa': 'Chat on WhatsApp',
     'popular': 'Most Popular',
     'chat.title': 'Chat with Harts',
-    'chat.subtitle': 'Ask about websites, apps, branding, and other digital services.',
+    'chat.subtitle': 'Ask about web apps, AI chatbots, pricing, and what to build first.',
     'chat.placeholder': 'Type your message...',
     'chat.send': 'Send',
     'chat.human': 'Talk to a real person',
@@ -72,7 +72,7 @@ const I18N = {
     'wa': 'Discuter sur WhatsApp',
     'popular': 'Le plus populaire',
     'chat.title': 'Discuter avec Harts',
-    'chat.subtitle': 'Posez vos questions sur nos sites web, applications, logos, flyers et autres services numériques.',
+    'chat.subtitle': 'Posez vos questions sur nos applications web, nos chatbots IA, nos prix, et par quoi commencer.',
     'chat.placeholder': 'Tapez votre message...',
     'chat.send': 'Envoyer',
     'chat.human': 'Parler à un vrai conseiller',
@@ -1203,12 +1203,12 @@ function getBotResponse(rawText, lang = currentLang) {
   }
 
   // ── Portfolio / examples ─────────────────────────────────────
-  if (/\b(portfolio|example[s]?|past work|show me.*work|previous client|sample[s]?|réalisation[s]?|travaux?|exemple[s]?|référence[s]?|vos travaux)\b/i.test(text)) {
+  if (/\b(portfolio|example[s]?|past work|show me.*work|previous client|sample[s]?|what have you (built|done|made)|built before|réalisation[s]?|travaux?|exemple[s]?|référence[s]?|vos travaux|déjà (fait|réalisé|construit))\b/i.test(text)) {
     return {
       isHTML: true,
       text: lang === 'fr'
-        ? 'Il y a une section <a href="/#production">études de cas</a> sur la page d\'accueil. On est en train d\'y publier les vraies, à mesure que les clients autorisent la publication — en attendant, le <a href="insights.html">Build Log</a> montre bien mieux comment on travaille.<br><br>Si vous avez quelque chose de précis en tête, dites-nous quel type de build et on vous dira franchement si on a déjà livré l\'équivalent.'
-        : 'There\'s a <a href="/#production">case studies</a> section on the homepage. We\'re publishing the real ones as clients approve them — in the meantime the <a href="insights.html">Build Log</a> is a better look at how we actually work.<br><br>If you have something specific in mind, tell us the kind of build and we\'ll say plainly whether we\'ve shipped something close to it.'
+        ? 'Quelques projets en production :<br><br>· <b>CamCCUL Stock Management</b> — une application web pour une ligue de coopératives d\'épargne et de crédit et ses chapitres (commandes de stock, validation, vérification des paiements, rapports), plus un bot Telegram par lequel les membres commandent et paient. Application web et chatbot sur la même base de données.<br>· <b>Chart Harmoniser</b> — une application web financière qui aligne la balance des coopératives sur le plan COBAC PCEMF et produit le FM1000. <a href="https://gestacoob.vercel.app/" target="_blank" rel="noopener">Essayer la démo</a><br>· <b>Paws Rescue</b> — un site d\'adoption de chiens avec candidature en ligne. <a href="https://thepawsrescue.org/" target="_blank" rel="noopener">Voir le site</a><br><br>Tout est aussi sur la page d\'accueil, section <a href="/#work">Réalisations</a>. Quel genre de projet avez-vous en tête ?'
+        : 'A few things we have in production:<br><br>· <b>CamCCUL Stock Management</b> — a web app for a credit union league and its chapters (stock orders, approvals, payment checks, reporting), plus a Telegram bot members order and pay through. Web app and chatbot on one database.<br>· <b>Chart Harmoniser</b> — a finance web app that maps credit unions\' trial balances to the COBAC PCEMF chart and produces the FM1000. <a href="https://gestacoob.vercel.app/" target="_blank" rel="noopener">Try the demo</a><br>· <b>Paws Rescue</b> — a dog adoption site with an online application. <a href="https://thepawsrescue.org/" target="_blank" rel="noopener">Visit the site</a><br><br>They\'re all in the <a href="/#work">Work</a> section of the homepage too. What kind of build do you have in mind?'
     };
   }
 
@@ -1216,8 +1216,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(office|visit|come in|physical|en personne|bureau|adresse|address|can i visit|venir vous voir|où êtes-vous)\b/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Nous sommes basés à Douala et travaillons avec des clients partout au Cameroun, essentiellement à distance — WhatsApp, appels, documents partagés. Si une rencontre en personne compte pour votre projet, l\'équipe peut s\'organiser (lundi au samedi, 8h–18h).'
-        : 'We\'re based in Douala and work with clients across Cameroon, mostly remotely — WhatsApp, calls, shared documents. If meeting in person matters for your project, the team can arrange it (Mon–Sat, 8am–6pm).'
+        ? 'Nous sommes une équipe entièrement virtuelle basée à Douala : il n\'y a pas de bureau à visiter. Tout se fait à distance — WhatsApp, appels, visio, documents partagés. Les rendez-vous se font uniquement sur réservation : écrivez-nous sur WhatsApp ou par e-mail pour en fixer un.'
+        : 'We\'re a fully virtual team based in Douala, so there\'s no office to visit. Everything happens remotely — WhatsApp, calls, video calls, shared documents. Meetings are by appointment only: message us on WhatsApp or email to book one.'
     };
   }
 
@@ -2202,6 +2202,26 @@ function saveReview(rating, comment) {
       timestamp: new Date().toISOString()
     });
     localStorage.setItem('harts_reviews', JSON.stringify(reviews));
+  } catch (e) { /* ignore */ }
+
+  // Until this existed the chat's review only ever lived in the visitor's own
+  // browser, so nobody at H@rts saw it. Best-effort: the UI never waits on it.
+  try {
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'review',
+        source: 'chat',
+        rating: parseInt(rating) || 0,
+        name: leadContext.name || null,
+        company: leadContext.business || null,
+        service: 'other',
+        comment: comment || '',
+        publish_consent: false,
+        lang: currentLang
+      })
+    }).catch(() => {});
   } catch (e) { /* ignore */ }
 }
 

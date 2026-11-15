@@ -15,7 +15,13 @@
 // The `leads` table DDL lives in supabase/leads-and-payments.sql — run it once.
 // Optional notification env vars are documented in api/_notify.js.
 
+//
+// Also accepts client reviews: { "type": "review", ... } is handed to
+// api/_reviews.js. They share this route only because of the Vercel Hobby
+// 12-function cap.
+
 import { notifyNewLead } from './_notify.js';
+import { handleReview } from './_reviews.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -23,6 +29,7 @@ export default async function handler(req, res) {
   }
 
   const body = req.body || {};
+  if (body.type === 'review') return handleReview(req, res);
   const clean = (v, max = 300) =>
     (typeof v === 'string' ? v.trim().slice(0, max) : v == null ? null : String(v).slice(0, max));
 

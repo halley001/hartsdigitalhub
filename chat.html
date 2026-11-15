@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>H@rts assistant</title>
-<meta name="description" content="Ask the H@rts assistant about AI chatbots, custom software, pricing and what to build first. English or French, and a person on WhatsApp whenever you want one.">
+<meta name="description" content="Ask the H@rts assistant about web apps, AI chatbots, pricing and what to build first. English or French, and a person on WhatsApp whenever you want one.">
 <meta name="theme-color" content="#0A0B0D">
 <meta name="color-scheme" content="dark">
 <meta name="robots" content="index,follow">
@@ -64,12 +64,12 @@
         <h2>What are you trying to fix?</h2>
         <p class="chat-welcome-sub">Tell us in your own words, in English or French, or start from one of these.</p>
         <div class="chat-suggestions">
+          <button class="chat-chip" type="button" data-chip="We're running our operations on spreadsheets and it's breaking. We need a web app.">We need a web app</button>
           <button class="chat-chip" type="button" data-chip="We're losing customers because nobody answers WhatsApp fast enough">Leads go cold on WhatsApp</button>
-          <button class="chat-chip" type="button" data-chip="Can a chatbot connect to the system we already use?">Connect to our existing system</button>
-          <button class="chat-chip" type="button" data-chip="We're running our operations on spreadsheets and it's breaking. We need custom software.">Outgrown our spreadsheets</button>
+          <button class="chat-chip" type="button" data-chip="Can a chatbot connect to the system we already use?">Connect a bot to our system</button>
+          <button class="chat-chip" type="button" data-chip="Can you build a web app and a chatbot that work together?">A web app and a chatbot together</button>
+          <button class="chat-chip" type="button" data-chip="What have you built before?">What have you built?</button>
           <button class="chat-chip" type="button" data-chip="What does a project like this usually cost?">What does this cost?</button>
-          <button class="chat-chip" type="button" data-chip="I just need a website and a WhatsApp Business presence. What are the packages?">Website and WhatsApp packages</button>
-          <button class="chat-chip" type="button" data-chip="Tell me about the free AI training.">The free AI training</button>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@
 
     <div class="input-container">
       <form id="chat-form" class="gemini-input" autocomplete="off">
-        <input id="chat-input" type="text" placeholder="Ask about chatbots, software, pricing…" aria-label="Type your message" maxlength="600" autofocus>
+        <input id="chat-input" type="text" placeholder="Ask about web apps, chatbots, pricing…" aria-label="Type your message" maxlength="600" autofocus>
         <button id="chat-send" type="submit" class="send-btn" aria-label="Send">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>

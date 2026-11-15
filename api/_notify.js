@@ -51,7 +51,26 @@ function formatLead(lead) {
   );
 }
 
-async function sendTelegram(lead) {
+function formatReview(review) {
+  const line = (label, value) => (value ? `${label}: ${value}\n` : '');
+  const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+  const where = review.source === 'chat' ? 'AI assistant chat' : 'Review page';
+
+  return (
+    `NEW REVIEW — ${stars} (${review.rating}/5) — ${where}\n\n` +
+    line('Name', review.name) +
+    line('Company', review.company) +
+    line('Role', review.role) +
+    line('Service', review.service) +
+    line('Email', review.email) +
+    `May publish: ${review.publish_consent ? 'yes' : 'NO — keep private'}\n` +
+    (review.comment ? `\n"${review.comment}"\n` : '') +
+    `\nApprove it in Supabase → reviews (set approved = true) before showing it anywhere.\n`
+  );
+}
+
+// Each sender takes a ready-made message so leads and reviews share one channel.
+async function sendTelegram({ text }) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) return null; // not configured — not an error
@@ -61,7 +80,7 @@ async function sendTelegram(lead) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: formatLead(lead),
+      text,
       disable_web_page_preview: true
     }),
     signal: timeoutSignal()
@@ -70,13 +89,12 @@ async function sendTelegram(lead) {
   return 'telegram';
 }
 
-async function sendEmail(lead) {
+async function sendEmail({ subject, text, replyTo }) {
   const key = process.env.RESEND_API_KEY;
   const to = process.env.LEAD_NOTIFY_TO;
   const from = process.env.LEAD_NOTIFY_FROM;
   if (!key || !to || !from) return null; // not configured — not an error
 
-  const who = lead.name || lead.business || lead.phone || 'someone';
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -86,9 +104,9 @@ async function sendEmail(lead) {
     body: JSON.stringify({
       from,
       to: to.split(',').map(s => s.trim()).filter(Boolean),
-      reply_to: lead.email || undefined,
-      subject: `New lead: ${who}`,
-      text: formatLead(lead)
+      reply_to: replyTo || undefined,
+      subject,
+      text
     }),
     signal: timeoutSignal()
   });
@@ -99,7 +117,21 @@ async function sendEmail(lead) {
 // Returns { sent: [...channels], failed: [...channels], configured: boolean }.
 // Never throws, never rejects — callers can await it without a try/catch.
 export async function notifyNewLead(lead) {
-  const results = await Promise.allSettled([sendTelegram(lead), sendEmail(lead)]);
+  const who = lead.name || lead.business || lead.phone || 'someone';
+  return fanOut({ subject: `New lead: ${who}`, text: formatLead(lead), replyTo: lead.email });
+}
+
+// Same contract as notifyNewLead.
+export async function notifyNewReview(review) {
+  return fanOut({
+    subject: `New ${review.rating}/5 review: ${review.name}${review.company ? ' (' + review.company + ')' : ''}`,
+    text: formatReview(review),
+    replyTo: review.email
+  });
+}
+
+async function fanOut(message) {
+  const results = await Promise.allSettled([sendTelegram(message), sendEmail(message)]);
 
   const sent = [];
   const failed = [];

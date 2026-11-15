@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave a Review — H@rts</title>
+  <meta name="description" content="Worked with H@rts? Tell us how it went. Your review helps other businesses decide, and helps us get better.">
+  <meta property="og:title" content="Leave a Review — H@rts">
+  <meta property="og:description" content="Worked with H@rts? Tell us how it went — it takes a minute.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hartsdigitalhub.com/reviews.html">
+  <meta property="og:site_name" content="H@rts">
+  <meta property="og:image" content="https://hartsdigitalhub.com/android-chrome-512x512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:image:alt" content="Leave a review for H@rts">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://hartsdigitalhub.com/android-chrome-512x512.png">
+  <link rel="canonical" href="https://hartsdigitalhub.com/reviews.html">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#000000">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="hub.css">
+  <style>
+    .rv-lang { display: inline-flex; gap: .35rem; margin-top: 1.4rem; }
+    .rv-lang button {
+      background: transparent; color: var(--muted, #9aa0a6); border: 1px solid var(--border);
+      border-radius: 999px; padding: .35rem .8rem; font: 500 .72rem 'DM Mono', monospace;
+      letter-spacing: .08em; cursor: pointer;
+    }
+    .rv-lang button[aria-pressed="true"] { background: #fff; color: #000; border-color: #fff; }
+
+    /* Star rating: real radio inputs, laid out right-to-left so the
+       "~" sibling selector can light every star up to the hovered one. */
+    .rv-stars { border: 0; padding: 0; margin: 0; }
+    .rv-stars legend {
+      font-family: 'DM Mono', monospace; font-size: .72rem; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted, #9aa0a6); margin-bottom: .5rem; padding: 0;
+    }
+    .rv-stars-row { display: inline-flex; flex-direction: row-reverse; gap: .25rem; }
+    .rv-stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .rv-stars label {
+      font-size: 2.1rem; line-height: 1; color: #3a3a3a; cursor: pointer;
+      padding: .1rem .15rem; border-radius: 8px; transition: color .12s, transform .12s;
+    }
+    .rv-stars label:hover,
+    .rv-stars label:hover ~ label,
+    .rv-stars input:checked ~ label { color: #fff; }
+    .rv-stars label:hover { transform: scale(1.08); }
+    .rv-stars input:focus-visible + label { outline: 2px solid #fff; outline-offset: 2px; }
+    .rv-stars-word { margin-left: .8rem; font-family: 'DM Mono', monospace; font-size: .8rem; color: #cfd4d8; vertical-align: middle; }
+
+    .rv-consent { display: flex; gap: .7rem; align-items: flex-start; font-size: .85rem; color: #cfd4d8; line-height: 1.5; cursor: pointer; }
+    .rv-consent input { margin-top: .2rem; width: 1.05rem; height: 1.05rem; accent-color: #fff; flex: none; }
+    .rv-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .rv-count { font-family: 'DM Mono', monospace; font-size: .7rem; color: var(--muted, #9aa0a6); text-align: right; }
+    .lead-status.err { color: #ff8a80; }
+    .lead-btn[disabled] { opacity: .55; cursor: progress; transform: none; }
+
+    #review-form[hidden], .rv-done[hidden] { display: none; }
+    .rv-done { text-align: center; padding: 2rem 0; }
+    .rv-done a { color: #fff; text-underline-offset: 3px; }
+    .rv-done .rv-done-mark { font-size: 2.6rem; }
+    .rv-done h3 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin-top: .6rem; }
+    .rv-done p { color: #9aa0a6; margin: .8rem auto 0; max-width: 46ch; line-height: 1.7; }
+  </style>
+</head>
+<body class="hub-body" data-page="reviews">
+<a href="#review" class="skip-link">Skip to content</a>
+<div class="hub-wrap">
+
+  <header id="site-header"></header>
+
+  <section class="hub-hero" style="min-height:auto">
+    <div class="hub-hero-fallback" aria-hidden="true"></div>
+    <div class="hub-hero-inner" style="padding-bottom:3.5rem">
+      <span class="hub-kicker" data-i18n="kicker">Client reviews</span>
+      <h1 class="hub-hero-title" data-i18n="title">How did we do?</h1>
+      <p class="hub-hero-sub" data-i18n="sub">If we built, ran or trained something for you, tell us how it went. It takes about a minute. Honest is more useful to us than kind.</p>
+      <div class="rv-lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="hub-section" id="review">
+    <div class="lead-shell">
+
+      <aside class="lead-aside">
+        <h3 data-i18n="asideTitle">What happens to your review</h3>
+        <p data-i18n="asideBody">A person at H@rts reads every one, the same day.</p>
+        <ul>
+          <li data-i18n="aside1">Nothing is published unless you tick the box allowing it</li>
+          <li data-i18n="aside2">We check each review against a real project before it appears anywhere</li>
+          <li data-i18n="aside3">Your email stays private and is only used to confirm it was you</li>
+          <li data-i18n="aside4">If something went wrong, we will get in touch to put it right</li>
+        </ul>
+      </aside>
+
+      <div>
+        <form class="lead-form" id="review-form" novalidate>
+          <fieldset class="rv-stars lead-field full" id="rv-rating">
+            <legend data-i18n="ratingLabel">Your rating</legend>
+            <div>
+              <span class="rv-stars-row">
+                <input type="radio" name="rating" id="r5" value="5" aria-label="5 stars"><label for="r5" title="5" aria-hidden="true">★</label>
+                <input type="radio" name="rating" id="r4" value="4" aria-label="4 stars"><label for="r4" title="4" aria-hidden="true">★</label>
+                <input type="radio" name="rating" id="r3" value="3" aria-label="3 stars"><label for="r3" title="3" aria-hidden="true">★</label>
+                <input type="radio" name="rating" id="r2" value="2" aria-label="2 stars"><label for="r2" title="2" aria-hidden="true">★</label>
+                <input type="radio" name="rating" id="r1" value="1" aria-label="1 star"><label for="r1" title="1" aria-hidden="true">★</label>
+              </span>
+              <span class="rv-stars-word" id="rv-stars-word" aria-live="polite"></span>
+            </div>
+          </fieldset>
+
+          <div class="lead-field">
+            <label for="rv-name" data-i18n="nameLabel">Your name</label>
+            <input type="text" id="rv-name" name="name" maxlength="120" autocomplete="name" required>
+          </div>
+          <div class="lead-field">
+            <label for="rv-company" data-i18n="companyLabel">Company</label>
+            <input type="text" id="rv-company" name="company" maxlength="160" autocomplete="organization">
+          </div>
+          <div class="lead-field">
+            <label for="rv-role" data-i18n="roleLabel">Your role</label>
+            <input type="text" id="rv-role" name="role" maxlength="120" autocomplete="organization-title" data-i18n-ph="rolePh" placeholder="e.g. Owner, Operations manager">
+          </div>
+          <div class="lead-field">
+            <label for="rv-service" data-i18n="serviceLabel">What did we do for you?</label>
+            <select id="rv-service" name="service">
+              <option value="" data-i18n="svc0">Choose one</option>
+              <option value="ai-chatbot" data-i18n="svc1">AI chatbot / automation</option>
+              <option value="website" data-i18n="svc2">Website or online presence</option>
+              <option value="custom-software" data-i18n="svc3">Custom software or web system</option>
+              <option value="cloud-database" data-i18n="svc4">Cloud and database work</option>
+              <option value="managed-it" data-i18n="svc5">Managed IT / support retainer</option>
+              <option value="branding" data-i18n="svc6">Logo or branding</option>
+              <option value="training" data-i18n="svc7">Training</option>
+              <option value="other" data-i18n="svc8">Something else</option>
+            </select>
+          </div>
+          <div class="lead-field full">
+            <label for="rv-comment" data-i18n="commentLabel">Your review</label>
+            <textarea id="rv-comment" name="comment" maxlength="2000" rows="5" data-i18n-ph="commentPh" placeholder="What was the problem, what did we build, and what changed for you?"></textarea>
+            <span class="rv-count" id="rv-count">0 / 2000</span>
+          </div>
+          <div class="lead-field full">
+            <label for="rv-email" data-i18n="emailLabel">Email (private, optional)</label>
+            <input type="email" id="rv-email" name="email" maxlength="160" autocomplete="email" placeholder="you@company.com">
+          </div>
+          <div class="rv-hp" aria-hidden="true">
+            <label for="rv-website">Website</label>
+            <input type="text" id="rv-website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+          <div class="lead-field full">
+            <label class="rv-consent" style="text-transform:none;letter-spacing:0;font-family:inherit;font-size:.85rem;color:#cfd4d8">
+              <input type="checkbox" id="rv-consent" name="publish_consent">
+              <span data-i18n="consent">H@rts may publish this review with my name, role and company on its website and marketing.</span>
+            </label>
+          </div>
+          <div class="lead-actions">
+            <button type="submit" class="lead-btn primary" id="rv-submit" data-i18n="submit">Send my review</button>
+          </div>
+          <p class="lead-status" id="rv-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="rv-done" id="rv-done" hidden tabindex="-1">
+          <div class="rv-done-mark" aria-hidden="true">★</div>
+          <h3 data-i18n="doneTitle">Thank you.</h3>
+          <p id="rv-done-body" data-i18n="doneBody">Your review reached us. A person on the team will read it today.</p>
+          <p><a href="/" data-i18n="doneHome">Back to the homepage →</a></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer id="site-footer"></footer>
+
+</div><!-- /hub-wrap -->
+
+<script>
+(function () {
+  'use strict';
+
+  var T = {
+    en: {
+      kicker: 'Client reviews', title: 'How did we do?',
+      sub: 'If we built, ran or trained something for you, tell us how it went. It takes about a minute. Honest is more useful to us than kind.',
+      asideTitle: 'What happens to your review', asideBody: 'A person at H@rts reads every one, the same day.',
+      aside1: 'Nothing is published unless you tick the box allowing it',
+      aside2: 'We check each review against a real project before it appears anywhere',
+      aside3: 'Your email stays private and is only used to confirm it was you',
+      aside4: 'If something went wrong, we will get in touch to put it right',
+      ratingLabel: 'Your rating', nameLabel: 'Your name', companyLabel: 'Company', roleLabel: 'Your role',
+      rolePh: 'e.g. Owner, Operations manager', serviceLabel: 'What did we do for you?',
+      svc0: 'Choose one', svc1: 'AI chatbot / automation', svc2: 'Website or online presence',
+      svc3: 'Custom software or web system', svc4: 'Cloud and database work', svc5: 'Managed IT / support retainer',
+      svc6: 'Logo or branding', svc7: 'Training', svc8: 'Something else',
+      commentLabel: 'Your review', commentPh: 'What was the problem, what did we build, and what changed for you?',
+      emailLabel: 'Email (private, optional)',
+      consent: 'H@rts may publish this review with my name, role and company on its website and marketing.',
+      submit: 'Send my review', sending: 'Sending…',
+      words: ['', 'Poor', 'Below expectations', 'Okay', 'Good', 'Excellent'],
+      errRating: 'Please choose a rating from 1 to 5 stars.', errName: 'Please add your name.',
+      errEmail: 'That email address does not look right.',
+      errSend: 'We could not send that just now. Please try again, or send it to us on WhatsApp.',
+      doneTitle: 'Thank you.', doneBody: 'Your review reached us. A person on the team will read it today.',
+      doneLow: 'Your review reached us. Someone from the team will be in touch to understand what went wrong.',
+      doneHome: 'Back to the homepage →'
+    },
+    fr: {
+      kicker: 'Avis clients', title: 'Comment nous sommes-nous débrouillés ?',
+      sub: "Si nous avons construit, géré ou formé quelque chose pour vous, dites-nous comment cela s'est passé. Cela prend une minute. Un avis honnête nous est plus utile qu'un avis gentil.",
+      asideTitle: 'Ce que devient votre avis', asideBody: 'Une personne chez H@rts lit chaque avis, le jour même.',
+      aside1: "Rien n'est publié sans que vous cochiez la case qui l'autorise",
+      aside2: 'Nous vérifions chaque avis par rapport à un vrai projet avant toute publication',
+      aside3: "Votre e-mail reste privé et sert uniquement à confirmer que c'était vous",
+      aside4: "Si quelque chose s'est mal passé, nous vous recontacterons pour corriger cela",
+      ratingLabel: 'Votre note', nameLabel: 'Votre nom', companyLabel: 'Entreprise', roleLabel: 'Votre fonction',
+      rolePh: 'ex. Gérant, Responsable des opérations', serviceLabel: "Qu'avons-nous fait pour vous ?",
+      svc0: 'Choisissez', svc1: 'Chatbot IA / automatisation', svc2: 'Site web ou présence en ligne',
+      svc3: 'Logiciel ou système web sur mesure', svc4: 'Cloud et bases de données', svc5: 'Infogérance / contrat de support',
+      svc6: 'Logo ou identité visuelle', svc7: 'Formation', svc8: 'Autre chose',
+      commentLabel: 'Votre avis', commentPh: "Quel était le problème, qu'avons-nous construit, et qu'est-ce qui a changé pour vous ?",
+      emailLabel: 'E-mail (privé, facultatif)',
+      consent: 'H@rts peut publier cet avis avec mon nom, ma fonction et mon entreprise sur son site et ses supports marketing.',
+      submit: 'Envoyer mon avis', sending: 'Envoi…',
+      words: ['', 'Mauvais', 'En dessous des attentes', 'Correct', 'Bien', 'Excellent'],
+      errRating: 'Veuillez choisir une note de 1 à 5 étoiles.', errName: 'Veuillez indiquer votre nom.',
+      errEmail: "Cette adresse e-mail ne semble pas correcte.",
+      errSend: "Nous n'avons pas pu l'envoyer. Réessayez, ou envoyez-le-nous sur WhatsApp.",
+      doneTitle: 'Merci.', doneBody: "Votre avis nous est bien parvenu. Une personne de l'équipe le lira aujourd'hui.",
+      doneLow: "Votre avis nous est bien parvenu. Quelqu'un de l'équipe vous contactera pour comprendre ce qui n'a pas marché.",
+      doneHome: "Retour à l'accueil →"
+    }
+  };
+
+  var form = document.getElementById('review-form');
+  var status = document.getElementById('rv-status');
+  var submit = document.getElementById('rv-submit');
+  var word = document.getElementById('rv-stars-word');
+  var comment = document.getElementById('rv-comment');
+  var count = document.getElementById('rv-count');
+  var lang = 'en';
+
+  function setLang(l) {
+    lang = T[l] ? l : 'en';
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var v = T[lang][el.getAttribute('data-i18n')];
+      if (typeof v === 'string') el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+      el.placeholder = T[lang][el.getAttribute('data-i18n-ph')];
+    });
+    document.querySelectorAll('.rv-lang button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === lang));
+    });
+    var checked = form.querySelector('input[name="rating"]:checked');
+    word.textContent = checked ? T[lang].words[checked.value] : '';
+    try { localStorage.setItem('harts_lang', lang); } catch (e) {}
+  }
+
+  document.querySelectorAll('.rv-lang button').forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.getAttribute('data-lang')); });
+  });
+
+  form.querySelectorAll('input[name="rating"]').forEach(function (r) {
+    r.addEventListener('change', function () { word.textContent = T[lang].words[r.value]; status.textContent = ''; });
+  });
+
+  comment.addEventListener('input', function () { count.textContent = comment.value.length + ' / 2000'; });
+
+  // Prefill from a link you send a client, e.g.
+  //   /reviews.html?name=Marie%20N.&company=Akwa%20Shoes&service=ai-chatbot&lang=fr
+  var q = new URLSearchParams(location.search);
+  if (q.get('name')) document.getElementById('rv-name').value = q.get('name').slice(0, 120);
+  if (q.get('company')) document.getElementById('rv-company').value = q.get('company').slice(0, 160);
+  var svc = document.getElementById('rv-service');
+  if (q.get('service') && svc.querySelector('option[value="' + CSS.escape(q.get('service')) + '"]')) svc.value = q.get('service');
+
+  var initial = q.get('lang');
+  if (!initial) { try { initial = localStorage.getItem('harts_lang'); } catch (e) {} }
+  if (!initial && /^fr\b/i.test(navigator.language || '')) initial = 'fr';
+  setLang(initial || 'en');
+
+  function fail(msg, focusEl) {
+    status.textContent = msg;
+    status.classList.add('err');
+    if (focusEl) focusEl.focus();
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    status.classList.remove('err');
+    status.textContent = '';
+
+    var checked = form.querySelector('input[name="rating"]:checked');
+    var name = document.getElementById('rv-name');
+    var email = document.getElementById('rv-email');
+    if (!checked) return fail(T[lang].errRating, document.getElementById('r5'));
+    if (!name.value.trim()) return fail(T[lang].errName, name);
+    if (email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) return fail(T[lang].errEmail, email);
+
+    var rating = Number(checked.value);
+    var payload = {
+      type: 'review',
+      rating: rating,
+      name: name.value.trim(),
+      company: document.getElementById('rv-company').value.trim(),
+      role: document.getElementById('rv-role').value.trim(),
+      service: svc.value,
+      comment: comment.value.trim(),
+      email: email.value.trim(),
+      publish_consent: document.getElementById('rv-consent').checked,
+      website: document.getElementById('rv-website').value,
+      lang: lang,
+      source: 'review-page'
+    };
+
+    submit.disabled = true;
+    submit.textContent = T[lang].sending;
+
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function () {
+        form.hidden = true;
+        var done = document.getElementById('rv-done');
+        document.getElementById('rv-done-body').textContent = rating <= 3 ? T[lang].doneLow : T[lang].doneBody;
+        done.hidden = false;
+        done.focus();
+      })
+      .catch(function () {
+        submit.disabled = false;
+        submit.textContent = T[lang].submit;
+        fail(T[lang].errSend);
+      });
+  });
+})();
+</script>
+<script defer src="site-chrome.js"></script>
+<script defer src="hub.js"></script>
+
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

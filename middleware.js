@@ -22,6 +22,7 @@ const MAIN_ONLY_PATHS = new Set([
   '/insights-what-automation-costs.html',
   '/privacy-policy.html',
   '/terms.html',
+  '/reviews.html',
 ]);
 
 // Pages that belong to the app host only.
