@@ -45,10 +45,10 @@ export default async function handler(req, res) {
 
     sbInsert('leads', {
       name, phone,
-      package: 'training-foundations',
-      summary: `Foundations enrollment (dashboard) | Email: ${user.email} | Country: ${country}`,
+      package: 'training-git-github',
+      summary: `Git & GitHub course enrolment (dashboard) | Email: ${user.email} | Country: ${country}`,
       lang: 'en',
-      source: 'training-foundations'
+      source: 'training-git-github'
     }).catch(err => console.error('Non-fatal: lead insert failed', err));
 
     return res.status(200).json({
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       phone: updated.phone || null,
       country: updated.country || null,
       completed: updated.completed || [],
-      cert_id: updated.cert_id || null
+      git_cert_id: updated.git_cert_id || null
     });
   } catch (err) {
     console.error('Error saving trainee profile:', err);

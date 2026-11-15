@@ -1,15 +1,20 @@
 // Vercel Serverless Function — POST /api/trainee/progress
-// Marks a module complete for the signed-in trainee. When the 10th module
-// completes, issues a server-side certificate ID (unlike the old anonymous
-// flow, this one is actually recorded and could be checked against later).
+// Marks a module of the Git & GitHub with SSH keys course complete for the
+// signed-in trainee. When all 7 modules are complete, issues a server-side
+// certificate ID (HDH-GIT-XXXXXXXX) in git_cert_id.
 //
-// Body: { module: 1-10 }
+// Body: { module: 11-17 }
+//
+// Module ids start at 11 because ids 1-10 belonged to the retired AI course and
+// may still sit in a trainee's `completed` list. Those old ids are kept as they
+// are (so an old cert_id still matches its record) but never count here.
+// dashboard.js holds the same list and must stay in step.
 
 import crypto from 'crypto';
 import { supabaseConfigured, sbSelectOne, sbUpdate } from '../pay/_lib.js';
 import { getSessionUser } from '../_auth.js';
 
-const TOTAL_MODULES = 10;
+const MODULE_IDS = [11, 12, 13, 14, 15, 16, 17];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -25,7 +30,7 @@ export default async function handler(req, res) {
   }
 
   const moduleNum = Number((req.body || {}).module);
-  if (!Number.isInteger(moduleNum) || moduleNum < 1 || moduleNum > TOTAL_MODULES) {
+  if (!MODULE_IDS.includes(moduleNum)) {
     return res.status(400).json({ error: 'Invalid module number' });
   }
 
@@ -40,8 +45,9 @@ export default async function handler(req, res) {
     completed.sort((a, b) => a - b);
 
     const patch = { completed, updated_at: new Date().toISOString() };
-    if (completed.length === TOTAL_MODULES && !profile.cert_id) {
-      patch.cert_id = 'HDH-AI-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+    const doneInCourse = MODULE_IDS.filter(id => completed.includes(id)).length;
+    if (doneInCourse === MODULE_IDS.length && !profile.git_cert_id) {
+      patch.git_cert_id = 'HDH-GIT-' + crypto.randomBytes(4).toString('hex').toUpperCase();
     }
 
     const rows = await sbUpdate('trainee_profiles', 'user_id', user.id, patch);
@@ -53,7 +59,7 @@ export default async function handler(req, res) {
       phone: updated.phone || null,
       country: updated.country || null,
       completed: updated.completed || [],
-      cert_id: updated.cert_id || null
+      git_cert_id: updated.git_cert_id || null
     });
   } catch (err) {
     console.error('Error saving progress:', err);

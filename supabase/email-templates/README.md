@@ -11,7 +11,7 @@ edited in different places, so keep the distinction clear.
 | `lead-received.html` | our code (proposed) | `api/_notify.js`, via Resend |
 | `lead-alert-internal.html` | our code (proposed) | `api/_notify.js` `sendEmail()` |
 | `payment-confirmed.html` | our code (proposed) | `api/pay/webhook.js`, on `SUCCESSFUL` |
-| `certificate-issued.html` | our code (proposed) | `api/trainee/progress.js`, when `cert_id` is minted |
+| `certificate-issued.html` | our code (proposed) | `api/trainee/progress.js`, when `git_cert_id` is minted |
 
 The Supabase ones replace templates that exist today and are sending the stock
 Supabase default. The four marked *proposed* send nothing at all yet — they are

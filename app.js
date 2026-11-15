@@ -610,8 +610,8 @@ function memDaysSinceLastVisit() {
 // so they are answerable on the first keystroke and with the network down.
 //
 // EVERY answer below is grounded in something this repo already states —
-// services.html (process, ownership, what we build), training.html (Foundations
-// is free, 10 modules, certificates, corporate cohorts), the service catalog, or
+// services.html (process, ownership, what we build), training.html (the free
+// Git & GitHub with SSH keys course, 7 modules, certificates), the service catalog, or
 // marketing/faq-knowledge-base-100.md. Nothing here is invented policy. Questions
 // we cannot answer from those sources are listed in marketing/faq-gaps.md instead
 // of being guessed at, because a confident wrong answer about who owns a website
@@ -731,47 +731,42 @@ const FALLBACK_FAQ = [
          fr: 'Vos données vous appartiennent et nous ne les vendons ni ne les partageons jamais — elles servent uniquement à faire fonctionner le système que vous payez. Elles sont hébergées sur une infrastructure cloud sécurisée, avec les accès verrouillés côté serveur ; le chatbot n\'a jamais d\'accès direct à votre base, et rien n\'est exposé publiquement.' } },
 
   // ── Training ──
-  { id: 'training_free', cat: 'training', kw: ['training', 'course', 'free', 'cost', 'learn', 'formation', 'cours', 'gratuit', 'apprendre'],
-    q: { en: 'Is the AI training course really free?',
-         fr: 'La formation IA est-elle vraiment gratuite ?' },
-    a: { en: 'Completely free. All ten modules, the starter guide and your certificate cost nothing — no card, no hidden fee. It is called Foundations and it lives in the Training Hub at app.hartsdigitalhub.com/login.html.',
-         fr: 'Entièrement gratuite. Les dix modules, le guide de démarrage et le certificat ne coûtent rien — pas de carte bancaire, pas de frais cachés. Elle s\'appelle Foundations et se trouve dans l\'espace de formation, sur app.hartsdigitalhub.com/login.html.' } },
+  { id: 'training_what', cat: 'training', kw: ['training', 'course', 'learn', 'teach', 'git', 'github', 'ssh', 'formation', 'cours', 'apprendre'],
+    q: { en: 'What does your training course cover?',
+         fr: 'Que couvre votre formation ?' },
+    a: { en: 'The Training Hub runs one course: Git & GitHub with SSH keys. In seven short modules you install Git, configure it, create an SSH key, add it to GitHub, and clone, commit and push your first repository over SSH. Windows, macOS and Linux are all covered.',
+         fr: 'L\'espace de formation propose un seul cours : Git & GitHub avec clés SSH. En sept modules courts, vous installez Git, le configurez, créez une clé SSH, l\'ajoutez à GitHub, puis clonez, validez et envoyez votre premier dépôt par SSH. Windows, macOS et Linux sont tous couverts.' } },
 
-  { id: 'training_length', cat: 'training', kw: ['modules', 'lessons', 'long', 'pace', 'schedule', 'modules', 'leçons', 'rythme', 'durée'],
+  { id: 'training_free', cat: 'training', kw: ['free', 'cost', 'course', 'training', 'gratuit', 'coût', 'cours', 'formation'],
+    q: { en: 'Is the training course free?',
+         fr: 'La formation est-elle gratuite ?' },
+    a: { en: 'Yes. All seven modules and the certificate are free, with no card and no hidden fee. It lives in the Training Hub at app.hartsdigitalhub.com/login.html.',
+         fr: 'Oui. Les sept modules et le certificat sont gratuits, sans carte bancaire ni frais cachés. Le cours se trouve dans l\'espace de formation, sur app.hartsdigitalhub.com/login.html.' } },
+
+  { id: 'training_length', cat: 'training', kw: ['modules', 'lessons', 'long', 'pace', 'schedule', 'hours', 'leçons', 'rythme', 'durée'],
     q: { en: 'How long is the course and how is it structured?',
          fr: 'Combien de temps dure le cours et comment est-il structuré ?' },
-    a: { en: 'Ten plain-language modules, self-paced — you go at your own speed and pick up where you left off. No fixed start date and no deadline to miss.',
-         fr: 'Dix modules en langage clair, à votre rythme — vous avancez comme vous voulez et reprenez où vous en étiez. Pas de date de début imposée ni d\'échéance à manquer.' } },
+    a: { en: 'Seven short modules, about an hour and a half in total, taken at your own pace. Each one gives you the exact commands to run and ends with a quick check. Your progress is saved to your account, so you can stop and pick up on any device.',
+         fr: 'Sept modules courts, environ une heure et demie au total, à votre rythme. Chacun donne les commandes exactes à taper et se termine par un petit contrôle. Votre progression est enregistrée sur votre compte : vous pouvez vous arrêter et reprendre sur n\'importe quel appareil.' } },
 
   { id: 'training_cert', cat: 'training', kw: ['certificate', 'certification', 'diploma', 'verify', 'proof', 'certificat', 'diplôme', 'vérifier', 'preuve'],
     q: { en: 'Do I get a certificate, and can an employer check it?',
          fr: 'Est-ce que je reçois un certificat, et un employeur peut-il le vérifier ?' },
-    a: { en: 'Yes — finish all ten modules and a certificate is issued with an ID in the form HDH-AI-XXXXXXXX. Anyone can check that ID is genuine at app.hartsdigitalhub.com/verify.html, or by messaging it to us on WhatsApp, so an employer never has to take your word for it.',
-         fr: 'Oui — terminez les dix modules et un certificat est délivré avec un identifiant de la forme HDH-AI-XXXXXXXX. N\'importe qui peut vérifier cet identifiant sur app.hartsdigitalhub.com/verify.html, ou en nous l\'envoyant sur WhatsApp : un employeur n\'a donc jamais à vous croire sur parole.' } },
+    a: { en: 'Yes. Complete all seven modules and score at least 70% on the final check, and a certificate is issued with an ID in the form HDH-GIT-XXXXXXXX. To confirm an ID is genuine, message it to us on WhatsApp from app.hartsdigitalhub.com/verify.html and we check it against our records.',
+         fr: 'Oui. Terminez les sept modules avec au moins 70 % au contrôle final, et un certificat est délivré avec un identifiant de la forme HDH-GIT-XXXXXXXX. Pour vérifier un identifiant, envoyez-le-nous sur WhatsApp depuis app.hartsdigitalhub.com/verify.html et nous le comparons à nos registres.' } },
 
-  { id: 'training_background', cat: 'training', kw: ['background', 'beginner', 'experience', 'qualification', 'coding', 'niveau', 'débutant', 'expérience'],
-    q: { en: 'Do I need a technical background to take the course?',
-         fr: 'Faut-il un bagage technique pour suivre la formation ?' },
-    a: { en: 'No. It is written in plain language for people with no technical background — that is the entire point of calling it Foundations.',
-         fr: 'Non. Elle est rédigée en langage clair pour des personnes sans bagage technique — c\'est précisément le sens du nom Foundations.' } },
-
-  { id: 'training_corporate', cat: 'training', kw: ['team', 'company', 'staff', 'corporate', 'cohort', 'upskill', 'équipe', 'entreprise', 'salariés'],
-    q: { en: 'Do you train whole teams or companies?',
-         fr: 'Formez-vous des équipes ou des entreprises entières ?' },
-    a: { en: 'Yes — that is Corporate Upskilling: a cohort scoped to your team and the tools your business actually runs on. There is no published price because no two cohorts are the same; tell us the team size and what they need to be able to do, and we come back with a proposal.',
-         fr: 'Oui — c\'est le programme Corporate Upskilling : une cohorte adaptée à votre équipe et aux outils que votre entreprise utilise réellement. Aucun prix n\'est publié car aucune cohorte ne se ressemble ; dites-nous la taille de l\'équipe et l\'objectif, et nous revenons avec une proposition.' } },
+  { id: 'training_background', cat: 'training', kw: ['background', 'beginner', 'experience', 'qualification', 'coding', 'need', 'requirements', 'niveau', 'débutant', 'expérience', 'prérequis'],
+    q: { en: 'What do I need before I start?',
+         fr: 'De quoi ai-je besoin pour commencer ?' },
+    a: { en: 'A computer running Windows, macOS or Linux, an internet connection and a free GitHub account. No programming experience is needed: the course starts from installing Git.',
+         fr: 'Un ordinateur sous Windows, macOS ou Linux, une connexion internet et un compte GitHub gratuit. Aucune expérience en programmation n\'est nécessaire : le cours commence par l\'installation de Git.' } },
 
   { id: 'training_signin', cat: 'training', kw: ['login', 'signin', 'password', 'account', 'register', 'enrol', 'enroll', 'connexion', 'compte', 'inscrire', 'mot'],
     q: { en: 'How do I sign in to the Training Hub?',
          fr: 'Comment se connecter à l\'espace de formation ?' },
     a: { en: 'With your email address — there is no password to create or forget. You enter your email at app.hartsdigitalhub.com/login.html, we send a sign-in link, and opening it puts you straight into the course.',
-         fr: 'Avec votre adresse e-mail — aucun mot de passe à créer ni à oublier. Vous saisissez votre e-mail sur app.hartsdigitalhub.com/login.html, nous envoyons un lien de connexion, et l\'ouvrir vous amène directement dans le cours.' } },
+         fr: 'Avec votre adresse e-mail — aucun mot de passe à créer ni à oublier. Vous saisissez votre e-mail sur app.hartsdigitalhub.com/login.html, nous envoyons un lien de connexion, et l\'ouvrir vous amène directement dans le cours.' } }
 
-  { id: 'training_network', cat: 'training', kw: ['talent', 'network', 'job', 'hire', 'work', 'career', 'talents', 'réseau', 'emploi', 'recrut'],
-    q: { en: 'What is the talent network?',
-         fr: 'Qu\'est-ce que le réseau de talents ?' },
-    a: { en: 'Finish a track and you can join the pool we draw on for client work. It is not a job guarantee and we will not pretend otherwise — it is a real list that real projects get staffed from.',
-         fr: 'Terminez un parcours et vous pouvez rejoindre le vivier dans lequel nous puisons pour les projets clients. Ce n\'est pas une garantie d\'emploi et nous ne prétendrons pas le contraire — c\'est une vraie liste, utilisée pour de vrais projets.' } }
 ];
 
 let FAQ = FALLBACK_FAQ;

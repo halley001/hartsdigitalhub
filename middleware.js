@@ -4,7 +4,7 @@
 //                             legal pages
 //   app.hartsdigitalhub.com   the assistant, as a full page, at its root.
 //                             The training portal pages (login, dashboard,
-//                             training hub, verify) stay reachable at their
+//                             verify) stay reachable at their
 //                             own paths on this host: magic-link emails,
 //                             certificate emails and the bot's answers all
 //                             point there.
@@ -27,12 +27,18 @@ const MAIN_ONLY_PATHS = new Set([
 ]);
 
 // Pages that belong to the app host only.
-const APP_ONLY_PATHS = new Set(['/chat.html', '/training-hub.html', '/verify.html', '/login.html', '/dashboard.html']);
+const APP_ONLY_PATHS = new Set(['/chat.html', '/verify.html', '/login.html', '/dashboard.html']);
 
 export default function middleware(request) {
   const url = new URL(request.url);
   const host = request.headers.get('host') || '';
   const onAppHost = host === APP_HOST;
+
+  // The old Training Hub overview page is retired: the hub runs one course
+  // now, described on the main site's training page.
+  if (url.pathname === '/training-hub.html') {
+    return Response.redirect(`https://${MAIN_HOST}/training.html`, 308);
+  }
 
   if (onAppHost) {
     // The root of the app host is the assistant. The query survives the

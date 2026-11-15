@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       phone: profile.phone || null,
       country: profile.country || null,
       completed: profile.completed || [],
-      cert_id: profile.cert_id || null
+      git_cert_id: profile.git_cert_id || null
     });
   } catch (err) {
     console.error('Error loading trainee profile:', err);

@@ -25,7 +25,7 @@
 
 -- ── leads ──────────────────────────────────────────────────────────────────
 -- Sources seen in `source`: 'website-lead' (homepage quote form, via hub.js),
--- 'chat' (AI assistant lead flow, via app.js), 'training-foundations'
+-- 'chat' (AI assistant lead flow, via app.js), 'training-git-github'
 -- (Training Hub enrolment, via api/trainee/profile.js).
 
 -- Fresh project: creates it. Existing project: no-op — the guarded ALTERs below
@@ -39,7 +39,7 @@ alter table public.leads add column if not exists name         text;
 alter table public.leads add column if not exists business     text;
 alter table public.leads add column if not exists phone        text;
 alter table public.leads add column if not exists city         text;
-alter table public.leads add column if not exists package      text;   -- e.g. 'growth', 'training-foundations'
+alter table public.leads add column if not exists package      text;   -- e.g. 'growth', 'training-git-github'
 alter table public.leads add column if not exists payment_pref text;   -- 'full' | 'installments' | free text
 alter table public.leads add column if not exists summary      text;   -- conversation summary / folded form fields
 alter table public.leads add column if not exists lang         text not null default 'en';

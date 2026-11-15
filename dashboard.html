@@ -72,12 +72,12 @@
       <!-- Page-level heading: every page needs exactly one h1 for screen readers
            and document outline. Visually hidden — the progress bar is the visual
            anchor here, but the page still needs a real title in the a11y tree. -->
-      <h1 class="sr-only">Training Hub dashboard</h1>
+      <h1 class="sr-only">Git &amp; GitHub course dashboard</h1>
 
       <section class="tr-progress-section" id="tr-progress-section">
         <div class="tr-progress-header">
           <span id="tr-welcome-name" class="tr-welcome"></span>
-          <span id="tr-progress-label">0 / 10 modules complete</span>
+          <span id="tr-progress-label">0 / 7 modules complete</span>
         </div>
         <div class="tr-progress-bar-wrap">
           <div class="tr-progress-bar" id="tr-progress-bar" style="width:0%"></div>
@@ -89,201 +89,11 @@
       </section>
 
       <section class="tr-modules" id="modules">
-        <h2 class="tr-section-title">Course Modules</h2>
-        <p class="tr-section-sub">10 plain-language modules. No technical background needed. Complete all 10 to earn your Harts AI Certificate.</p>
+        <h2 class="tr-section-title">Git &amp; GitHub with SSH keys</h2>
+        <p class="tr-section-sub">7 short, hands-on modules: install Git, configure it, create an SSH key, add it to GitHub and push your first repository. Pass the final check (70%) to earn your certificate.</p>
 
         <div class="tr-module-grid" id="tr-module-grid">
-
-          <article class="tr-module-card" data-module="1">
-            <div class="tr-module-num">01</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">What is Artificial Intelligence?</h3>
-              <p class="tr-module-desc">AI in plain language — what it is, where it came from, and why it matters to you right now.</p>
-              <ul class="tr-module-topics">
-                <li>Definition of AI without jargon</li>
-                <li>A short history of AI</li>
-                <li>Types of AI that exist today</li>
-                <li>AI examples in everyday African life</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~30 min</span>
-                <button class="tr-module-btn" onclick="openLesson(1)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-1">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="2">
-            <div class="tr-module-num">02</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">How AI Models Think</h3>
-              <p class="tr-module-desc">Peek inside an AI's "brain" — learn how it learns, and why it sometimes gets things wrong.</p>
-              <ul class="tr-module-topics">
-                <li>What is training data?</li>
-                <li>How large language models work</li>
-                <li>What are tokens and parameters?</li>
-                <li>Why AI "hallucinates"</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~35 min</span>
-                <button class="tr-module-btn" onclick="openLesson(2)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-2">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="3">
-            <div class="tr-module-num">03</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">Prompt Engineering</h3>
-              <p class="tr-module-desc">The skill that separates AI beginners from AI power users. Learn to get great results every time.</p>
-              <ul class="tr-module-topics">
-                <li>What is a prompt?</li>
-                <li>Zero-shot and few-shot techniques</li>
-                <li>Writing clear, specific instructions</li>
-                <li>Prompt templates for real life</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~40 min</span>
-                <button class="tr-module-btn" onclick="openLesson(3)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-3">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="4">
-            <div class="tr-module-num">04</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">AI Tools for Business & Life</h3>
-              <p class="tr-module-desc">Discover the best AI tools available today — most are free — and how to put them to work.</p>
-              <ul class="tr-module-topics">
-                <li>ChatGPT, Claude, Gemini compared</li>
-                <li>AI for writing and content</li>
-                <li>AI for images, video, and design</li>
-                <li>AI for customer service</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~45 min</span>
-                <button class="tr-module-btn" onclick="openLesson(4)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-4">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="5">
-            <div class="tr-module-num">05</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">AI Automation & Workflows</h3>
-              <p class="tr-module-desc">Save hours every week by letting AI do your repetitive tasks automatically.</p>
-              <ul class="tr-module-topics">
-                <li>What automation means in plain terms</li>
-                <li>Make.com and Zapier basics</li>
-                <li>Building your first AI workflow</li>
-                <li>Automating social media and email</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~50 min</span>
-                <button class="tr-module-btn" onclick="openLesson(5)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-5">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="6">
-            <div class="tr-module-num">06</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">AI Governance</h3>
-              <p class="tr-module-desc">Who controls AI, who makes the rules, and what that means for your rights as a citizen and user.</p>
-              <ul class="tr-module-topics">
-                <li>Who owns and controls AI?</li>
-                <li>AI laws around the world</li>
-                <li>Who is responsible when AI harms?</li>
-                <li>Your rights as an AI user</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~40 min</span>
-                <button class="tr-module-btn" onclick="openLesson(6)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-6">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="7">
-            <div class="tr-module-num">07</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">AI & Society</h3>
-              <p class="tr-module-desc">How AI is changing jobs, communities, politics, and daily life — especially across Africa.</p>
-              <ul class="tr-module-topics">
-                <li>Will AI take my job?</li>
-                <li>AI and inequality</li>
-                <li>AI in African economies</li>
-                <li>Misinformation and elections</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~40 min</span>
-                <button class="tr-module-btn" onclick="openLesson(7)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-7">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="8">
-            <div class="tr-module-num">08</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">AI Ethics</h3>
-              <p class="tr-module-desc">The difference between what AI can do and what it should do — and your role in that conversation.</p>
-              <ul class="tr-module-topics">
-                <li>Bias and discrimination in AI</li>
-                <li>Deepfakes and misinformation</li>
-                <li>Privacy and your personal data</li>
-                <li>Being a responsible AI user</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~35 min</span>
-                <button class="tr-module-btn" onclick="openLesson(8)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-8">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="9">
-            <div class="tr-module-num">09</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">Your AI Action Plan</h3>
-              <p class="tr-module-desc">Turn everything you have learned into a personal strategy for your career or business.</p>
-              <ul class="tr-module-topics">
-                <li>Reviewing your learning journey</li>
-                <li>Picking your first AI tool</li>
-                <li>Building your 30-day AI habit</li>
-                <li>Sharing AI skills with others</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~30 min</span>
-                <button class="tr-module-btn" onclick="openLesson(9)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-9">&#10003;</div>
-          </article>
-
-          <article class="tr-module-card" data-module="10">
-            <div class="tr-module-num">10</div>
-            <div class="tr-module-body">
-              <h3 class="tr-module-title">Final Exam & Certificate</h3>
-              <p class="tr-module-desc">10 questions covering all modules. Pass with 70% to unlock your Harts AI Certificate.</p>
-              <ul class="tr-module-topics">
-                <li>Full course knowledge review</li>
-                <li>10-question final exam</li>
-                <li>Instant result and feedback</li>
-                <li>Download your gold certificate</li>
-              </ul>
-              <div class="tr-module-footer">
-                <span class="tr-module-time">~45 min</span>
-                <button class="tr-module-btn" onclick="openLesson(10)">Start Lesson</button>
-              </div>
-            </div>
-            <div class="tr-module-check" id="check-10">&#10003;</div>
-          </article>
-
+          <!-- Module cards are drawn by dashboard.js from its course data. -->
         </div>
       </section>
 
