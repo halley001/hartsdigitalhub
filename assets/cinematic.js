@@ -1,18 +1,12 @@
 /* ============================================================
-   H@rts · The Descent
+   H@rts · The Story
    Plain vanilla JS. No framework, no build step.
    ============================================================ */
 (function () {
   'use strict';
 
-  var VIDEO_URL = 'assets/hero-scrub.mp4';
-  var POSTER_URL = 'assets/hero-poster.jpg';
-  var VIDEO_BYTES = 2745649;   /* the real byte size, used when Content-Length is missing */
-
-  var video = document.getElementById('hero-video');
   var stage = document.getElementById('stage');
-  var poster = document.getElementById('poster');
-  var loader = document.getElementById('loader');
+  var storyCanvas = document.getElementById('story');
   var hero = document.querySelector('.hero');
   var cue = document.getElementById('cue');
   var nav = document.querySelector('.nav');
@@ -35,9 +29,9 @@
      1. BAND SETUP · split the text, assign entrances and sides
      ========================================================== */
 
-  /* Bands 1 to 3 sit right, where the footage stays dark and calm.
-     Bands 4 and 5 step left, because the right side brightens as the
-     mist arrives. The layout follows the delivered footage. */
+  /* Bands 1 to 3 sit right while the story plays out on the left.
+     Bands 4 and 5 step left, and the story crosses to the right with them
+     (see lane() in the story below). */
   var SIDES = ['right', 'right', 'right', 'left', 'left'];
   var SCRIMS = [0.66, 0.62, 0.66, 0.76, 0.72];
 
@@ -136,12 +130,11 @@
   }
 
   /* ==========================================================
-     2. HERO PROGRESS, LERP AND SEEK GATING
+     2. HERO PROGRESS AND LERP
      ========================================================== */
 
   var target = 0, shown = 0, rafId = null, lastTick = 0;
   var heroOnScreen = true;
-  var seekBusy = false, pendingTime = null;
   var loadK = 0, loadStart = 0, loadRamping = false;
 
   function heroProgress() {
@@ -150,28 +143,6 @@
     if (range <= 0) return 0;
     return clamp(-hero.getBoundingClientRect().top / range, 0, 1);
   }
-
-  function requestSeek(t) {
-    if (!video.duration || isNaN(t)) return;
-    if (seekBusy) { pendingTime = t; return; }
-    seekBusy = true;
-    try { video.currentTime = t; } catch (e) { seekBusy = false; }
-  }
-
-  video.addEventListener('seeked', function () {
-    seekBusy = false;
-    if (pendingTime !== null) {
-      var t = pendingTime;
-      pendingTime = null;
-      requestSeek(t);
-    }
-  });
-
-  video.addEventListener('error', function () {   /* the deadlock escape */
-    seekBusy = false;
-    pendingTime = null;
-    failVideo();
-  });
 
   function tick(now) {
     var dt = Math.min(100, now - (lastTick || now));
@@ -193,7 +164,7 @@
       rafId = requestAnimationFrame(tick);
     }
 
-    if (video.duration) requestSeek(shown * video.duration);
+    story.setProgress(shown);
     updateCaptions(shown);
   }
 
@@ -246,88 +217,301 @@
       heroOnScreen = entries[0].isIntersecting;
       if (!heroOnScreen && rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
       else if (heroOnScreen && scrubOn) onScroll();
+      story.setOnScreen(heroOnScreen);
     }, { rootMargin: '10px' }).observe(hero);
   }
 
   /* ==========================================================
-     3. THE STREAMED BLOB LOADER
+     3. THE STORY · drawn live, driven by the scroll
+     Beat 1 (0 to .19)    loose records drift, scattered
+     Beat 2 (.21 to .40)  they glide into a web app: window, header, rows
+     Beat 3 (.42 to .61)  03:14, a message arrives; the app scans its rows
+     Beat 4 (.63 to .79)  the lane crosses right; a pulse carries the answer
+                          to the chat and the reply goes out, in the accent
+     Beat 5 (.82 to 1)    it all settles, calm, behind the closing line
+     The big moves sit in the gaps between captions (.20 .41 .62 .80), so a
+     caption never shares the screen with a transition. Nothing is loaded:
+     it is drawn from a seeded layout, the same on every visit.
      ========================================================== */
 
   var heroInit = false;
-
   function initHeroOnce() {
     if (heroInit) return;
     heroInit = true;
-
-    /* the poster wins the bandwidth race by design */
-    poster.style.backgroundImage = "url('" + POSTER_URL + "')";
-
-    var started = false;
-    function startBlobFetch() {
-      if (started) return;
-      started = true;
-      loadHeroBlob().catch(failVideo);
-    }
-    var img = new Image();
-    img.onload = startBlobFetch;
-    img.onerror = startBlobFetch;
-    img.src = POSTER_URL;
-    setTimeout(startBlobFetch, 4000);
-
     loadStart = performance.now();
     loadRamping = true;
   }
 
-  function loadHeroBlob() {
-    var ring = loader ? loader.querySelector('.ring-fill') : null;
-    var ctrl = new AbortController();
-    var watchdog = setTimeout(function () { ctrl.abort(); }, 20000);
+  var story = createStory(storyCanvas);
 
-    return fetch(VIDEO_URL, { signal: ctrl.signal }).then(function (res) {
-      if (!res.ok || !res.body) throw new Error('video unavailable');
-      var total = Number(res.headers.get('Content-Length')) || VIDEO_BYTES;
-      var reader = res.body.getReader();
-      var chunks = [];
-      var got = 0, lastRing = 0;
+  function createStory(cv) {
+    var noop = { setProgress: function () {}, setOnScreen: function () {}, setStatic: function () {} };
+    if (!cv || !cv.getContext) return noop;
+    var ctx = cv.getContext('2d');
+    var rm = matchMedia('(prefers-reduced-motion: reduce)');
+    var SIG = '79,140,255';                 /* --signal, the one accent */
+    var MONO = '500 11px "JetBrains Mono", Consolas, monospace';
+    var COLS = 9, ROWS = 6, HIT_R = 3, HIT_C = 6;
 
-      function pump() {
-        return reader.read().then(function (r) {
-          if (r.done) return;
-          clearTimeout(watchdog);
-          watchdog = setTimeout(function () { ctrl.abort(); }, 20000);
-          chunks.push(r.value);
-          got += r.value.length;
-          var frac = Math.min(1, got / total);
-          var now = performance.now();
-          if (ring && (now - lastRing > 100 || frac === 1)) {
-            lastRing = now;
-            ring.style.setProperty('--ld', Math.round(126 * (1 - frac)));
-          }
-          return pump();
+    var dpr = 1, W = 0, H = 0;
+    var p = 0, staticMode = false, onScreen = true, running = false, id = null;
+    var born = performance.now();
+
+    var rand = rng(20261115);
+    var nodes = [], motes = [], i;
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        nodes.push({
+          c: c, r: r,
+          sx: rand(), sy: rand(),                 /* scattered home, 0..1 of the lane */
+          ph: rand() * 6.2832, sp: 0.35 + rand() * 0.55,
+          st: rand(),                             /* gather stagger */
+          sz: 0.6 + rand() * 0.8,
+          bar: rand() < 0.34                      /* some start as spreadsheet rows */
         });
       }
-
-      return pump().then(function () {
-        clearTimeout(watchdog);
-        if (ring) ring.style.setProperty('--ld', 0);
-        video.src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
-        video.load();
-        video.addEventListener('canplay', function () {
-          requestSeek(heroProgress() * video.duration);
-          stage.classList.add('video-ready');
-        }, { once: true });
-      });
-    });
-  }
-
-  function failVideo() {
-    if (loader && !loader._failed) {
-      loader._failed = true;
-      loader.innerHTML =
-        '<svg class="scroll-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">' +
-        '<path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     }
-    stage.classList.add('video-failed');
+    for (i = 0; i < 46; i++) {
+      motes.push({ x: rand(), y: rand(), r: rand() * 1.1 + 0.3, a: rand() * 0.18 + 0.05, ph: rand() * 6.2832, sp: 0.15 + rand() * 0.35 });
+    }
+
+    function size() {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = cv.clientWidth; H = cv.clientHeight;
+      if (!W || !H) return false;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return true;
+    }
+
+    function rrect(x, y, w, h, rad) {
+      rad = Math.min(rad, w / 2, h / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + rad, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rad);
+      ctx.arcTo(x + w, y + h, x, y + h, rad);
+      ctx.arcTo(x, y + h, x, y, rad);
+      ctx.arcTo(x, y, x + w, y, rad);
+      ctx.closePath();
+    }
+
+    /* The action lane mirrors the caption bands in cinematic.css: the bands
+       start at 46% (38% under 1100px), so the lane is the other 46% (38%). */
+    function layout() {
+      var narrowStatic = staticMode && W < 721;
+      var lw, lx;
+      if (staticMode) {
+        lw = narrowStatic ? W * 0.9 : W * 0.46;
+        lx = narrowStatic ? W * 0.05 : W - lw;
+      } else {
+        lw = W * (W <= 1100 ? 0.38 : 0.46);
+        lx = smoothstep(p, 0.60, 0.665) * (W - lw);
+      }
+      var bw = Math.min(lw * (narrowStatic ? 0.72 : 0.68), 480);
+      var bh = bw * 0.6;
+      var bub = bh * 0.24;
+      var gap = bh * 0.1;
+      var stack = bh + gap * 2 + bub * 2;
+      /* the stack stays clear of the nav at the top and of the WhatsApp and
+         assistant buttons that live bottom right */
+      /* on phones it lives in the 210px floor the static hero leaves free */
+      var room = narrowStatic ? Math.min(H * 0.3, 180) : H * 0.66;
+      if (stack > room) { var s = room / stack; bw *= s; bh *= s; bub *= s; gap *= s; stack = room; }
+      var bx = lx + (lw - bw) / 2;
+      var by;
+      if (narrowStatic) by = H - stack - 28;
+      else {
+        /* the window sits centred on its own, and rises to make room
+           only when the chat arrives (in the handover at .41) */
+        var alone = (H - bh) / 2 - H * 0.02;
+        var withChat = (H - stack) / 2 - H * 0.04;
+        by = staticMode ? withChat : alone + (withChat - alone) * smoothstep(p, 0.39, 0.45);
+      }
+      return { lx: lx, lw: lw, bx: bx, by: by, bw: bw, bh: bh, bub: bub, gap: gap };
+    }
+
+    function nodeAt(n, L, t) {
+      var head = L.bh * 0.17, padX = L.bw * 0.09, padY = L.bh * 0.12;
+      var gx = L.bx + padX + n.c * (L.bw - 2 * padX) / (COLS - 1);
+      var gy = L.by + head + padY + n.r * (L.bh - head - 2 * padY) / (ROWS - 1);
+      var sx = L.lx + (n.sx * 1.1 - 0.05) * L.lw + Math.sin(t * n.sp + n.ph) * 16;
+      var sy = H * (0.12 + n.sy * 0.76) + Math.cos(t * n.sp * 0.8 + n.ph * 1.3) * 12;
+      var a = 0.15 + n.st * 0.08;               /* every record is home by .33 */
+      var k = smoothstep(p, a, a + 0.1);
+      return { x: sx + (gx - sx) * k, y: sy + (gy - sy) * k + Math.sin(t * 1.1 + n.ph) * 0.8 * k, k: k };
+    }
+
+    function bars(x, y, w, h, color, widths) {
+      ctx.fillStyle = color;
+      var lh = Math.max(2, h * 0.13), step = h / (widths.length + 1);
+      for (var b = 0; b < widths.length; b++) {
+        rrect(x + w * 0.1, y + step * (b + 1) - lh / 2, w * widths[b], lh, lh / 2);
+        ctx.fill();
+      }
+    }
+
+    function bubble(x, y, w, h, mine, alpha) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      rrect(x, y, w, h, Math.min(14, h * 0.4));
+      if (mine) {
+        ctx.fillStyle = 'rgba(' + SIG + ',.92)';
+        ctx.shadowColor = 'rgba(' + SIG + ',.55)'; ctx.shadowBlur = 24;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        bars(x, y, w, h, 'rgba(6,10,20,.62)', [0.62, 0.42]);
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.62)'; ctx.lineWidth = 1; ctx.stroke();
+        bars(x, y, w, h, 'rgba(255,255,255,.55)', [0.7, 0.48]);
+      }
+      ctx.restore();
+    }
+
+    function draw() {
+      if ((!W || !H) && !size()) return;
+      var t = rm.matches ? 0 : (performance.now() - born) / 1000;
+      ctx.clearRect(0, 0, W, H);
+      var L = layout();
+      var calm = staticMode ? 0.6 : 1 - smoothstep(p, 0.80, 0.9) * 0.45;
+
+      /* ambient motes across the whole stage */
+      for (i = 0; i < motes.length; i++) {
+        var m = motes[i];
+        var my = ((m.y - t * 0.006 * m.sp) % 1 + 1) % 1;
+        ctx.fillStyle = 'rgba(255,255,255,' + m.a.toFixed(3) + ')';
+        ctx.fillRect(m.x * W + Math.sin(t * m.sp + m.ph) * 18, my * H, m.r, m.r);
+      }
+
+      /* the web app: a window, a header with three dots, faint row rules */
+      var formed = smoothstep(p, 0.22, 0.32);
+      if (formed > 0) {
+        ctx.save();
+        ctx.globalAlpha = formed * calm;
+        rrect(L.bx, L.by, L.bw, L.bh, 12);
+        ctx.fillStyle = 'rgba(255,255,255,.025)'; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 1; ctx.stroke();
+        var hy = L.by + L.bh * 0.17;
+        ctx.strokeStyle = 'rgba(255,255,255,.14)';
+        ctx.beginPath(); ctx.moveTo(L.bx, hy); ctx.lineTo(L.bx + L.bw, hy); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,.4)';
+        for (i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(L.bx + 16 + i * 11, L.by + L.bh * 0.085, 2.6, 0, 6.2832); ctx.fill(); }
+        ctx.restore();
+      }
+
+      /* the records */
+      var scan = smoothstep(p, 0.5, 0.575) * (HIT_C + 1.4);
+      var hitOn = smoothstep(p, 0.565, 0.6);
+      var cell = Math.max(3, Math.min(L.bw, L.bh) * 0.045);
+      var hit = null;
+      for (i = 0; i < nodes.length; i++) {
+        var n = nodes[i], q = nodeAt(n, L, t);
+        var s0 = 3.2 + n.sz * 2.6;
+        var w = (n.bar ? s0 * 3.6 : s0) * (1 - q.k) + cell * q.k;
+        var h = (n.bar ? s0 * 0.75 : s0) * (1 - q.k) + cell * q.k;
+        var al = (0.46 + 0.3 * n.sz / 1.4 + 0.1 * q.k) * calm;
+        var col = '255,255,255';
+        if (n.r === HIT_R && n.c <= HIT_C) {
+          var lit = scan - n.c;
+          if (lit > 0 && lit < 1.4) { col = SIG; al = Math.max(al, (1 - Math.abs(lit - 0.5) / 0.9) * calm); }
+        }
+        if (n.r === HIT_R && n.c === HIT_C) {
+          hit = q;
+          if (hitOn > 0) { col = SIG; al = Math.max(al, hitOn * calm); }
+        }
+        ctx.fillStyle = 'rgba(' + col + ',' + Math.min(1, al).toFixed(3) + ')';
+        rrect(q.x - w / 2, q.y - h / 2, w, h, Math.min(w, h) * 0.3);
+        ctx.fill();
+      }
+      if (hit && hitOn > 0) {
+        var g = ctx.createRadialGradient(hit.x, hit.y, 0, hit.x, hit.y, cell * 5);
+        g.addColorStop(0, 'rgba(' + SIG + ',' + (0.45 * hitOn * calm).toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + SIG + ',0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(hit.x, hit.y, cell * 5, 0, 6.2832); ctx.fill();
+      }
+
+      /* 03:14: the message arrives under the app */
+      var bubW = L.bw * 0.56;
+      var inc = smoothstep(p, 0.43, 0.5);
+      var iy = L.by + L.bh + L.gap;
+      var ry = iy + L.bub + L.gap;
+      var rx = L.bx + L.bw - bubW;
+      if (inc > 0) {
+        bubble(L.bx, iy + (1 - inc) * 22, bubW, L.bub, false, inc * calm);
+        ctx.save();
+        ctx.globalAlpha = inc * calm * 0.9;
+        ctx.font = MONO; ctx.fillStyle = 'rgb(140,148,161)'; ctx.textBaseline = 'bottom';
+        ctx.fillText('03:14', L.bx + bubW + 10, iy + (1 - inc) * 22 + L.bub);
+        ctx.restore();
+      }
+
+      /* the answer travels from the record to the reply */
+      var go = smoothstep(p, 0.665, 0.735);
+      if (hit && go > 0 && go < 1) {
+        var ex = rx + bubW * 0.82, ey = ry + L.bub * 0.5;
+        var cx = L.bx + L.bw + L.bw * 0.14, cy = (hit.y + ey) / 2;
+        var pt = function (u) {
+          var v = 1 - u;
+          return [v * v * hit.x + 2 * v * u * cx + u * u * ex, v * v * hit.y + 2 * v * u * cy + u * u * ey];
+        };
+        ctx.save();
+        ctx.lineCap = 'round';
+        var from = Math.max(0, go - 0.35), steps = 18;
+        for (var sI = 1; sI <= steps; sI++) {
+          var u0 = from + (go - from) * (sI - 1) / steps, u1 = from + (go - from) * sI / steps;
+          var a0 = pt(u0), a1 = pt(u1);
+          ctx.strokeStyle = 'rgba(' + SIG + ',' + (0.85 * sI / steps * calm).toFixed(3) + ')';
+          ctx.lineWidth = 1 + 1.6 * sI / steps;
+          ctx.beginPath(); ctx.moveTo(a0[0], a0[1]); ctx.lineTo(a1[0], a1[1]); ctx.stroke();
+        }
+        var head = pt(go);
+        var hg = ctx.createRadialGradient(head[0], head[1], 0, head[0], head[1], 14);
+        hg.addColorStop(0, 'rgba(' + SIG + ',' + (0.95 * calm).toFixed(3) + ')');
+        hg.addColorStop(1, 'rgba(' + SIG + ',0)');
+        ctx.fillStyle = hg;
+        ctx.beginPath(); ctx.arc(head[0], head[1], 14, 0, 6.2832); ctx.fill();
+        ctx.restore();
+      }
+
+      /* the reply goes out, in the accent */
+      var rep = smoothstep(p, 0.725, 0.775);
+      if (rep > 0) {
+        var sc = 0.9 + 0.1 * rep;
+        ctx.save();
+        ctx.translate(rx + bubW, ry + L.bub / 2); ctx.scale(sc, sc); ctx.translate(-(rx + bubW), -(ry + L.bub / 2));
+        bubble(rx, ry, bubW, L.bub, true, rep * calm);
+        ctx.restore();
+        ctx.save();
+        ctx.globalAlpha = rep * calm * 0.9;
+        ctx.font = MONO; ctx.fillStyle = 'rgb(140,148,161)'; ctx.textBaseline = 'bottom'; ctx.textAlign = 'right';
+        ctx.fillText('03:14', rx - 10, ry + L.bub);
+        ctx.restore();
+      }
+    }
+
+    /* run only while the hero is on screen and the tab is visible; under
+       reduced motion it is drawn once, still, and redrawn only on change */
+    function frame() { id = null; draw(); if (running) id = requestAnimationFrame(frame); }
+    function decide() {
+      var want = onScreen && !document.hidden && !rm.matches;
+      if (want && !running) { running = true; if (!id) id = requestAnimationFrame(frame); }
+      else if (!want && running) { running = false; if (id) { cancelAnimationFrame(id); id = null; } draw(); }
+    }
+    document.addEventListener('visibilitychange', decide);
+    if (rm.addEventListener) rm.addEventListener('change', function () { decide(); draw(); });
+    window.addEventListener('resize', function () { size(); draw(); }, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { draw(); });
+
+    size();
+    draw();
+    decide();
+
+    return {
+      setProgress: function (v) { p = v; if (!running) draw(); },
+      setOnScreen: function (v) { onScreen = v; decide(); },
+      setStatic: function (v) { if (v === staticMode) return; staticMode = v; if (v) p = 0.9; size(); draw(); }
+    };
   }
 
   /* ==========================================================
@@ -363,7 +547,9 @@
   }
 
   function applyHeroMode() {
-    if (MQLS.some(function (m) { return m.matches; })) disableScrub();
+    var gated = MQLS.some(function (m) { return m.matches; });
+    story.setStatic(gated);
+    if (gated) disableScrub();
     else enableScrub();
   }
   MQLS.forEach(function (m) {
@@ -727,10 +913,9 @@
 
 /* ============================================================
    11. THE 3D LAYER
-   The extruded mark turning in the hero, pointer parallax on the
-   stage, and a tilt on the raised cards further down. Everything
-   here is decoration: gated to fine pointers, off under reduced
-   motion, and the page reads identically without it.
+   Pointer parallax on the hero captions, and a tilt on the raised
+   cards further down. Decoration only: fine pointers, off under
+   reduced motion, and the page reads identically without it.
    ============================================================ */
 (function threeD() {
   'use strict';
@@ -738,27 +923,6 @@
   var rm = matchMedia('(prefers-reduced-motion: reduce)');
   var fine = matchMedia('(pointer: fine)');
   var clamp = function (v, lo, hi) { return Math.min(hi, Math.max(lo, v)); };
-
-  /* ---- the mark: N stacked copies of the wordmark along Z ---- */
-  var obj = document.getElementById('mark3d-obj');
-  if (obj) {
-    /* fewer, thicker slices on phones: same depth, a third of the compositing */
-    var small = matchMedia('(max-width: 720px)').matches;
-    var LAYERS = small ? 12 : 22, STEP = small ? 1.5 : 0.85;
-    var frag = document.createDocumentFragment();
-    for (var i = LAYERS - 1; i >= 0; i--) {
-      var l = document.createElement('div');
-      l.className = 'mark3d-layer' + (i === 0 ? ' is-front' : i === LAYERS - 1 ? ' is-back' : '');
-      /* the body of the extrusion darkens toward the middle and lifts again at
-         the back face, so the block reads as a solid with two lit faces */
-      var t = i / (LAYERS - 1);
-      var b = i === 0 ? 1 : i === LAYERS - 1 ? 0.62 : 0.30 + 0.22 * Math.abs(t - 0.5) * 2;
-      l.style.setProperty('--z', (-i * STEP).toFixed(2) + 'px');
-      l.style.setProperty('--b', b.toFixed(3));
-      frag.appendChild(l);
-    }
-    obj.appendChild(frag);
-  }
 
   /* ---- pointer parallax across the whole stage ---- */
   var stage = document.getElementById('stage');
@@ -832,290 +996,3 @@
   });
 })();
 
-/* ============================================================
-   12. THE MIND
-   A field of points behind the wordmark, drawn from the same
-   world as the footage. They drift, gather into the @ mark, hold,
-   and let go again. The pointer scatters them. Every few seconds
-   a message arrives from the edge, the mark answers with a pulse,
-   and a reply goes back out. Nothing is loaded for this: the
-   points are sampled from the site icon already on the page.
-   ============================================================ */
-(function mind() {
-  'use strict';
-
-  var cv = document.getElementById('mind');
-  if (!cv || !cv.getContext) return;
-  var ctx = cv.getContext('2d');
-  var rm = matchMedia('(prefers-reduced-motion: reduce)');
-  var fine = matchMedia('(pointer: fine)');
-  var small = matchMedia('(max-width: 720px)').matches;
-  var N = small ? 520 : 2300;
-  var dpr = Math.min(2, window.devicePixelRatio || 1);
-  var clamp = function (v, lo, hi) { return Math.min(hi, Math.max(lo, v)); };
-  var smooth = function (t) { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
-
-  var W = 0, H = 0, parts = [], ready = false;
-  var running = false, id = null, lastNow = 0, born = performance.now();
-  var pointer = { x: -9, y: -9 };
-  var msg = null, reply = null, ripple = null, nextMsgAt = 0;
-
-  /* the loop: gather, hold, let go, drift; the first gather starts at once */
-  var T_GATHER = 2.6, T_HOLD = 9.5, T_RELEASE = 2.0, T_DRIFT = 2.6;
-  var PERIOD = T_GATHER + T_HOLD + T_RELEASE + T_DRIFT;
-
-  function cohesion(t) {
-    var u = t % PERIOD;
-    if (u < T_GATHER) return smooth(u / T_GATHER);
-    if (u < T_GATHER + T_HOLD) return 1;
-    if (u < T_GATHER + T_HOLD + T_RELEASE) return 1 - smooth((u - T_GATHER - T_HOLD) / T_RELEASE);
-    return 0;
-  }
-
-  function size() {
-    W = cv.clientWidth; H = cv.clientHeight;
-    if (!W || !H) return;
-    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  /* sample the icon: every light pixel is a candidate home for a point */
-  function sample(img) {
-    var S = 176;
-    var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
-    var o = oc.getContext('2d');
-    o.drawImage(img, 0, 0, S, S);
-    var d;
-    try { d = o.getImageData(0, 0, S, S).data; } catch (e) { return null; }
-    var pts = [], minX = S, minY = S, maxX = 0, maxY = 0;
-    for (var y = 0; y < S; y++) for (var x = 0; x < S; x++) {
-      var i = (y * S + x) * 4;
-      if (d[i] > 165 && d[i + 3] > 128) {
-        pts.push([x, y]);
-        if (x < minX) minX = x; if (x > maxX) maxX = x;
-        if (y < minY) minY = y; if (y > maxY) maxY = y;
-      }
-    }
-    if (!pts.length) return null;
-    for (var k = pts.length - 1; k > 0; k--) {
-      var j = Math.floor(Math.random() * (k + 1)); var t = pts[k]; pts[k] = pts[j]; pts[j] = t;
-    }
-    /* recentre and fit the shape into the middle 84% of the field */
-    var bw = maxX - minX + 1, bh = maxY - minY + 1, sc = 0.84 / Math.max(bw, bh);
-    var ox = 0.5 - (bw * sc) / 2, oy = 0.5 - (bh * sc) / 2;
-    return pts.slice(0, N).map(function (p) {
-      return [ox + (p[0] - minX + 0.5) * sc, oy + (p[1] - minY + 0.5) * sc];
-    });
-  }
-
-  function seed(homes) {
-    parts = homes.map(function (h) {
-      var a = Math.random() * 6.2832, r = 0.22 + Math.random() * 0.4;
-      return {
-        hx: h[0], hy: h[1],
-        x: 0.5 + Math.cos(a) * r, y: 0.5 + Math.sin(a) * r,
-        vx: 0, vy: 0,
-        a: a, r: r, w: (Math.random() - 0.5) * 0.22, ph: Math.random() * 6.2832,
-        s: Math.random(), b: 0,
-        stay: Math.random() < 0.36
-      };
-    });
-    ready = true;
-  }
-
-  /* The shape drawn by hand, in the icon's own 512 grid: the square @ and the
-     cursor. Used when the icon cannot be read back (file://, a blocked
-     request), so the mark always forms. */
-  function drawMark(o, S) {
-    var u = S / 512;
-    o.save(); o.scale(u, u);
-    o.fillStyle = '#fff'; o.strokeStyle = '#fff'; o.lineJoin = 'round'; o.lineCap = 'butt';
-    o.lineWidth = 44;
-    o.beginPath(); o.moveTo(305, 262); o.lineTo(305, 110); o.quadraticCurveTo(305, 78, 273, 78);
-    o.lineTo(137, 78); o.quadraticCurveTo(105, 78, 105, 110); o.lineTo(105, 275);
-    o.quadraticCurveTo(105, 307, 137, 307); o.lineTo(240, 307); o.stroke();
-    o.lineWidth = 38;
-    o.strokeRect(176, 148, 90, 92);
-    o.beginPath(); o.moveTo(322, 332); o.lineTo(462, 392); o.lineTo(402, 412); o.lineTo(432, 468);
-    o.lineTo(394, 478); o.lineTo(370, 422); o.lineTo(322, 442); o.closePath(); o.fill();
-    o.restore();
-  }
-  function sampleDrawn() {
-    var S = 176;
-    var oc = document.createElement('canvas'); oc.width = S; oc.height = S;
-    var o = oc.getContext('2d');
-    drawMark(o, S);
-    return sample(oc);
-  }
-  function boot(homes) {
-    if (!homes) homes = sampleDrawn();
-    if (!homes) return;
-    size();
-    seed(homes);
-    if (rm.matches) { drawStill(); return; }
-    start();
-  }
-  var img = new Image();
-  img.onload = function () { boot(sample(img)); };
-  img.onerror = function () { boot(null); };
-  img.src = 'android-chrome-512x512.png';
-
-  /* ---- the message and the reply ---- */
-  function spawnMessage(now) {
-    var a = Math.random() * 6.2832;
-    msg = { sx: 0.5 + Math.cos(a) * 0.72, sy: 0.5 + Math.sin(a) * 0.72, t0: now, dur: 1150, trail: [] };
-  }
-  function spawnReply(now, fromAngle) {
-    var a = fromAngle + 2.2 + Math.random() * 1.9;   /* out a different way than it came */
-    reply = { ex: 0.5 + Math.cos(a) * 0.78, ey: 0.5 + Math.sin(a) * 0.78, t0: now, dur: 900, trail: [] };
-  }
-
-  /* ---- the frame ---- */
-  function step(now) {
-    if (!running) { id = null; return; }
-    var dt = Math.min(48, now - (lastNow || now)); lastNow = now;
-    var f = dt / 16.667;
-    var t = (now - born) / 1000;
-    var k = cohesion(t);
-
-    /* a message only arrives while the mark is holding together */
-    if (k > 0.95 && !msg && !reply && now > nextMsgAt) spawnMessage(now);
-
-    var mx = -1, my = -1, ripX = 0.5, ripY = 0.5, rip = null;
-    if (msg) {
-      var u = clamp((now - msg.t0) / msg.dur, 0, 1), e = u * u;
-      mx = msg.sx + (0.5 - msg.sx) * e; my = msg.sy + (0.5 - msg.sy) * e;
-      msg.trail.push([mx, my]); if (msg.trail.length > 9) msg.trail.shift();
-      if (u >= 1) {
-        ripple = { t0: now };
-        spawnReply(now, Math.atan2(msg.sy - 0.5, msg.sx - 0.5));
-        msg = null;
-      }
-    }
-    if (ripple) {
-      var age = (now - ripple.t0) / 1000;
-      if (age > 1.5) ripple = null; else rip = { r: age * 0.5, g: 1 - age / 1.5 };
-    }
-    var rx = -1, ry = -1;
-    if (reply) {
-      var v = clamp((now - reply.t0) / reply.dur, 0, 1), eo = 1 - Math.pow(1 - v, 3);
-      rx = 0.5 + (reply.ex - 0.5) * eo; ry = 0.5 + (reply.ey - 0.5) * eo;
-      reply.trail.push([rx, ry]); if (reply.trail.length > 12) reply.trail.shift();
-      if (v >= 1) { reply = null; nextMsgAt = now + 3800 + Math.random() * 2800; }
-    }
-
-    /* ---- the points ---- */
-    var spring = 0.05 * f, damp = Math.pow(0.80, f);
-    var px = pointer.x, py = pointer.y, R = 0.15;
-    for (var i = 0; i < parts.length; i++) {
-      var p = parts[i];
-      /* drift: a slow orbit of its own, breathing */
-      var ang = p.a + t * p.w, rr = p.r + Math.sin(t * 0.7 + p.ph) * 0.04;
-      var dx = 0.5 + Math.cos(ang) * rr, dy = 0.5 + Math.sin(ang) * rr;
-      /* the points that stay hold almost exactly: even 8% of a wide orbit is
-         30px of blur at this size, enough to dissolve the outline */
-      var kk = p.stay ? Math.max(k, 0.985) : k;
-      p.k = kk;
-      var tx = dx + (p.hx - dx) * kk, ty = dy + (p.hy - dy) * kk;
-      /* a little life even when held */
-      tx += Math.sin(t * 1.3 + p.ph) * 0.0025 * (0.4 + k);
-      ty += Math.cos(t * 1.1 + p.ph * 1.7) * 0.0025 * (0.4 + k);
-
-      p.vx += (tx - p.x) * spring; p.vy += (ty - p.y) * spring;
-
-      if (px >= 0) {
-        var ddx = p.x - px, ddy = p.y - py, d = Math.sqrt(ddx * ddx + ddy * ddy);
-        if (d < R && d > 0.0001) { var push = (R - d) / R * 0.0045 * f; p.vx += ddx / d * push; p.vy += ddy / d * push; }
-      }
-
-      var bright = 0;
-      if (rip) {
-        var cx = p.x - ripX, cy = p.y - ripY, dc = Math.sqrt(cx * cx + cy * cy);
-        var g = Math.exp(-Math.pow((dc - rip.r) / 0.05, 2)) * rip.g;
-        if (g > 0.01) { bright = g; if (dc > 0.0001) { p.vx += cx / dc * g * 0.0035 * f; p.vy += cy / dc * g * 0.0035 * f; } }
-      }
-      p.b += (bright - p.b) * 0.3;
-
-      p.vx *= damp; p.vy *= damp;
-      p.x += p.vx; p.y += p.vy;
-    }
-
-    draw(k, mx, my, rx, ry);
-    id = requestAnimationFrame(step);
-  }
-
-  function draw(k, mx, my, rx, ry) {
-    ctx.clearRect(0, 0, W, H);
-    ctx.globalCompositeOperation = 'lighter';
-    for (var i = 0; i < parts.length; i++) {
-      var p = parts[i];
-      var a = clamp(0.34 + 0.36 * (p.k || k) + p.s * 0.25 + p.b * 0.7, 0, 1);
-      var s = 1.1 + p.s * 1.0 + p.b * 1.6;
-      ctx.fillStyle = 'rgba(255,255,255,' + a.toFixed(2) + ')';
-      ctx.fillRect(p.x * W - s / 2, p.y * H - s / 2, s, s);
-    }
-    if (mx >= 0 && msg) drawSpark(msg.trail, mx, my, 1);
-    if (rx >= 0 && reply) drawSpark(reply.trail, rx, ry, 1.35);
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  function drawSpark(trail, x, y, scale) {
-    if (trail.length > 1) {
-      ctx.lineWidth = 1.2;
-      for (var i = 1; i < trail.length; i++) {
-        var q = i / trail.length;
-        ctx.strokeStyle = 'rgba(255,255,255,' + (q * 0.55).toFixed(2) + ')';
-        ctx.beginPath();
-        ctx.moveTo(trail[i - 1][0] * W, trail[i - 1][1] * H);
-        ctx.lineTo(trail[i][0] * W, trail[i][1] * H);
-        ctx.stroke();
-      }
-    }
-    var gr = ctx.createRadialGradient(x * W, y * H, 0, x * W, y * H, 14 * scale);
-    gr.addColorStop(0, 'rgba(255,255,255,.95)');
-    gr.addColorStop(0.25, 'rgba(255,255,255,.45)');
-    gr.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = gr;
-    ctx.beginPath(); ctx.arc(x * W, y * H, 14 * scale, 0, 6.2832); ctx.fill();
-  }
-
-  /* reduced motion: the mark, gathered, drawn once */
-  function drawStill() {
-    size();
-    for (var i = 0; i < parts.length; i++) { parts[i].x = parts[i].hx; parts[i].y = parts[i].hy; parts[i].b = 0; }
-    draw(1, -1, -1, -1, -1);
-  }
-
-  /* ---- run control: only while visible, never on a hidden tab ---- */
-  var onScreen = true;
-  function start() {
-    if (running || !ready || rm.matches) return;
-    running = true; lastNow = 0;
-    if (!id) id = requestAnimationFrame(step);
-  }
-  function stop() { running = false; if (id) { cancelAnimationFrame(id); id = null; } }
-  function decide() { if (onScreen && !document.hidden && !rm.matches) start(); else stop(); }
-
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (en) { onScreen = en[0].isIntersecting; decide(); }, { rootMargin: '40px' }).observe(cv);
-  }
-  document.addEventListener('visibilitychange', decide);
-  var onRM = function () { if (rm.matches) { stop(); if (ready) drawStill(); } else decide(); };
-  if (rm.addEventListener) rm.addEventListener('change', onRM); else rm.addListener(onRM);
-
-  window.addEventListener('resize', function () {
-    size();
-    if (ready && rm.matches) drawStill();
-  }, { passive: true });
-
-  /* the pointer scatters what it touches */
-  var stage = document.getElementById('stage') || cv;
-  stage.addEventListener('pointermove', function (e) {
-    if (!fine.matches) return;
-    var r = cv.getBoundingClientRect();
-    pointer.x = (e.clientX - r.left) / r.width;
-    pointer.y = (e.clientY - r.top) / r.height;
-    if (pointer.x < -0.2 || pointer.x > 1.2 || pointer.y < -0.2 || pointer.y > 1.2) { pointer.x = -9; pointer.y = -9; }
-  }, { passive: true });
-  stage.addEventListener('pointerleave', function () { pointer.x = -9; pointer.y = -9; });
-})();

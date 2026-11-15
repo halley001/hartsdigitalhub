@@ -39,7 +39,7 @@
 <noscript><style>
   /* no JavaScript means no scrub, so ship the designed still hero */
   .hero{height:100vh;height:100svh}
-  .bands,.loader,.cue{display:none}
+  .bands,.cue{display:none}
   .static-hero{display:flex}
   .reveal .kicker,.reveal .sec-title,.reveal .lede,.reveal .stagger,
   .gap-row,.engine-item,.ledger-row,.transcript,.case,.svc,
@@ -97,43 +97,20 @@
 <h1 class="sr">H@rts builds web apps and AI chatbots that work together: the system your team runs on, and the bot that answers your customers from it. Douala, Cameroon.</h1>
 
 <!-- ============================================================ -->
-<!-- HERO: the scroll-scrubbed descent                             -->
+<!-- HERO: the scroll-driven story                                 -->
 <!-- ============================================================ -->
 <section class="hero" id="top" aria-label="Introduction">
   <div class="stage" id="stage">
 
-    <div class="poster" id="poster" aria-hidden="true"></div>
-    <video id="hero-video" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+    <!-- The story, drawn live by cinematic.js from the scroll position:
+         scattered records gather into a web app, a 3am message arrives,
+         the app finds the answer and a reply goes back. It lives in the
+         lane opposite the captions and changes sides with them. -->
+    <canvas class="story" id="story" aria-hidden="true"></canvas>
     <div class="scrim" aria-hidden="true"></div>
     <div class="vignette" aria-hidden="true"></div>
 
-    <!-- The mark, extruded and turning in the action lane. Layers are built by
-         cinematic.js from assets/logo.png; it tilts toward the pointer and steps
-         across to the other lane when the copy changes sides. -->
-    <!-- The light lane: the mind, a field of points that gathers into the @ mark
-         behind the wordmark, and the specular flash timed to the wordmark's turn.
-         The lane is screen-blended into the footage so the flare's black plate vanishes. -->
-    <div class="lane lane-blend" aria-hidden="true">
-      <canvas class="mind" id="mind"></canvas>
-      <div class="mark3d-flare"></div>
-    </div>
-    <div class="lane mark3d" id="mark3d" aria-hidden="true">
-      <div class="mark3d-rig">
-        <div class="mark3d-obj" id="mark3d-obj"></div>
-        <div class="mark3d-shadow"></div>
-      </div>
-    </div>
-
-    <div class="loader" id="loader" aria-hidden="true">
-      <svg class="ring" viewBox="0 0 48 48" aria-hidden="true">
-        <circle class="ring-track" cx="24" cy="24" r="20" fill="none" stroke-width="2"/>
-        <circle class="ring-fill" cx="24" cy="24" r="20" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-dasharray="126"
-                style="stroke-dashoffset:var(--ld,126)"/>
-      </svg>
-    </div>
-
-    <!-- The scroll journey. Text lives on the right, the light falls on the left. -->
+    <!-- The scroll journey. Captions on the right for beats 1 to 3, on the left for 4 and 5. -->
     <div class="bands" id="bands">
 
       <div class="band" data-a="0" data-b="0.19" data-entrance="scatter" data-spread="0.5">
