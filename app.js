@@ -377,7 +377,7 @@ const KNOWLEDGE = {
     momo: 'To pay with MTN MoMo:\n1. Dial *126#\n2. Select Transfer Money → Send to MTN Cameroon\n3. Enter 622 341 343\n4. Enter the exact amount for your project or package\n5. Confirm and keep your reference number.\nAfter payment, send us the reference on WhatsApp and we start or activate your services.',
     cities: 'We work with clients worldwide. We are a virtual office based in Douala, Cameroon, so everything happens remotely: WhatsApp, calls, video calls and shared documents, with meetings by appointment.',
     freeAudit: 'We can help you figure out the right services for your business right now. Just tell us a bit about what you do and what you need (more customers, online sales, new branding, etc.) and we\'ll recommend the best options.',
-    who: 'Harts Digital Hub (H@rts) is a bilingual virtual office, based in Douala and working with clients worldwide. We build web apps and AI chatbots that work together: the system your team runs on, and the bot that answers your customers from it.',
+    who: 'Harts Digital Hub (H@rts) is a virtual office, based in Douala and working with clients worldwide, building in any language their customers speak. We build web apps and AI chatbots that work together: the system your team runs on, and the bot that answers your customers from it.',
     contact: 'The fastest way to reach our team is WhatsApp: +237 622 341 343. We can prepare a detailed message with everything we\'ve discussed so they have full context.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Our packages and custom projects are full-service. We don\'t just deliver files and disappear — we handle design, development, revisions, launch, and support. Many clients see real results quickly (more visibility, new customers, professional brand presence).',
@@ -397,7 +397,7 @@ const KNOWLEDGE = {
     momo: 'Pour payer par MTN MoMo :\n1. Composez *126#\n2. Choisissez Transfert d\'argent → Envoi vers MTN Cameroun\n3. Entrez 622 341 343\n4. Entrez le montant exact de votre projet ou forfait\n5. Confirmez et gardez votre référence.\nAprès paiement, envoyez-nous la référence sur WhatsApp et nous démarrons ou activons vos services.',
     cities: 'Nous travaillons avec des clients partout dans le monde. Nous sommes un bureau virtuel basé à Douala, au Cameroun : tout se fait à distance, par WhatsApp, appels, visio et documents partagés, avec des rendez-vous sur réservation.',
     freeAudit: 'Nous pouvons vous aider à déterminer les bons services pour votre entreprise dès maintenant. Dites-nous simplement ce que vous faites et ce dont vous avez besoin (plus de clients, ventes en ligne, nouveau branding, etc.) et nous vous recommanderons les meilleures options.',
-    who: 'Harts Digital Hub (H@rts) est un bureau virtuel bilingue, basé à Douala et au service de clients partout dans le monde. Nous créons des applications web et des chatbots IA qui fonctionnent ensemble : le système sur lequel tourne votre équipe, et le bot qui répond à vos clients à partir de ce système.',
+    who: 'Harts Digital Hub (H@rts) est un bureau virtuel, basé à Douala et au service de clients partout dans le monde, qui crée dans toutes les langues de leurs clients. Nous créons des applications web et des chatbots IA qui fonctionnent ensemble : le système sur lequel tourne votre équipe, et le bot qui répond à vos clients à partir de ce système.',
     contact: 'Le moyen le plus rapide de joindre notre équipe est WhatsApp : +237 622 341 343. Nous pouvons préparer un message détaillé avec tout ce dont nous avons discuté pour qu\'ils aient le contexte complet.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Nos forfaits et projets sur mesure sont des services complets. Nous ne livrons pas simplement des fichiers et ne disparaissons pas — nous gérons la conception, le développement, les révisions, le lancement et le support. Beaucoup de clients voient de vrais résultats rapidement (plus de visibilité, de nouveaux clients, une présence de marque professionnelle).',
@@ -700,11 +700,11 @@ const FALLBACK_FAQ = [
     a: { en: 'Yes, and that is one of the bigger wins. A person answers one customer at a time; the bot handles dozens at once without anyone sitting in a queue.',
          fr: 'Oui, et c\'est l\'un des gains les plus nets. Une personne répond à un client à la fois ; le bot en gère des dizaines simultanément sans que personne n\'attende.' } },
 
-  { id: 'languages', cat: 'ai', kw: ['language', 'french', 'english', 'bilingual', 'langue', 'français', 'anglais', 'bilingue'],
-    q: { en: 'Can the bot talk to customers in French and English?',
-         fr: 'Le bot parle-t-il français et anglais ?' },
-    a: { en: 'Both, out of the box — it replies in whichever language the customer writes in. Other languages can be added depending on who your customers are.',
-         fr: 'Les deux, nativement — il répond dans la langue utilisée par le client. D\'autres langues peuvent être ajoutées selon votre clientèle.' } },
+  { id: 'languages', cat: 'ai', kw: ['language', 'languages', 'french', 'english', 'bilingual', 'langue', 'langues', 'français', 'anglais', 'bilingue'],
+    q: { en: 'What languages can you build in?',
+         fr: 'Dans quelles langues pouvez-vous travailler ?' },
+    a: { en: 'Any language your customers speak. We are a virtual office working with clients worldwide, so we build web apps and chatbots in whatever language your business runs in, or several at once. The bot replies in the language the customer writes in. Our own team works with you in English or French.',
+         fr: 'Toutes les langues parlées par vos clients. Nous sommes un bureau virtuel au service de clients partout dans le monde : nous créons des applications web et des chatbots dans la langue de votre activité, ou en plusieurs langues à la fois. Le bot répond dans la langue utilisée par le client. Notre équipe échange avec vous en français ou en anglais.' } },
 
   { id: 'integrations', cat: 'ai', kw: ['crm', 'erp', 'pos', 'integrate', 'integration', 'connect', 'existing', 'intégrer', 'connecter'],
     q: { en: 'Can it connect to the CRM or system we already use?',
