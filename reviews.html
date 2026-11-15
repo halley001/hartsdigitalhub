@@ -29,7 +29,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="hub.css">
@@ -37,7 +37,7 @@
     .rv-lang { display: inline-flex; gap: .35rem; margin-top: 1.4rem; }
     .rv-lang button {
       background: transparent; color: var(--muted, #9aa0a6); border: 1px solid var(--border);
-      border-radius: 999px; padding: .35rem .8rem; font: 500 .72rem 'DM Mono', monospace;
+      border-radius: 999px; padding: .35rem .8rem; font: 500 .72rem var(--font-mono);
       letter-spacing: .08em; cursor: pointer;
     }
     .rv-lang button[aria-pressed="true"] { background: #fff; color: #000; border-color: #fff; }
@@ -46,7 +46,7 @@
        "~" sibling selector can light every star up to the hovered one. */
     .rv-stars { border: 0; padding: 0; margin: 0; }
     .rv-stars legend {
-      font-family: 'DM Mono', monospace; font-size: .72rem; text-transform: uppercase;
+      font-family: var(--font-mono); font-size: .72rem; text-transform: uppercase;
       letter-spacing: .08em; color: var(--muted, #9aa0a6); margin-bottom: .5rem; padding: 0;
     }
     .rv-stars-row { display: inline-flex; flex-direction: row-reverse; gap: .25rem; }
@@ -60,12 +60,12 @@
     .rv-stars input:checked ~ label { color: #fff; }
     .rv-stars label:hover { transform: scale(1.08); }
     .rv-stars input:focus-visible + label { outline: 2px solid #fff; outline-offset: 2px; }
-    .rv-stars-word { margin-left: .8rem; font-family: 'DM Mono', monospace; font-size: .8rem; color: #cfd4d8; vertical-align: middle; }
+    .rv-stars-word { margin-left: .8rem; font-family: var(--font-mono); font-size: .8rem; color: #cfd4d8; vertical-align: middle; }
 
     .rv-consent { display: flex; gap: .7rem; align-items: flex-start; font-size: .85rem; color: #cfd4d8; line-height: 1.5; cursor: pointer; }
     .rv-consent input { margin-top: .2rem; width: 1.05rem; height: 1.05rem; accent-color: #fff; flex: none; }
     .rv-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-    .rv-count { font-family: 'DM Mono', monospace; font-size: .7rem; color: var(--muted, #9aa0a6); text-align: right; }
+    .rv-count { font-family: var(--font-mono); font-size: .7rem; color: var(--muted, #9aa0a6); text-align: right; }
     .lead-status.err { color: #ff8a80; }
     .lead-btn[disabled] { opacity: .55; cursor: progress; transform: none; }
 
@@ -73,7 +73,7 @@
     .rv-done { text-align: center; padding: 2rem 0; }
     .rv-done a { color: #fff; text-underline-offset: 3px; }
     .rv-done .rv-done-mark { font-size: 2.6rem; }
-    .rv-done h3 { font-family: 'Syne', sans-serif; font-size: 1.6rem; margin-top: .6rem; }
+    .rv-done h3 { font-family: var(--font-display); font-size: 1.6rem; margin-top: .6rem; }
     .rv-done p { color: #9aa0a6; margin: .8rem auto 0; max-width: 46ch; line-height: 1.7; }
   </style>
 </head>

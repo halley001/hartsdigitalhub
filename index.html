@@ -13,14 +13,14 @@
 <meta property="og:title" content="H@rts · Web apps and AI chatbots, built to work together">
 <meta property="og:description" content="The web app your team runs on, and the chatbot that answers your customers from it. Built in Douala, in English and French.">
 <meta property="og:url" content="https://hartsdigitalhub.com/">
-<meta property="og:image" content="https://hartsdigitalhub.com/assets/og-image.jpg">
+<meta property="og:image" content="https://hartsdigitalhub.com/assets/og-image.jpg?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Points of light converging into a single line.">
+<meta property="og:image:alt" content="Web apps and AI chatbots, built to work together: a web app finds a record and a chatbot sends the reply.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="H@rts · Web apps and AI chatbots, built to work together">
 <meta name="twitter:description" content="The web app your team runs on, and the chatbot that answers your customers from it.">
-<meta name="twitter:image" content="https://hartsdigitalhub.com/assets/og-image.jpg">
+<meta name="twitter:image" content="https://hartsdigitalhub.com/assets/og-image.jpg?v=2">
 <link rel="canonical" href="https://hartsdigitalhub.com/">
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
@@ -42,7 +42,7 @@
   .bands,.cue{display:none}
   .static-hero{display:flex}
   .reveal .kicker,.reveal .sec-title,.reveal .lede,.reveal .stagger,
-  .gap-row,.engine-item,.ledger-row,.transcript,.case,.svc,
+  .gap-row,.engine-item,.ledger-row,.transcript,.case,.svc,.step,.link-panel,
   .hold-status,.hold-cta{opacity:1;transform:none}
   .wave,.conv-path{stroke-dashoffset:0}
   .conv-node,.conv-halo{opacity:1}
@@ -69,6 +69,28 @@
     "areaServed": "CM",
     "availableLanguage": ["en", "fr"]
   }]
+}
+</script>
+<!-- FAQ markup for search results. Keep it word for word in step with the
+     visible FAQ in section 07: Google ignores markup that doesn't match the page. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Do I need a web app, a chatbot, or both?",
+     "acceptedAnswer": {"@type": "Answer", "text": "If your team is losing track of orders, stock or payments, start with the web app. If customers wait too long for answers, start with the chatbot. If both are true, we build the app first and the bot on top of it, so it answers from real records. We scope before we sell and will tell you which one you actually need."}},
+    {"@type": "Question", "name": "Can you work with the system we already have?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Usually, yes. We can build on top of your existing CRM, ERP, POS or the exports from your accounting software, or replace a spreadsheet you have outgrown. We start with what you actually run."}},
+    {"@type": "Question", "name": "What happens when the chatbot gets stuck?",
+     "acceptedAnswer": {"@type": "Answer", "text": "A person takes over, and the customer repeats nothing. We build that path first, before we build a single answer, because it is where most chatbots fail."}},
+    {"@type": "Question", "name": "How long does a build take?",
+     "acceptedAnswer": {"@type": "Answer", "text": "A full web app usually takes two to four weeks, depending on how complex it is and how quickly we get your content and data. A simple site is closer to one to two weeks. You approve each milestone as it lands, so you see progress all the way through."}},
+    {"@type": "Question", "name": "Who owns what you build?",
+     "acceptedAnswer": {"@type": "Answer", "text": "You do. On a one-time build you own everything outright: the app, the files and the accounts. If we look after it on a care plan, it is still yours; we simply keep it running. Your data is yours too, and we never sell or share it."}},
+    {"@type": "Question", "name": "What does it cost, honestly?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Builds start at $300 and are quoted per project against milestones you approve. Care is $125 a month and optional. You will have the number before any work starts."}}
+  ]
 }
 </script>
 </head>
@@ -235,6 +257,29 @@
       <p class="ledger-d">Databases, sign-in, hosting and integration with the CRM, ERP or POS you already run, built to hold up on your busiest day.</p>
     </li>
   </ul>
+
+  <!-- How we build: the same four steps the assistant describes (api/knowledge/company.md) -->
+  <div class="process" aria-labelledby="process-h">
+    <p class="process-h mono" id="process-h">How we build</p>
+    <ol class="steps">
+      <li class="step">
+        <span class="step-n mono">1 · Scope</span>
+        <p class="step-d">You tell us how the work runs today. We recommend an approach and confirm the scope, price and payment plan before anything starts.</p>
+      </li>
+      <li class="step">
+        <span class="step-n mono">2 · Milestones</span>
+        <p class="step-d">We build in stages. You review and approve each one, and pay as it lands.</p>
+      </li>
+      <li class="step">
+        <span class="step-n mono">3 · Launch</span>
+        <p class="step-d">We bring your existing data across, show your team around, and go live.</p>
+      </li>
+      <li class="step">
+        <span class="step-n mono">4 · Care</span>
+        <p class="step-d">Optional: monitoring, updates and fixes on a monthly plan, from launch day.</p>
+      </li>
+    </ol>
+  </div>
 </section>
 
 <div class="divider reveal" aria-hidden="true">
@@ -266,8 +311,6 @@
         <circle class="conv-node" cx="330" cy="150" r="7"/>
         <circle class="conv-halo" cx="330" cy="150" r="18"/>
       </svg>
-      <!-- the engine itself, a rendered mark sitting on the convergence node -->
-      <img class="conv-mark" src="assets/3D@.jpg" alt="" width="615" height="615" loading="lazy" decoding="async">
       <ul class="conv-labels mono">
         <li>WhatsApp</li><li>Telegram</li><li>Website</li><li>Your systems</li>
       </ul>
@@ -375,6 +418,39 @@
   <h2 class="sec-title" id="together-h">The app holds the truth. The bot answers from it.</h2>
   <p class="lede">Most agencies build one or the other, and the chatbot ends up guessing. We build both sides of the same system, so every answer comes from the record your team keeps.</p>
 
+  <!-- The idea in one picture: a record in the app travels to the reply in the chat -->
+  <figure class="link-diagram" aria-label="A record in the web app is sent as the chatbot's reply">
+    <svg viewBox="0 0 640 248" role="img" aria-hidden="true">
+      <g class="link-panel">
+        <rect class="ld-frame" x="8" y="18" width="252" height="184" rx="12"/>
+        <line class="ld-rule" x1="8" y1="50" x2="260" y2="50"/>
+        <circle class="ld-dot" cx="26" cy="34" r="3"/><circle class="ld-dot" cx="38" cy="34" r="3"/><circle class="ld-dot" cx="50" cy="34" r="3"/>
+        <g class="ld-cells">
+          <rect x="34" y="70" width="12" height="12" rx="3"/><rect x="74" y="70" width="12" height="12" rx="3"/><rect x="114" y="70" width="12" height="12" rx="3"/><rect x="154" y="70" width="12" height="12" rx="3"/><rect x="194" y="70" width="12" height="12" rx="3"/><rect x="226" y="70" width="12" height="12" rx="3"/>
+          <rect x="34" y="102" width="12" height="12" rx="3"/><rect x="74" y="102" width="12" height="12" rx="3"/><rect x="114" y="102" width="12" height="12" rx="3"/><rect x="154" y="102" width="12" height="12" rx="3"/><rect x="194" y="102" width="12" height="12" rx="3"/><rect x="226" y="102" width="12" height="12" rx="3"/>
+          <rect x="34" y="134" width="12" height="12" rx="3"/><rect x="74" y="134" width="12" height="12" rx="3"/><rect x="114" y="134" width="12" height="12" rx="3"/><rect x="154" y="134" width="12" height="12" rx="3"/><rect x="226" y="134" width="12" height="12" rx="3"/>
+          <rect x="34" y="166" width="12" height="12" rx="3"/><rect x="74" y="166" width="12" height="12" rx="3"/><rect x="114" y="166" width="12" height="12" rx="3"/><rect x="154" y="166" width="12" height="12" rx="3"/><rect x="194" y="166" width="12" height="12" rx="3"/><rect x="226" y="166" width="12" height="12" rx="3"/>
+        </g>
+        <rect class="ld-hit" x="194" y="134" width="12" height="12" rx="3"/>
+      </g>
+      <g class="link-panel">
+        <rect class="ld-frame" x="380" y="18" width="252" height="184" rx="12"/>
+        <line class="ld-rule" x1="380" y1="50" x2="632" y2="50"/>
+        <circle class="ld-dot" cx="398" cy="34" r="3"/><circle class="ld-dot" cx="410" cy="34" r="3"/><circle class="ld-dot" cx="422" cy="34" r="3"/>
+        <rect class="ld-in" x="396" y="68" width="150" height="38" rx="12"/>
+        <rect class="ld-bar" x="410" y="80" width="96" height="5" rx="2.5"/><rect class="ld-bar" x="410" y="91" width="64" height="5" rx="2.5"/>
+        <rect class="ld-out" x="466" y="140" width="150" height="38" rx="12"/>
+        <rect class="ld-bar-out" x="480" y="152" width="96" height="5" rx="2.5"/><rect class="ld-bar-out" x="480" y="163" width="64" height="5" rx="2.5"/>
+      </g>
+      <path id="ld-path" class="ld-path" d="M206 140 C 300 140, 360 159, 466 159"/>
+      <circle class="ld-pulse" r="5">
+        <animateMotion dur="2.6s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;0.7;1" calcMode="linear"><mpath href="#ld-path"/></animateMotion>
+      </circle>
+      <text class="ld-label" x="134" y="236" text-anchor="middle">Web app · your team</text>
+      <text class="ld-label" x="506" y="236" text-anchor="middle">Chat · your customers</text>
+    </svg>
+  </figure>
+
   <ol class="gap-rows">
     <li class="gap-row">
       <span class="gap-read mono">Your team</span>
@@ -405,11 +481,30 @@
   <!-- =========================================================
        WORK CARDS · to add one, copy an <article class="case">.
        Fill: category, title, the two dl rows, and the result line.
+       Screenshot: save a 1600x1000 capture to assets/work/ and add an
+       <img class="case-shot"> first (it crops to show the top of the page).
        Plain HTML, no JS, no data file.
        ========================================================= -->
   <div class="work-grid">
 
     <article class="case">
+      <!-- a private system for the client's members, so drawn rather than captured -->
+      <div class="case-shot case-shot--drawn" role="img" aria-label="Illustration: the stock management web app beside the Telegram bot, sharing one database">
+        <svg viewBox="0 0 320 200" aria-hidden="true">
+          <rect class="ld-frame" x="16" y="22" width="176" height="150" rx="10"/>
+          <line class="ld-rule" x1="16" y1="46" x2="192" y2="46"/>
+          <circle class="ld-dot" cx="30" cy="34" r="2.5"/><circle class="ld-dot" cx="40" cy="34" r="2.5"/><circle class="ld-dot" cx="50" cy="34" r="2.5"/>
+          <g class="ld-rows"><rect x="32" y="62" width="144" height="9" rx="3"/><rect x="32" y="82" width="120" height="9" rx="3"/><rect x="32" y="102" width="136" height="9" rx="3"/><rect x="32" y="122" width="104" height="9" rx="3"/><rect x="32" y="142" width="128" height="9" rx="3"/></g>
+          <rect class="ld-hit" x="32" y="102" width="136" height="9" rx="3"/>
+          <rect class="ld-frame" x="208" y="40" width="96" height="132" rx="14"/>
+          <rect class="ld-in" x="218" y="62" width="62" height="24" rx="9"/>
+          <rect class="ld-out" x="232" y="96" width="62" height="24" rx="9"/>
+          <rect class="ld-in" x="218" y="130" width="50" height="24" rx="9"/>
+          <path class="ld-path" d="M168 106 C 196 106, 206 108, 232 108"/>
+          <text class="ld-label" x="104" y="192" text-anchor="middle">Web app</text>
+          <text class="ld-label" x="256" y="192" text-anchor="middle">Telegram bot</text>
+        </svg>
+      </div>
       <div class="case-body">
         <p class="case-cat mono">Credit union network · Web app + Telegram bot</p>
         <h3 class="case-title">CamCCUL Stock Management</h3>
@@ -422,6 +517,7 @@
     </article>
 
     <article class="case">
+      <img class="case-shot" src="assets/work/chart-harmoniser.jpg" alt="Chart Harmoniser with the demo trial balance loaded: the file details, seven passing checks and the account review" width="1600" height="1000" loading="lazy" decoding="async">
       <div class="case-body">
         <p class="case-cat mono">Credit unions · Finance web app</p>
         <h3 class="case-title">Chart Harmoniser</h3>
@@ -434,6 +530,7 @@
     </article>
 
     <article class="case">
+      <img class="case-shot" src="assets/work/paws-rescue.jpg" alt="The Paws Rescue homepage: a call to adopt and photos of dogs available for adoption" width="1600" height="1000" loading="lazy" decoding="async">
       <div class="case-body">
         <p class="case-cat mono">Animal rescue · Website</p>
         <h3 class="case-title">Paws Rescue</h3>
@@ -516,7 +613,7 @@
 <section class="sec sec-faq reveal" id="faq" aria-labelledby="faq-h">
   <span class="node" aria-hidden="true"></span>
   <p class="kicker mono">07 · Questions</p>
-  <h2 class="sec-title" id="faq-h">The four things people ask before they buy.</h2>
+  <h2 class="sec-title" id="faq-h">What people ask before they buy.</h2>
 
   <div class="faq">
     <details class="faq-item">
@@ -530,6 +627,14 @@
     <details class="faq-item">
       <summary>What happens when the chatbot gets stuck?</summary>
       <p>A person takes over, and the customer repeats nothing. We build that path first, before we build a single answer, because it is where most chatbots fail.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How long does a build take?</summary>
+      <p>A full web app usually takes two to four weeks, depending on how complex it is and how quickly we get your content and data. A simple site is closer to one to two weeks. You approve each milestone as it lands, so you see progress all the way through.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Who owns what you build?</summary>
+      <p>You do. On a one-time build you own everything outright: the app, the files and the accounts. If we look after it on a care plan, it is still yours; we simply keep it running. Your data is yours too, and we never sell or share it.</p>
     </details>
     <details class="faq-item">
       <summary>What does it cost, honestly?</summary>

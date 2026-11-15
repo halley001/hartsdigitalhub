@@ -2,66 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>H@rts — social share image (export me to og-image.jpg, 1200×630)</title>
+<meta name="robots" content="noindex">
+<title>H@rts social share image (1200x630, export to assets/og-image.jpg)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Instrument+Sans:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
+  /* EXPORT: screenshot the page at exactly 1200x630 and save as assets/og-image.jpg.
+     The scene on the right is the hero's final frame: the app, the 03:14 message,
+     and the reply going out in the accent. */
   * { margin:0; padding:0; box-sizing:border-box; }
-  html,body { background:#333; }
-  /* EXPORT: screenshot just the .og card at 1200×630 → save as og-image.jpg */
+  html, body { width:1200px; height:630px; overflow:hidden; background:#0A0B0D; }
   .og {
-    width:1200px; height:630px;
+    width:1200px; height:630px; position:relative; overflow:hidden;
     background:
-      radial-gradient(900px 500px at 82% -10%, rgba(255,255,255,0.10), transparent 60%),
-      linear-gradient(160deg,#0a0a0a 0%,#000 55%);
-    color:#fff; position:relative; overflow:hidden;
-    font-family:'DM Mono', monospace;
-    display:flex; flex-direction:column; justify-content:space-between;
-    padding:72px 80px;
+      radial-gradient(520px 380px at 86% 62%, rgba(79,140,255,.16), transparent 70%),
+      radial-gradient(700px 420px at 10% 0%, rgba(255,255,255,.05), transparent 60%),
+      #0A0B0D;
+    color:#E8EBF0; font-family:'Instrument Sans', Arial, sans-serif;
   }
-  .og::before { /* tech grid */
-    content:""; position:absolute; inset:0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-    background-size:60px 60px;
-    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 60% 30%, #000 20%, transparent 80%);
-            mask-image:radial-gradient(ellipse 80% 70% at 60% 30%, #000 20%, transparent 80%);
-  }
-  .row { position:relative; display:flex; align-items:center; justify-content:space-between; }
-  .brand { font-family:'Syne', sans-serif; font-weight:700; font-size:46px; letter-spacing:-1px; color:#fff; }
+  .copy { position:absolute; left:72px; top:64px; bottom:64px; width:600px; display:flex; flex-direction:column; justify-content:space-between; }
+  .logo { height:30px; width:auto; display:block; align-self:flex-start; }
   .kicker {
-    font-size:18px; letter-spacing:0.28em; text-transform:uppercase; color:#cfd4d8;
-    border:1px solid rgba(255,255,255,0.18); border-radius:999px; padding:8px 18px;
+    display:inline-block; font-family:'JetBrains Mono', monospace; font-size:15px; letter-spacing:.1em; text-transform:uppercase;
+    color:#8DB4FF; border:1px solid rgba(79,140,255,.4); border-radius:10px; padding:7px 14px; margin-bottom:26px;
   }
-  .headline {
-    position:relative;
-    font-family:'Syne', sans-serif; font-weight:700;
-    font-size:82px; line-height:1.02; letter-spacing:-2px; max-width:20ch;
-  }
-  .headline .g { color:#8a9099; }
-  .foot { position:relative; display:flex; align-items:center; justify-content:space-between;
-          font-size:22px; color:#aab0b6; letter-spacing:0.02em; }
-  .foot .tags span { color:#fff; }
-  .dot { color:#555; margin:0 12px; }
+  .headline { font-family:'Bricolage Grotesque', sans-serif; font-weight:800; font-size:66px; line-height:1.0; letter-spacing:-.025em; }
+  .sub { margin-top:22px; font-size:22px; color:#8C94A1; max-width:30ch; line-height:1.4; }
+  .foot { font-family:'JetBrains Mono', monospace; font-size:17px; letter-spacing:.06em; color:#8C94A1; }
+  .foot b { color:#E8EBF0; font-weight:500; }
+  .scene { position:absolute; right:56px; top:96px; width:440px; height:440px; }
+  .frame { fill:rgba(255,255,255,.03); stroke:rgba(255,255,255,.3); stroke-width:1.2; }
+  .rule { stroke:rgba(255,255,255,.14); stroke-width:1.2; }
+  .dot { fill:rgba(255,255,255,.4); }
+  .cell { fill:rgba(255,255,255,.55); }
+  .hit { fill:#4F8CFF; }
+  .in { fill:rgba(255,255,255,.06); stroke:rgba(255,255,255,.6); stroke-width:1.2; }
+  .bar { fill:rgba(255,255,255,.55); }
+  .out { fill:#4F8CFF; }
+  .bar-out { fill:rgba(6,10,20,.62); }
+  .path { fill:none; stroke:#4F8CFF; stroke-width:2.4; stroke-linecap:round; opacity:.85; }
+  .time { font-family:'JetBrains Mono', monospace; font-size:13px; fill:#8C94A1; }
 </style>
 </head>
 <body>
   <div class="og" id="og-card">
-    <div class="row">
-      <div class="brand">H@rts</div>
-      <div class="kicker">Digital Hub</div>
+    <div class="copy">
+      <img class="logo" src="assets/logo.png" alt="H@rts">
+      <div>
+        <div class="kicker">Web apps · Chatbots · EN / FR</div>
+        <div class="headline">Web apps and AI chatbots, built to work together.</div>
+        <p class="sub">The system your team runs on, and the bot that answers from it.</p>
+      </div>
+      <div class="foot"><b>hartsdigitalhub.com</b> · Douala, Cameroon</div>
     </div>
 
-    <div class="headline">Engineering Intelligent Software <span class="g">&amp; Next-Gen Digital Hubs</span></div>
-
-    <div class="foot">
-      <div class="tags"><span>Software</span> · <span>Cloud</span> · <span>AI &amp; WhatsApp</span> · <span>Managed IT</span></div>
-      <div>hartsdigitalhub.com</div>
-    </div>
+    <svg class="scene" viewBox="0 0 440 440" aria-hidden="true">
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+      </defs>
+      <!-- the app -->
+      <rect class="frame" x="20" y="24" width="400" height="236" rx="14"/>
+      <line class="rule" x1="20" y1="64" x2="420" y2="64"/>
+      <circle class="dot" cx="40" cy="44" r="3.5"/><circle class="dot" cx="54" cy="44" r="3.5"/><circle class="dot" cx="68" cy="44" r="3.5"/>
+      <g class="cells">
+        <!-- 8 x 5 grid; row 4, column 6 is the record that gets found -->
+        <g id="row"><rect class="cell" x="52" y="88" width="14" height="14" rx="4"/><rect class="cell" x="96" y="88" width="14" height="14" rx="4"/><rect class="cell" x="140" y="88" width="14" height="14" rx="4"/><rect class="cell" x="184" y="88" width="14" height="14" rx="4"/><rect class="cell" x="228" y="88" width="14" height="14" rx="4"/><rect class="cell" x="272" y="88" width="14" height="14" rx="4"/><rect class="cell" x="316" y="88" width="14" height="14" rx="4"/><rect class="cell" x="360" y="88" width="14" height="14" rx="4"/></g>
+        <use href="#row" y="34"/><use href="#row" y="68"/><use href="#row" y="102"/><use href="#row" y="136"/>
+      </g>
+      <circle cx="279" cy="197" r="22" fill="#4F8CFF" opacity=".45" filter="url(#glow)"/>
+      <rect class="hit" x="272" y="190" width="14" height="14" rx="4"/>
+      <!-- 03:14, the message -->
+      <rect class="in" x="20" y="286" width="230" height="56" rx="16"/>
+      <rect class="bar" x="42" y="304" width="150" height="7" rx="3.5"/><rect class="bar" x="42" y="320" width="100" height="7" rx="3.5"/>
+      <text class="time" x="262" y="338">03:14</text>
+      <!-- the answer travels, the reply goes out -->
+      <path class="path" d="M286 197 C 440 210, 430 360, 404 390"/>
+      <rect x="190" y="364" width="230" height="56" rx="16" fill="#4F8CFF" opacity=".5" filter="url(#glow)"/>
+      <rect class="out" x="190" y="364" width="230" height="56" rx="16"/>
+      <rect class="bar-out" x="212" y="382" width="150" height="7" rx="3.5"/><rect class="bar-out" x="212" y="398" width="100" height="7" rx="3.5"/>
+      <text class="time" x="178" y="416" text-anchor="end">03:14</text>
+    </svg>
   </div>
-
-  <!-- Note: brand b accent is monochrome-safe; the design reads fully black & white. -->
 </body>
 </html>

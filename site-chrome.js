@@ -53,7 +53,7 @@
     }).join('');
     return '' +
       '<div class="hub-nav-inner">' +
-        '<a href="/" class="hub-brand" aria-label="H@rts home">H<b>@</b>rts</a>' +
+        '<a href="/" class="hub-brand" aria-label="H@rts home"><img src="/assets/logo.png" alt="" width="74" height="20"></a>' +
         '<button class="hub-nav-toggle" id="hub-nav-toggle" aria-label="Menu" aria-expanded="false">&#9776;</button>' +
         '<ul class="hub-nav-links">' + items +
           '<li><a class="hub-cta" href="/#quote">Get a build quote</a></li>' +
@@ -69,7 +69,7 @@
     }).join('');
     return '' +
       '<div>' +
-        '<a href="/" class="hub-brand" style="font-size:1.1rem">H<b>@</b>rts</a>' +
+        '<a href="/" class="hub-brand" aria-label="H@rts home"><img src="/assets/logo.png" alt="" width="96" height="26" style="height:26px"></a>' +
         '<p style="margin-top:.6rem;max-width:34ch">Web apps and AI chatbots, built to work together: the system your team runs on, and the bot that answers your customers from it. Bilingual EN / FR. Douala, Cameroon.</p>' +
       '</div>' +
       '<nav class="hub-footer-links" aria-label="Footer">' + links + '</nav>' +

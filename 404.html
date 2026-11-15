@@ -16,34 +16,40 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Mono:ital,wght@0,300;0,400;0,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    :root { --bg:#000; --text:#fff; --muted:#666; --border:#242424; }
+    :root {
+      --bg:#0A0B0D; --text:#E8EBF0; --muted:#8C94A1; --border:rgba(255,255,255,.12);
+      --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+      --font-body:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+      --font-mono:"JetBrains Mono",Consolas,monospace;
+      --signal:#4F8CFF; --signal-text:#8DB4FF;
+    }
     * { box-sizing:border-box; margin:0; padding:0; }
     html,body { height:100%; }
     body {
       background:var(--bg); color:var(--text);
-      font-family:'DM Mono', monospace;
+      font-family: var(--font-body);
       display:flex; align-items:center; justify-content:center;
       min-height:100vh; padding:24px; text-align:center;
       -webkit-font-smoothing:antialiased;
     }
     .e404-wrap { max-width:520px; }
     .e404-code {
-      font-family:'Syne', sans-serif; font-weight:700;
+      font-family: var(--font-display); font-weight:700;
       font-size:clamp(5rem, 22vw, 9rem); line-height:1;
       letter-spacing:-4px; color:#fff;
     }
     .e404-code .dot { color:var(--muted); }
     .e404-title {
-      font-family:'Syne', sans-serif; font-weight:700;
+      font-family: var(--font-display); font-weight:700;
       font-size:1.6rem; margin:0.75rem 0 0.9rem; letter-spacing:-0.5px;
     }
     .e404-sub { color:#aaa; font-size:0.95rem; line-height:1.6; margin-bottom:2rem; }
     .e404-actions { display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
     .e404-btn {
-      font-family:'Syne', sans-serif; font-weight:700; font-size:0.95rem;
+      font-family: var(--font-display); font-weight:700; font-size:0.95rem;
       text-decoration:none; border-radius:999px; padding:0.75rem 1.6rem;
       transition:background .18s, color .18s, border-color .18s, transform .18s;
       display:inline-block;
@@ -56,7 +62,7 @@
     .e404-links a { color:#aaa; text-decoration:none; }
     .e404-links a:hover { color:#fff; text-decoration:underline; }
     .e404-logo {
-      font-family:'Syne', sans-serif; font-weight:700; font-size:1.05rem;
+      font-family: var(--font-display); font-weight:700; font-size:1.05rem;
       letter-spacing:0.02em; margin-bottom:1.75rem; display:inline-block;
     }
     @media (max-width:600px){ .e404-title{ font-size:1.3rem; } }

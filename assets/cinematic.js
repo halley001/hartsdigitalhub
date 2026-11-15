@@ -515,7 +515,7 @@
   }
 
   /* ==========================================================
-     4. THE FIVE STATIC-HERO GATES · live, in both directions
+     4. THE SIX STATIC-HERO GATES · live, in both directions
      ========================================================== */
 
   var GATES = [
@@ -523,6 +523,7 @@
     '(orientation: portrait) and (max-width: 1024px)',
     '(orientation: portrait) and (pointer: coarse)',
     '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
+    '(max-height: 560px)',                    /* short desktop windows: captions would run under the nav */
     '(prefers-reduced-motion: reduce)'
   ];
   var MQLS = GATES.map(function (q) { return matchMedia(q); });

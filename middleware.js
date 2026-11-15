@@ -20,6 +20,7 @@ const MAIN_ONLY_PATHS = new Set([
   '/insights-response-time.html',
   '/insights-connect-existing-systems.html',
   '/insights-what-automation-costs.html',
+  '/insights-chart-harmoniser.html',
   '/privacy-policy.html',
   '/terms.html',
   '/reviews.html',

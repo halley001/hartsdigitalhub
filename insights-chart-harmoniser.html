@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Chart of Accounts for a Whole Credit Union Network | H@rts Build Log</title>
+  <meta name="description" content="Every credit union numbers its accounts its own way, but COBAC wants one format. How we built Chart Harmoniser, a web app that maps, checks and exports a trial balance in minutes, and what it taught us about building web apps around the files people already have.">
+  <meta property="og:title" content="One chart of accounts for a whole credit union network">
+  <meta property="og:description" content="How we built Chart Harmoniser, and what it taught us about building web apps around the files people already have.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://hartsdigitalhub.com/insights-chart-harmoniser.html">
+  <meta property="og:site_name" content="H@rts">
+  <meta property="og:image" content="https://hartsdigitalhub.com/assets/work/chart-harmoniser.jpg">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="1000">
+  <meta property="og:image:alt" content="Chart Harmoniser with a demo trial balance loaded">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://hartsdigitalhub.com/assets/work/chart-harmoniser.jpg">
+  <link rel="canonical" href="https://hartsdigitalhub.com/insights-chart-harmoniser.html">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=2">
+  <link rel="shortcut icon" href="/favicon.ico?v=2">
+  <meta name="theme-color" content="#000000">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="hub.css">
+  <style>
+    .post-figure { margin: 2rem 0 2.2rem; }
+    .post-figure img { width: 100%; height: auto; display: block; border-radius: 10px; border: 1px solid var(--border); }
+    .post-figure figcaption { margin-top: .7rem; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body class="hub-body" data-page="insights">
+<a href="#post" class="skip-link">Skip to content</a>
+<div class="hub-wrap">
+
+  <header id="site-header"></header>
+
+  <section class="hub-section" id="post" style="padding-top:140px">
+    <a class="post-back" href="insights.html">← Build Log</a>
+    <article class="post-article" style="margin-top:1.4rem">
+      <div class="post-meta"><span class="post-tag">Web apps</span><time datetime="2026-11-15">15 Nov 2026</time><span>5 min read</span></div>
+      <h1 class="hub-section-title">One chart of accounts for a whole credit union network</h1>
+      <p class="post-lede">Every credit union in a network keeps its books its own way. The regulator wants them all in one format. Chart Harmoniser is the web app we built to close that gap, and most of what made it work had nothing to do with clever code.</p>
+
+      <figure class="post-figure">
+        <img src="assets/work/chart-harmoniser.jpg" alt="Chart Harmoniser with the demo trial balance loaded: the file details, seven passing checks and the account review" width="1600" height="1000" loading="lazy">
+        <figcaption>Chart Harmoniser with its demo trial balance loaded (fictional data). <a href="https://gestacoob.vercel.app/" target="_blank" rel="noopener">Try the demo →</a></figcaption>
+      </figure>
+
+      <h2>The problem: same money, different numbers</h2>
+      <p>Each credit union numbers its accounts its own way in ALPHA, its accounting software. That works fine inside one credit union. It stops working the moment a network needs everyone on the same accounts, and COBAC, the regional banking regulator, wants reports in one official format: the PCEMF chart of accounts and the FM1000 statement.</p>
+      <p>So someone has to translate every credit union's trial balance into the network's accounts, one line at a time, and check that nothing was lost on the way. Done by hand in a spreadsheet, that is slow, and the mistakes are quiet ones: a balance that lands on the wrong account still adds up.</p>
+
+      <h2>Start from the file people already have</h2>
+      <p>We did not ask anyone to change how they work. The app starts from the export ALPHA already produces: load the trial balance, and if the credit union has already made its own old-to-new account list, load that too.</p>
+      <p>This is the most important decision in most web apps we build. A system that asks people to retype their data, or switch software, has to win an argument before it can help. A system that accepts the file they already make starts helping on day one.</p>
+
+      <h2>Check before you transform</h2>
+      <p>Before mapping a single account, the app checks that the file holds together: opening, movement and closing balances all balance, each account number and name appears once, and every row adds up (opening plus debits minus credits equals closing). If any of that fails, the right move is a fresh export, not a clever workaround, and the app says so.</p>
+      <p>Then it goes through every account and sorts them into what is fine, what needs a look, and what is wrong. The person reviewing fixes the errors first, then the ones to check, picking the right network account from a list. Their choices are remembered in the browser, so a review can be picked up where it was left.</p>
+
+      <h2>The hard part: loans by duration</h2>
+      <p>COBAC wants loans reported by their initial duration, but ALPHA keeps short and long loans together in one product. The trial balance alone cannot tell them apart.</p>
+      <p>The ALPHA delinquent loans report can, because it lists every loan. So the app can read that report too, and classify each loan the way the regulation sets out:</p>
+      <ul>
+        <li><strong>Doubtful:</strong> more than 45 days late (90 for a housing loan), whatever its duration. Once one of a member's loans is doubtful, all of that member's loans are.</li>
+        <li><strong>Otherwise by instalments,</strong> which are monthly: up to 12 is up to a year, 13 to 24 is one to two years, more than 24 is over two years.</li>
+      </ul>
+      <p>From each loan it reads only four things: the member's account number, the balance, the days late and the number of instalments. Never the member's name. It did not need the name, so it does not take it. That is a small design choice, and exactly the kind that matters when the data belongs to someone's savings.</p>
+
+      <h2>Flag, never silently fix</h2>
+      <p>Some things the app cannot know from the files. A loan report does not show which loans are covered by pledged savings or a guarantee, so when it checks provisions for doubtful loans, it assumes the strictest case and compares that with what is booked. If there is a shortfall, it raises a warning on those accounts. It does not change the figures.</p>
+      <p>That is a rule we hold to in every finance tool: the software points at the problem, and a person who can see the paperwork decides. An app that quietly adjusts a balance it does not fully understand is worse than no app.</p>
+
+      <h2>What comes out</h2>
+      <p>At the end, the app exports three files: the mapping, so the work is never repeated; the harmonised trial balance; and the FM1000 statement. It runs in the browser, with nothing to install, and a "How it works" tab explains every rule it applies, in plain language, for whoever has to defend the numbers later.</p>
+
+      <h2>What we would tell anyone planning a web app</h2>
+      <ul>
+        <li><strong>Accept the file people already make.</strong> Adoption is won before the first screen.</li>
+        <li><strong>Check the input before you trust it.</strong> Most errors are cheaper to catch at the door.</li>
+        <li><strong>Take only the data you need.</strong> Then you never have to protect the rest.</li>
+        <li><strong>Flag, do not fix,</strong> wherever a person knows something the software cannot.</li>
+        <li><strong>Write the rules down inside the app.</strong> The person who signs the report will thank you.</li>
+      </ul>
+
+      <div class="post-footer-cta">
+        <p>Got a process held together by spreadsheets? <a href="index.html#web-apps">See how we build web apps →</a></p>
+        <div class="hub-hero-actions" style="margin-top:1.2rem">
+          <a class="hub-cta" href="index.html#quote">Get a build quote</a>
+          <a class="hub-cta ghost" href="index.html#work">See more of our work</a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <footer id="site-footer"></footer>
+
+</div><!-- /hub-wrap -->
+
+<div class="fab-stack">
+  <a class="fab fab-wa" href="https://wa.me/237622341343?text=Hello%20H%40rts!" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <span class="fab-ping" aria-hidden="true"></span>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11-.42-.11-.96-.29-1.65-.59-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.66.5.24.58.82 2.01.89 2.16.07.14.12.31.02.5-.09.19-.14.31-.28.48-.14.17-.29.37-.42.5-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.6-.07.16-.19.69-.81.87-1.09.18-.29.36-.24.6-.14.24.09 1.53.72 1.8.85.27.14.44.21.5.32.07.11.07.64-.17 1.32Z"/></svg>
+    <span class="fab-label">WhatsApp us</span>
+  </a>
+</div>
+
+<script defer src="site-chrome.js"></script>
+<script defer src="hub.js"></script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

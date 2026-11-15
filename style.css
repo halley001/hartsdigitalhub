@@ -1,17 +1,28 @@
 /* ============================================================
    HARTS DIGITAL HUB — style.css
-   Black & white theme | Syne + DM Mono
+   The secondary pages (Build Log, training, reviews, legal).
+   Same system as the homepage (assets/cinematic.css): Bricolage
+   Grotesque for display, Instrument Sans for reading, JetBrains
+   Mono for labels; black and white with one accent, --signal.
    ============================================================ */
 
 :root {
-  --bg:       #000;
-  --surface:  #111;
-  --card-bg:  #141414;
-  --border:   #222;
-  --text:     #fff;
-  --muted:    #666;
+  --bg:       #0A0B0D;
+  --surface:  #101216;
+  --card-bg:  #14171C;
+  --border:   rgba(255,255,255,0.12);
+  --text:     #E8EBF0;
+  --muted:    #8C94A1;
   --radius:   1rem;
   --shadow:   0 4px 24px 0 rgba(0,0,0,0.4);
+
+  --font-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --font-body:    "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  --signal:       #4F8CFF;
+  --signal-text:  #8DB4FF;
+  --signal-glow:  rgba(79,140,255,0.45);
 }
 
 /* ── Reset & Base ─────────────────────────────────────────── */
@@ -23,7 +34,7 @@ html {
 }
 
 body {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -41,7 +52,7 @@ body {
   border-radius: 999px;
   font-weight: 700;
   z-index: 9999;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   transition: left 0.2s;
 }
 .skip-link:focus { left: 16px; outline: 2px solid #fff; }
@@ -68,7 +79,7 @@ main:focus { outline: none; }
 .nav-link {
   display: block;
   color: var(--muted);
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.95rem;
   text-decoration: none;
@@ -129,7 +140,7 @@ main:focus { outline: none; }
   align-items: center;
 }
 .stat-number {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 3rem;
   font-weight: 700;
   color: #fff;
@@ -137,7 +148,7 @@ main:focus { outline: none; }
   letter-spacing: -2px;
 }
 .stat-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.82rem;
   color: var(--muted);
   margin-top: 0.4rem;
@@ -183,7 +194,7 @@ main:focus { outline: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -195,7 +206,7 @@ main:focus { outline: none; }
   flex: 1;
 }
 .testimonial-name {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
   color: #fff;
@@ -207,7 +218,7 @@ main:focus { outline: none; }
   font-size: 0.78rem;
   border-radius: 999px;
   padding: 2px 10px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   letter-spacing: 0.05em;
   margin-top: 0.25rem;
 }
@@ -226,7 +237,7 @@ main:focus { outline: none; }
   text-align: center;
 }
 .free-audit-headline {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
   color: #000;
@@ -252,7 +263,7 @@ main:focus { outline: none; }
   padding: 0.8rem 1.2rem;
   border-radius: 999px;
   border: 1.5px solid #000;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1rem;
   color: #000;
   background: #fff;
@@ -265,7 +276,7 @@ main:focus { outline: none; }
 .audit-btn {
   background: #000;
   color: #fff;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   border: 1.5px solid #000;
   border-radius: 999px;
@@ -283,7 +294,7 @@ main:focus { outline: none; }
   transform: scale(1.03);
 }
 .free-audit-success {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   color: #000;
   background: #f0f0f0;
   border-radius: 999px;
@@ -315,7 +326,7 @@ main:focus { outline: none; }
   flex-wrap: wrap;
 }
 .pricing-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 2.2rem;
   font-weight: 700;
   color: #fff;
@@ -330,7 +341,7 @@ main:focus { outline: none; }
   border: 1px solid var(--border);
   border-radius: 999px;
   padding: 0.25rem 0.9rem;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.82rem;
   cursor: pointer;
   transition: background 0.18s, color 0.18s, border-color 0.18s;
@@ -434,13 +445,13 @@ main:focus { outline: none; }
   flex-wrap: wrap;
 }
 .pricing-card-name {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 700;
   color: #fff;
 }
 .pricing-badge {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   background: #000;
   color: #fff;
   font-size: 0.75rem;
@@ -462,7 +473,7 @@ main:focus { outline: none; }
   margin-bottom: 1.5rem;
 }
 .pricing-card-setup {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   color: var(--muted);
   margin-bottom: 0.25rem;
@@ -471,7 +482,7 @@ main:focus { outline: none; }
   display: flex;
   align-items: baseline;
   gap: 0.3rem;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 2rem;
   font-weight: 500;
   color: #fff;
@@ -523,7 +534,7 @@ main:focus { outline: none; }
   width: 100%;
   background: #fff;
   color: #000;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   border: 1.5px solid #fff;
   border-radius: 999px;
@@ -546,7 +557,7 @@ main:focus { outline: none; }
 .pricing-wa-link {
   display: block;
   color: var(--muted);
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.88rem;
   text-align: center;
   text-decoration: none;
@@ -619,7 +630,7 @@ main:focus { outline: none; }
 .modal-close:hover,
 .modal-close:focus { color: #000; }
 .modal-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 700;
   color: #000;
@@ -637,7 +648,7 @@ main:focus { outline: none; }
   gap: 0.3rem;
 }
 .modal-field label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.85rem;
   color: #000;
   text-transform: uppercase;
@@ -648,7 +659,7 @@ main:focus { outline: none; }
   padding: 0.75rem 1rem;
   border-radius: 999px;
   border: 1.5px solid #ddd;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1rem;
   color: #000;
   background: #fafafa;
@@ -666,7 +677,7 @@ main:focus { outline: none; }
   margin-top: 0.25rem;
 }
 .modal-payments label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.9rem;
   color: #000;
   cursor: pointer;
@@ -677,7 +688,7 @@ main:focus { outline: none; }
 .modal-send {
   background: #000;
   color: #fff;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   border: 1.5px solid #000;
   border-radius: 999px;
@@ -696,7 +707,7 @@ main:focus { outline: none; }
 }
 .modal-error {
   color: #c00;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.82rem;
   min-height: 1em;
 }
@@ -705,7 +716,7 @@ main:focus { outline: none; }
   color: #000;
   border-radius: var(--radius);
   padding: 1.25rem;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   text-align: center;
   margin-top: 1rem;
@@ -743,7 +754,7 @@ main:focus { outline: none; }
 }
 .momo-modal .modal-title { color: #000; }
 .momo-instructions {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   color: #000;
   line-height: 1.7;
@@ -763,7 +774,7 @@ main:focus { outline: none; }
 /* ── FAQ Section ──────────────────────────────────────────── */
 .faq-section { padding-top: 72px; }
 .faq-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
   color: #fff;
@@ -787,7 +798,7 @@ main:focus { outline: none; }
   display: flex;
   align-items: center;
   gap: 1rem;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
@@ -814,7 +825,7 @@ main:focus { outline: none; }
 }
 .faq-q-icon::before {
   content: '+';
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 1rem;
   color: #fff;
   position: absolute;
@@ -830,7 +841,7 @@ main:focus { outline: none; }
   overflow: hidden;
   max-height: 0;
   opacity: 0;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   color: var(--muted);
   line-height: 1.7;
@@ -905,9 +916,9 @@ main:focus { outline: none; }
 body {
   margin: 0;
   padding: 0;
-  background: #000;
-  color: #fff;
-  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
 }
 
 /* Sophisticated thin top bar */
@@ -924,7 +935,7 @@ body {
 }
 
 .topbar-left .gemini-logo {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.1rem;
   color: #fff;
@@ -967,7 +978,7 @@ body {
   padding: 4px 10px;
   font-size: 0.68rem;
   cursor: pointer;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   transition: all 0.15s;
 }
 .lang-btn[aria-pressed="true"] {
@@ -984,7 +995,7 @@ body {
   font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   transition: all 0.15s;
 }
 .wa-btn:hover {
@@ -1014,7 +1025,7 @@ body {
 
 .welcome-inner h1,
 .welcome-inner h2 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 1.8rem;
   font-weight: 600;
   color: #fff;
@@ -1105,7 +1116,7 @@ body {
 }
 .welcome-inner h1,
 .welcome-inner h2 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.4rem, 5vw, 2rem);
   font-weight: 700;
   color: #fff;
@@ -1142,7 +1153,7 @@ body {
   border: none;
   outline: none;
   color: #fff;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.88rem;
   padding: 10px 6px;
   line-height: 1.4;
@@ -1206,7 +1217,7 @@ body {
   border: 1px solid #242424;
   border-radius: 18px 18px 18px 4px;
   padding: 10px 14px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.84rem;
   line-height: 1.62;
   color: #ddd;
@@ -1309,7 +1320,7 @@ body {
   gap: 0.75rem;
 }
 .harts-logo {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.05rem;
   color: #fff;
@@ -1319,14 +1330,14 @@ body {
 .harts-tagline {
   font-size: 0.72rem;
   color: #444;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .harts-training-link {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 0.72rem;
   font-weight: 700;
   color: #fff;
@@ -1355,7 +1366,7 @@ body {
   background: transparent;
   border: 1px solid #2a2a2a;
   color: #888;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   padding: 0.45rem 1rem;
   border-radius: 999px;
@@ -1387,7 +1398,7 @@ body {
   margin-bottom: 1rem;
 }
 .chat-header h1 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 0.35rem;
@@ -1464,7 +1475,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 999px;
   color: #fff;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.95rem;
   padding: 0.7rem 1.1rem;
   outline: none;
@@ -1476,7 +1487,7 @@ body {
 .chat-send-btn {
   background: #fff;
   color: #000;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   border: none;
   border-radius: 999px;
@@ -1535,7 +1546,7 @@ body {
 }
 .sv-hero-eyebrow {
   display: inline-block;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1546,7 +1557,7 @@ body {
   margin-bottom: 1.5rem;
 }
 .sv-hero-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 3.2rem;
   line-height: 1.05;
@@ -1569,7 +1580,7 @@ body {
 }
 .sv-btn-primary,
 .sv-btn-ghost {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
   border-radius: 999px;
@@ -1597,7 +1608,7 @@ body {
 /* ── Section heading helper ───────────────────────────────── */
 .sv-section-head { text-align: center; margin-bottom: 2.75rem; }
 .sv-section-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 2.2rem;
   letter-spacing: -1px;
@@ -1635,7 +1646,7 @@ body {
   margin-bottom: 1.1rem;
 }
 .sv-service-name {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.15rem;
   color: #fff;
@@ -1685,7 +1696,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 2rem;
   color: #2f2f2f;
@@ -1693,14 +1704,14 @@ body {
 }
 .sv-work-body { padding: 1.25rem 1.35rem 1.5rem; }
 .sv-work-cat {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .sv-work-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.1rem;
   color: #fff;
@@ -1716,7 +1727,7 @@ body {
   color: var(--muted);
   font-size: 0.85rem;
   margin-top: 1.75rem;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 /* ── Process strip ────────────────────────────────────────── */
@@ -1727,7 +1738,7 @@ body {
 }
 .sv-step { text-align: center; }
 .sv-step-num {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.1rem;
   width: 42px; height: 42px;
@@ -1738,7 +1749,7 @@ body {
   color: #fff;
 }
 .sv-step-title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 1rem;
   color: #fff;
@@ -1760,7 +1771,7 @@ body {
   text-align: center;
 }
 .sv-cta-inner h2 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 2.1rem;
   color: #000;

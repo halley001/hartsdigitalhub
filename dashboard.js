@@ -673,9 +673,9 @@ function showFinalExamResult(score, total) {
   result.style.cssText = 'margin-top:2rem;padding:1.5rem;border:1px solid;border-radius:0.75rem;text-align:center;';
   result.style.borderColor = passed ? '#c8a96e' : '#f87171';
   result.innerHTML = passed
-    ? `<p style="font-family:Syne,sans-serif;font-size:1.3rem;color:#c8a96e;margin-bottom:0.5rem;">You passed! ${score}/${total} correct (${pct}%)</p>
+    ? `<p style="font-family:var(--font-display);font-size:1.3rem;color:#c8a96e;margin-bottom:0.5rem;">You passed! ${score}/${total} correct (${pct}%)</p>
        <p style="color:#aaa;font-size:0.88rem;margin-bottom:1.25rem;">Congratulations. Click "Mark as Complete" to download your gold certificate.</p>`
-    : `<p style="font-family:Syne,sans-serif;font-size:1.1rem;color:#f87171;margin-bottom:0.5rem;">${score}/${total} correct (${pct}%) — not quite there yet</p>
+    : `<p style="font-family:var(--font-display);font-size:1.1rem;color:#f87171;margin-bottom:0.5rem;">${score}/${total} correct (${pct}%) — not quite there yet</p>
        <p style="color:#aaa;font-size:0.88rem;">You need 70% to pass. Review the modules above and try again. You can do this!</p>`;
   el.appendChild(result);
   if (!passed) document.getElementById('lesson-complete-btn').style.display = 'none';
