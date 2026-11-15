@@ -523,6 +523,8 @@
       if (!id) { last = 0; id = requestAnimationFrame(step); }
     }
     function up() {
+      /* once the reply has "sent", letting go must not drain the finished state */
+      if (rig.classList.contains('done')) return;
       holding = false;
       if (!id && progress > 0) { last = 0; id = requestAnimationFrame(step); }
     }

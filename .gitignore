@@ -32,3 +32,6 @@ dist-ssr
 .vercel
 .env*.local
 .env*
+
+# Local screen recordings of the site (large, never committed)
+*Google Chrome*.mp4
