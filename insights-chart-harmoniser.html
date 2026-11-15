@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>One Chart of Accounts for a Whole Credit Union Network | H@rts Build Log</title>
-  <meta name="description" content="Every credit union numbers its accounts its own way, but COBAC wants one format. How we built Chart Harmoniser, a web app that maps, checks and exports a trial balance in minutes, and what it taught us about building web apps around the files people already have.">
-  <meta property="og:title" content="One chart of accounts for a whole credit union network">
+  <title>One Chart of Accounts for a Whole Network of Institutions | H@rts Build Log</title>
+  <meta name="description" content="Every institution numbers its accounts its own way, but COBAC wants one format. How we built Chart Harmoniser, a web app that maps, checks and exports a trial balance in minutes, and what it taught us about building web apps around the files people already have.">
+  <meta property="og:title" content="One chart of accounts for a whole network of institutions">
   <meta property="og:description" content="How we built Chart Harmoniser, and what it taught us about building web apps around the files people already have.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://hartsdigitalhub.com/insights-chart-harmoniser.html">
@@ -46,8 +46,8 @@
     <a class="post-back" href="insights.html">← Build Log</a>
     <article class="post-article" style="margin-top:1.4rem">
       <div class="post-meta"><span class="post-tag">Web apps</span><time datetime="2026-11-15">15 Nov 2026</time><span>5 min read</span></div>
-      <h1 class="hub-section-title">One chart of accounts for a whole credit union network</h1>
-      <p class="post-lede">Every credit union in a network keeps its books its own way. The regulator wants them all in one format. Chart Harmoniser is the web app we built to close that gap, and most of what made it work had nothing to do with clever code.</p>
+      <h1 class="hub-section-title">One chart of accounts for a whole network of institutions</h1>
+      <p class="post-lede">Every institution in a network keeps its books its own way. The regulator wants them all in one format. Chart Harmoniser is the web app we built to close that gap, and most of what made it work had nothing to do with clever code.</p>
 
       <figure class="post-figure">
         <img src="assets/work/chart-harmoniser.jpg" alt="Chart Harmoniser with the demo trial balance loaded: the file details, seven passing checks and the account review" width="1600" height="1000" loading="lazy">
@@ -55,11 +55,11 @@
       </figure>
 
       <h2>The problem: same money, different numbers</h2>
-      <p>Each credit union numbers its accounts its own way in ALPHA, its accounting software. That works fine inside one credit union. It stops working the moment a network needs everyone on the same accounts, and COBAC, the regional banking regulator, wants reports in one official format: the PCEMF chart of accounts and the FM1000 statement.</p>
-      <p>So someone has to translate every credit union's trial balance into the network's accounts, one line at a time, and check that nothing was lost on the way. Done by hand in a spreadsheet, that is slow, and the mistakes are quiet ones: a balance that lands on the wrong account still adds up.</p>
+      <p>Each institution numbers its accounts its own way in ALPHA, its accounting software. That works fine inside one institution. It stops working the moment a network needs everyone on the same accounts, and COBAC, the regional banking regulator, wants reports in one official format: the PCEMF chart of accounts and the FM1000 statement.</p>
+      <p>So someone has to translate every institution's trial balance into the network's accounts, one line at a time, and check that nothing was lost on the way. Done by hand in a spreadsheet, that is slow, and the mistakes are quiet ones: a balance that lands on the wrong account still adds up.</p>
 
       <h2>Start from the file people already have</h2>
-      <p>We did not ask anyone to change how they work. The app starts from the export ALPHA already produces: load the trial balance, and if the credit union has already made its own old-to-new account list, load that too.</p>
+      <p>We did not ask anyone to change how they work. The app starts from the export ALPHA already produces: load the trial balance, and if the institution has already made its own old-to-new account list, load that too.</p>
       <p>This is the most important decision in most web apps we build. A system that asks people to retype their data, or switch software, has to win an argument before it can help. A system that accepts the file they already make starts helping on day one.</p>
 
       <h2>Check before you transform</h2>

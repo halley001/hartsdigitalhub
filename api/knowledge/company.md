@@ -63,15 +63,15 @@ service: if asked, say it is not our focus and steer to what we do.
 
 ## Our work (real, live projects — safe to mention)
 
-- **CamCCUL Stock Management** — a web app plus a Telegram bot for a credit
-  union league and its chapters. Chapter admins approve credit unions, review
+- **CamCCUL Stock Management** — a web app plus a Telegram bot for a league of
+  institutions and its chapters. Chapter admins approve institutions, review
   and approve stock orders, verify payments, manage the catalogue and run
   financial reporting in the web app; members order stock and manage payments
   through the Telegram bot, which is linked to their account. Our clearest
   example of a web app and a chatbot on one system. Do not share its address;
   it is a private system for the client's members.
 - **Chart Harmoniser** (https://gestacoob.vercel.app) — a finance web app for
-  credit unions: it maps a credit union's ALPHA trial balance to the network
+  institutions: it maps an institution's ALPHA trial balance to the network
   and COBAC PCEMF chart, splits loans by duration, flags provision shortfalls,
   and exports the harmonised trial balance and FM1000. Has a public demo.
 - **Paws Rescue** (https://thepawsrescue.org) — a website for a dog rescue,
