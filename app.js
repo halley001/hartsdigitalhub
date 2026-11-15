@@ -375,9 +375,9 @@ const KNOWLEDGE = {
     timeline: 'Simple websites and branding projects (logos, flyers) are typically ready in 5–10 days. Full websites or apps usually take 2–4 weeks depending on complexity and how quickly you provide content.',
     payment: 'We accept MTN MoMo (*126# → Send to 622 341 343), Orange Money, and bank transfer. Managed packages are billed yearly — the yearly fee is due once at the start of your service year (and you can split it into 2-3 interest-free MoMo installments). For MoMo we will give you exact instructions.',
     momo: 'To pay with MTN MoMo:\n1. Dial *126#\n2. Select Transfer Money → Send to MTN Cameroon\n3. Enter 622 341 343\n4. Enter the exact amount for your project or package\n5. Confirm and keep your reference number.\nAfter payment, send us the reference on WhatsApp and we start or activate your services.',
-    cities: 'We work with businesses across Cameroon — Yaoundé, Douala, Buea, and many other cities. Everything is handled remotely via WhatsApp, calls, and shared documents.',
+    cities: 'We work with clients worldwide. We are a virtual office based in Douala, Cameroon, so everything happens remotely: WhatsApp, calls, video calls and shared documents, with meetings by appointment.',
     freeAudit: 'We can help you figure out the right services for your business right now. Just tell us a bit about what you do and what you need (more customers, online sales, new branding, etc.) and we\'ll recommend the best options.',
-    who: 'Harts Digital Hub is a Cameroon-based digital agency that builds websites, mobile apps, and other digital products (logos, flyers, branding, social media assets) for SMEs. We focus on high-quality, affordable work with flexible payment plans.',
+    who: 'Harts Digital Hub (H@rts) is a bilingual virtual office, based in Douala and working with clients worldwide. We build web apps and AI chatbots that work together: the system your team runs on, and the bot that answers your customers from it.',
     contact: 'The fastest way to reach our team is WhatsApp: +237 622 341 343. We can prepare a detailed message with everything we\'ve discussed so they have full context.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Our packages and custom projects are full-service. We don\'t just deliver files and disappear — we handle design, development, revisions, launch, and support. Many clients see real results quickly (more visibility, new customers, professional brand presence).',
@@ -395,9 +395,9 @@ const KNOWLEDGE = {
     timeline: 'Les sites simples et les projets de branding (logos, flyers) sont généralement prêts en 5 à 10 jours. Les sites complets ou les applications prennent généralement 2 à 4 semaines selon la complexité et la rapidité avec laquelle vous fournissez le contenu.',
     payment: 'Nous acceptons MTN MoMo (*126# → envoi vers 622 341 343), Orange Money et virement bancaire. Les forfaits gérés sont facturés à l\'année — le forfait annuel est dû une fois, au début de votre année de service (et vous pouvez l\'étaler en 2 ou 3 versements sans intérêts par MoMo). Pour MoMo nous vous donnerons les instructions précises.',
     momo: 'Pour payer par MTN MoMo :\n1. Composez *126#\n2. Choisissez Transfert d\'argent → Envoi vers MTN Cameroun\n3. Entrez 622 341 343\n4. Entrez le montant exact de votre projet ou forfait\n5. Confirmez et gardez votre référence.\nAprès paiement, envoyez-nous la référence sur WhatsApp et nous démarrons ou activons vos services.',
-    cities: 'Nous travaillons avec des entreprises dans tout le Cameroun — Yaoundé, Douala, Buea et de nombreuses autres villes. Tout se fait à distance via WhatsApp, appels et documents partagés.',
+    cities: 'Nous travaillons avec des clients partout dans le monde. Nous sommes un bureau virtuel basé à Douala, au Cameroun : tout se fait à distance, par WhatsApp, appels, visio et documents partagés, avec des rendez-vous sur réservation.',
     freeAudit: 'Nous pouvons vous aider à déterminer les bons services pour votre entreprise dès maintenant. Dites-nous simplement ce que vous faites et ce dont vous avez besoin (plus de clients, ventes en ligne, nouveau branding, etc.) et nous vous recommanderons les meilleures options.',
-    who: 'Harts Digital Hub est une agence digitale basée au Cameroun qui crée des sites web, des applications mobiles et d\'autres produits numériques (logos, flyers, branding, visuels pour réseaux sociaux) pour les PME. Nous nous concentrons sur un travail de qualité à prix abordable avec des plans de paiement flexibles.',
+    who: 'Harts Digital Hub (H@rts) est un bureau virtuel bilingue, basé à Douala et au service de clients partout dans le monde. Nous créons des applications web et des chatbots IA qui fonctionnent ensemble : le système sur lequel tourne votre équipe, et le bot qui répond à vos clients à partir de ce système.',
     contact: 'Le moyen le plus rapide de joindre notre équipe est WhatsApp : +237 622 341 343. Nous pouvons préparer un message détaillé avec tout ce dont nous avons discuté pour qu\'ils aient le contexte complet.',
     // Pricing flexibility & value (updated for new services)
     pricing_value: 'Nos forfaits et projets sur mesure sont des services complets. Nous ne livrons pas simplement des fichiers et ne disparaissons pas — nous gérons la conception, le développement, les révisions, le lancement et le support. Beaucoup de clients voient de vrais résultats rapidement (plus de visibilité, de nouveaux clients, une présence de marque professionnelle).',
@@ -1216,8 +1216,8 @@ function getBotResponse(rawText, lang = currentLang) {
   if (/\b(office|visit|come in|physical|en personne|bureau|adresse|address|can i visit|venir vous voir|où êtes-vous)\b/i.test(text)) {
     return {
       text: lang === 'fr'
-        ? 'Nous sommes une équipe entièrement virtuelle basée à Douala : il n\'y a pas de bureau à visiter. Tout se fait à distance — WhatsApp, appels, visio, documents partagés. Les rendez-vous se font uniquement sur réservation : écrivez-nous sur WhatsApp ou par e-mail pour en fixer un.'
-        : 'We\'re a fully virtual team based in Douala, so there\'s no office to visit. Everything happens remotely — WhatsApp, calls, video calls, shared documents. Meetings are by appointment only: message us on WhatsApp or email to book one.'
+        ? 'Nous sommes un bureau virtuel basé à Douala, au service de clients partout dans le monde : il n\'y a pas de bureau à visiter. Tout se fait à distance — WhatsApp, appels, visio, documents partagés. Les rendez-vous se font uniquement sur réservation : écrivez-nous sur WhatsApp ou par e-mail pour en fixer un.'
+        : 'We\'re a virtual office based in Douala, working with clients worldwide, so there\'s no office to visit. Everything happens remotely — WhatsApp, calls, video calls, shared documents. Meetings are by appointment only: message us on WhatsApp or email to book one.'
     };
   }
 

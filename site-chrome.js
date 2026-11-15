@@ -78,7 +78,7 @@
         '<a href="mailto:' + EMAIL + '">' + EMAIL + '</a>' +
         '<a href="tel:' + PHONE_E164 + '">' + PHONE + '</a>' +
         '<a href="https://wa.me/' + PHONE_E164.replace('+', '') + '" target="_blank" rel="noopener">WhatsApp us</a>' +
-        '<span>Douala, Cameroon &middot; Fully virtual &middot; Meetings by appointment only</span>' +
+        '<span>Virtual office &middot; Clients worldwide &middot; Based in Douala, Cameroon &middot; Meetings by appointment only</span>' +
       '</address>' +
       '<div>&copy; ' + years + ' H@rts &middot; All rights reserved.</div>';
   }
